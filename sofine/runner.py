@@ -2,22 +2,23 @@
 
 from optparse import OptionParser
 import sys
-import fidelity as fidelity
+from fidelity import get_data, send_data
 
 
 def _parse_args(argv):
     usage = """
-WARNING: Your username, password and account. 
-This script calls cleartext only to the login form. Once logged in
-subsequent HTML calls are https. That said, you are passing this in
-clear text when running this from your shell, so your system must
-be secure and that is YOUR responsibility. Also, of course, do NOT
-store this information unencryted in a plain text file anywhere, ever.
+WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.
 
-[-c | --customer-id] - customer Id. Required.
-[-p | --pin] - customer PIN number or password. Required.
-[-a | --account-id] - customer account from which to retrieve position information. Required.
-[-e | --customer-email] - customer email. Required.
+[-c|--customer-id] - customer Id. Required.
+[-p|--pin] - customer PIN number or password. Required.
+[-a|--account-id] - customer account from which to retrieve position information. Required.
+[-e|--customer-email] - customer email. Required.
     """
     parser = OptionParser(usage=usage)
 
@@ -56,8 +57,8 @@ def main(argv):
     data = None
     customer_id, pin, account_id, customer_email = _parse_args(argv)
     if customer_id and pin and account_id and customer_email:
-        data = fidelity.get_data(customer_id, pin, account_id, customer_email)
-        fidelity.send_data(data)
+        data = get_data(customer_id, pin, account_id, customer_email)
+        send_data(data)
 
 
 if __name__ == '__main__':
