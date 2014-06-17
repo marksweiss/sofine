@@ -41,8 +41,7 @@ from optparse import OptionParser
 
 from bs4 import BeautifulSoup
 import mechanize
-import ystockquote
-
+import ystockquotelib as ys
 
 HOST = 'www.fidelity.com'
 LOGIN_PAGE = 'https://login.fidelity.com/ftgw/Fidelity/RtlCust/Login/Init'
@@ -61,7 +60,7 @@ def get_data(*args):
     customer_id, pin, account_id, customer_email = args
     br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
     data = _get_fidelity_position_data(br, account_id)
-    data = _get_yahoo_additional_position_data(data)
+    data = ys.get_yahoo_additional_position_data(data)
     return data
 
 
@@ -209,12 +208,6 @@ def _get_fidelity_position_data(br, account_id):
                 }
 
     return position_data
-
-
-def _get_yahoo_additional_position_data(data):
-    for ticker in data.keys():
-        data[ticker].update(ystockquote.get_all(ticker))
-    return data
 
 
 def _parse_args(argv):
