@@ -2,7 +2,7 @@
 
 from optparse import OptionParser
 import sys
-from fidelity import get_data, send_data
+from lib.fidelity import get_data, send_data
 
 
 def _parse_args(argv):
