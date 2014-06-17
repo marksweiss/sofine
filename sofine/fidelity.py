@@ -1,5 +1,3 @@
-#!/anaconda/bin/python -tt
-
 # www.fidelity.com account positions scraper
 
 # Copyright (c) 2009 Matthew J Ernisse <mernisse@ub3rgeek.net>

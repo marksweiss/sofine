@@ -1,3 +1,5 @@
+#!/anaconda/bin/python -tt
+
 from optparse import OptionParser
 import sys
 import fidelity as fidelity
