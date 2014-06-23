@@ -35,10 +35,10 @@ import os
 import re
 import sys
 from urllib2 import HTTPError
+from optparse import OptionParser
 
 from bs4 import BeautifulSoup
 import mechanize
-import ystockquotelib as ys
 
 HOST = 'www.fidelity.com'
 LOGIN_PAGE = 'https://login.fidelity.com/ftgw/Fidelity/RtlCust/Login/Init'
@@ -48,24 +48,89 @@ PROXY = ''
 ACCOUNT_PAGE = 'https://oltx.fidelity.com/ftgw/fbc/ofpositions/brokerageAccountPositions?ACCOUNT=%s'
 
 
-def get_data(*args):
+# TODO Schema discovery
+# TODO parse args
+# TODO validate args
+
+def get_data(data, *args):
     """
     Standard method in data source to retrieve, create or otherwise
     produce data to be returned to the caller. Generic signature because
     each source must implement this for itself and needs whatever args it needs
     """
+
+    # This is slightly lame, but it supports calls from the CLI, which naturally
+    #  will have a list (even after the return of parse_args, which can return
+    #  a different-length tuple from any particular lib modules parse-args. So,
+    #  this can be called programmatically with the right number of args
+    #  by code that knows about it, or from the CLI with code that does not and
+    #  so needs to pass a list.
+    if len(args) == 1:
+        args = args[0]
+
     customer_id, pin, account_id, customer_email = args
     br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
     data = _get_fidelity_position_data(br, account_id)
-    data = ys.get_yahoo_additional_position_data(data)
     return data
 
 
-def send_data(data):
+def parse_args(argv):
+    usage = """
+WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.
+
+[-c|--customer-id] - Customer Id. Required.
+[-p|--pin] - Customer PIN number or password. Required.
+[-a|--account-id] - Customer account from which to retrieve position information. Required.
+[-e|--customer-email] - Customer email. Required.
     """
-    Default data source behavior is to print output to stdout.
-    """
-    print data
+    parser = OptionParser(usage=usage)
+
+    parser.add_option("-c", "--customer-id", 
+                      action="store", dest="customer_id",
+                      help="Customer Id of the customer to retrieve position data for. Required.") 
+
+    parser.add_option("-p", "--pin", 
+                      action="store", dest="pin",
+                      help="Customer pin number. Required.") 
+
+    parser.add_option("-a", "--account-id", 
+                      action="store", dest="account_id",
+                      help="Customer account from which to retrieve position information. Required.") 
+    
+    parser.add_option("-e", "--customer-email", 
+                      action="store", dest="customer_email",
+                      help="Customer account from which to retrieve position information. Required.") 
+
+    (opts, args) = parser.parse_args(argv)
+    
+    is_valid = True
+    if not (opts.customer_id and \
+            opts.pin and \
+            opts.account_id and \
+            opts.customer_email):
+        print "Invalid argument error."
+        print """
+Your args:  
+  customer_id {0} 
+  pin {1} 
+  account_id {2} 
+  customer_email {3}""".format(opts.customer_id, opts.pin, opts.account_id, opts.customer_email)
+        print usage
+        is_valid = False
+    
+    # This is slightly lame, but it supports calls from the CLI, which naturally
+    #  will have a list (even after the return of parse_args, which can return
+    #  a different-length tuple from any particular lib modules parse-args. So,
+    #  this can be called programmatically with the right number of args
+    #  by code that knows about it, or from the CLI with code that does not and
+    #  so needs to pass a list.
+    return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]
 
 
 def _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email):
