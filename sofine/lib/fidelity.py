@@ -238,14 +238,16 @@ def _get_fidelity_position_data(br, account_id):
             csppl = posn_list[9].contents
             if len(csppl) > 1:
                 change_since_purchase_pct = csppl[1].string.strip()
-
+        
         for elem in posn.find_all('td'):
             # First cell in the row has the ticker
             ticker_elem = elem.find(attrs={'href' : ticker_re})
             if ticker_elem:
-                t = ticker_elem.string.strip()
-                if t != 'News':
-                    ticker = t
+                ticker_str = ticker_elem.string
+                if ticker_str:
+                    ticker_str = ticker_str.strip()
+                    if ticker_str != 'News':
+                        ticker = ticker_str
             # Second cell in the row has the short and full description
             desc_elem = elem.find(attrs={'id' : 'fullDesc'})
             if desc_elem and len(desc_elem.contents):
@@ -259,7 +261,7 @@ def _get_fidelity_position_data(br, account_id):
                     pass
                 if desc_str:
                     description = desc_str
-        
+       
         if ticker:
             position_data[ticker] = \
                 {
