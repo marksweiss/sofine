@@ -68,8 +68,18 @@ def get_data(data, *args):
     if len(args) == 1:
         args = args[0]
 
+    # TEMP DEBUG
+    print args
+
     customer_id, pin, account_id, customer_email = args
     br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
+    
+    # TEMP DEBUG
+    # TODO - Solve the command line data problem, chaining CLI calls
+    # TODO - Fidelity scraper broken, on line 252, not finding cells with position data
+    import pdb; pdb.set_trace()
+    
+
     data = _get_fidelity_position_data(br, account_id)
     return data
 
@@ -242,7 +252,9 @@ def _get_fidelity_position_data(br, account_id):
         for elem in posn.find_all('td'):
             # First cell in the row has the ticker
             ticker_elem = elem.find(attrs={'href' : ticker_re})
+            # ticker_elem = elem.find(attrs={'id' : 'anchor_{0}_DrillDown'.format(account_id)})
             if ticker_elem:
+                # t = ticker_re.match(ticker_elem['href'].string.strip())
                 t = ticker_elem.string.strip()
                 if t != 'News':
                     ticker = t

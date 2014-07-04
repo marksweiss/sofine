@@ -7,16 +7,44 @@ import sys
 
 def main(*argv):
     """Entry point if called from the command line. Parses CLI args, validates them and calls run()."""    
+    data = None
+    data_sources = None
+    data_source_args = None
+    # Test for stdin. If it's the first call in the chain there won't be data
+    #  from stdin and instead the command line arg must be an empty dict. This calling
+    #  mode is also useful for testing. If there is stdin then this is one in a chain
+    #  of piped data source calls, so data == stdin.
+    has_stdin_data = not sys.stdin.isatty()
+    if has_stdin_data:
+        data = sys.stdin.read() 
+        # If data is coming on stdin, we only have two args, data_sources and data_source_args
+        data_sources, data_source_args = argv
+    else:
+        data, data_sources, data_source_args = argv
+    
     # Test that the runner args are valid
-    data, data_sources, data_source_args = argv
     is_valid = _validate_args(data, data_sources, data_source_args)
+
+    
+    # TODO THIS NEEDS TO COMPOSE AND REPLACE all the validated data_source_args
+    #  and then call run() once with the list of data_sources and args
+    #  since run handles the logic of looping and composing the result.
+    # NOTE THIS BLOCK IS WRONG
 
     if is_valid:
         # Now test that the args for each data source passed in can be parsed
         #  validly from their CLI argv form into a list of args for that module's get_data(0 call
         for j, args in enumerate(data_source_args):
             parsed_data_source_args = []
+            
+            # TEMP DEBUG
+            print data_sources[j]
+            
             mod = utils.load_module(data_sources[j])
+            
+            # TEMP DEBUG
+            print mod
+            
             # Test the args. Get them returned parsed into a list of the arg values.
             # This is what we pass to mod.get_data() for this module.
             # So if the args are valid, put the returned list into that in data_source_args
@@ -24,14 +52,23 @@ def main(*argv):
             if is_valid:
                parsed_data_source_args.append(parsed_args) 
             else:
+                # TODO Raise exception here
                 # If any of the provided data source calls has invalid args, the entire
                 #  operation exits without running any of the calls
+                print ''
                 return None
         
         validate_args = False
-        return run(data, data_sources, parsed_data_source_args, validate_args)
+        data = run(data, data_sources, parsed_data_source_args, validate_args)
+        
+        # CLI callee returns output to stdout, not in a Py variable
+        # The semantics of calling this are to call one or piped data sources
+        print data
+        return
     else:
-        return None
+        # TODO Raise exception here
+        print ''
+        return
 
 if __name__ == '__main__':
     data = {}
@@ -56,6 +93,9 @@ validated the arguments already, so it calls run() with validate_args = False.""
             mod = utils.load_module(data_source)
             if is_valid:
                 mod.get_data(data, data_source_args[j])
+    else:
+        pass
+        # TODO Raise exception here
 
     return data
 

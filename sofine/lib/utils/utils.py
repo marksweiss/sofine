@@ -10,6 +10,9 @@ def load_module(module_name):
     module = None
     module_file = None
     try:
+
+        # TODO WHY IS THIS SUDDENLY FAILING TO LOAD FIDELITY
+
         module_file, module_path, desc = imp.find_module(module_name)
         module = imp.load_source(module_name, module_path, module_file)
     except Exception as e:
