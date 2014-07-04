@@ -15,7 +15,7 @@ def main(argv):
     # Also, passed as a list of args since that is the runner interface
     data_source_args = [argv]
     
-    return runner.main(data, data_sources, data_source_args)
+    return runner.main([data, data_sources, data_source_args])
 
 
 if __name__ == '__main__':
