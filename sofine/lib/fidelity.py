@@ -49,28 +49,22 @@ ACCOUNT_PAGE = 'https://oltx.fidelity.com/ftgw/fbc/ofpositions/brokerageAccountP
 
 
 # TODO Schema discovery
-# TODO parse args
-# TODO validate args
 
-def get_data(data, *args):
+def get_data(data, args):
     """
     Standard method in data source to retrieve, create or otherwise
     produce data to be returned to the caller. Generic signature because
     each source must implement this for itself and needs whatever args it needs
     """
-
-    # This is slightly lame, but it supports calls from the CLI, which naturally
-    #  will have a list (even after the return of parse_args, which can return
-    #  a different-length tuple from any particular lib modules parse-args. So,
-    #  this can be called programmatically with the right number of args
-    #  by code that knows about it, or from the CLI with code that does not and
-    #  so needs to pass a list.
-    if len(args) == 1:
-        args = args[0]
+    # This is a data source. It takes a data arg to conform to the get_data()
+    #  interface, but it does not use it. It either returns an empty dict
+    #  or a dict of keys mapped to dics of key/value attributes for each key
+    data = {}
 
     customer_id, pin, account_id, customer_email = args
     br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
     data = _get_fidelity_position_data(br, account_id)
+    
     return data
 
 
