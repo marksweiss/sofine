@@ -126,6 +126,10 @@ Your args:
 
 
 def is_source():
+    """This data source must be the first call in a chain of calls. It will ignore 
+any data passed to it, and it will return data with a set of keys and attributes 
+matching those found in the account for the user and password and account passed as
+arguments to get_data()"""
     return True
 
 

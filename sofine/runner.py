@@ -43,14 +43,22 @@ def run_batch(data, data_sources, data_source_args):
 
 
 def get_schema(data_source):
-     mod = utils.load_module(data_source)
-     schema = mod.get_schema()
-     return schema
+"""Return the schema fields for a data source. This is the set of keys in the
+attribute dict mapped to each key in data. Not all data sources gurarantee they will
+return all attribute keys for each key in data, and not all data sources guarantee
+they will return the same set of attribute keys for each key in data in one returned
+data set."""
+    mod = utils.load_module(data_source)
+    schema = mod.get_schema()
+    return schema
 
 def main(argv):
-    """Entry point if called from the command line. Parses CLI args, validates them and calls run()."""
-    # TODO Document new piped CLI syntax in doc string
-    
+    """Entry point if called from the command line. Parses CLI args, validates them and calls run(). 
+The interface for call is as follows:
+    PATH/runner.py '-s DATA_SOURCE_1 ARGS | -s DATA_SOURCE_2 ARGS'
+Example:
+    PATH/runner.py '-s fidelity -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL | -s ystockquotelib'
+"""
     def parse_data_source(args):
         i = -1
         data_source = None
