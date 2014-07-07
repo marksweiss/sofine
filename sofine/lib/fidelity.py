@@ -48,8 +48,6 @@ PROXY = ''
 ACCOUNT_PAGE = 'https://oltx.fidelity.com/ftgw/fbc/ofpositions/brokerageAccountPositions?ACCOUNT=%s'
 
 
-# TODO Schema discovery
-
 def get_data(data, args):
     """
     Standard method in data source to retrieve, create or otherwise
@@ -126,6 +124,14 @@ Your args:
     #  so needs to pass a list.
     return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]
 
+
+def is_source():
+    return True
+
+
+def schema():
+    return ['change_since_purchase', 'description', 'change_since_purchase_pct', 
+            'quantity']
 
 def _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email):
     """
