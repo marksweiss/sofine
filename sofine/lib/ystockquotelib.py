@@ -19,7 +19,10 @@ def is_source():
     return False
 
 
-def schema():
+def get_schema():
+    """The set of all possible attribute keys returned for each key from this data
+source. This data source can return a different arbitrary subset of these keys
+in the dict of attributes returned for each key passed in the 'data' arg to get_data()."""
     return ['fifty_two_week_low', 'market_cap', 'price', 'short_ratio', 'volume',
             'dividend_yield', 'avg_daily_volume', 'ebitda', 'change',
             'dividend_per_share', 'stock_exchange', 'two_hundred_day_moving_avg', 

@@ -129,7 +129,10 @@ def is_source():
     return True
 
 
-def schema():
+def get_schema():
+    """The set of all possible attribute keys returned for each key from this data
+source. This data source should always return all of these keys, but does not
+guarantee this."""
     return ['change_since_purchase', 'description', 'change_since_purchase_pct', 
             'quantity']
 

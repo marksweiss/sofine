@@ -42,6 +42,11 @@ def run_batch(data, data_sources, data_source_args):
     return data
 
 
+def get_schema(data_source):
+     mod = utils.load_module(data_source)
+     schema = mod.get_schema()
+     return schema
+
 def main(argv):
     """Entry point if called from the command line. Parses CLI args, validates them and calls run()."""
     # TODO Document new piped CLI syntax in doc string
