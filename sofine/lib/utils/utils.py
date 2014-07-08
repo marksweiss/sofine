@@ -18,5 +18,5 @@ def load_module(module_name):
     finally:
         if module_file:
             module_file.close()
-    
+
     return module

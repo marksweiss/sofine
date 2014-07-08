@@ -16,7 +16,7 @@ def parse_args(argv):
 
 
 def is_source():
-"""This data source cannot be the first in a chain of calls. It will add available 
+    """This data source cannot be the first in a chain of calls. It will add available 
 attributes to those mapped to each key in the data arg passed to get_data()"""
     return False
 

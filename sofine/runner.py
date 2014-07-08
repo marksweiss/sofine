@@ -11,7 +11,6 @@ def run(data, data_source, data_source_args):
 calling each data_source. Can be called directly or from main if this module was instantiated from the 
 command line."""
     mod = utils.load_module(data_source)
-
     is_valid, parsed_args = mod.parse_args(data_source_args)
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
@@ -31,19 +30,18 @@ command line."""
     return data
 
 
-# TODO UNIT TEST THIS
 def run_batch(data, data_sources, data_source_args):
     if len(data_sources) != len(data_source_args):
         raise ValueError('Call to runner.batch_run() had {0} data sources and {1} data_source_args'.format(len(data_sources), len(data_source_args)))
     
     for j, data_source in enumerate(data_sources):
-        data = _run(data, data_source[j], data_source_args[j])
+        data = run(data, data_source, data_source_args[j])
 
     return data
 
 
 def get_schema(data_source):
-"""Return the schema fields for a data source. This is the set of keys in the
+    """Return the schema fields for a data source. This is the set of keys in the
 attribute dict mapped to each key in data. Not all data sources gurarantee they will
 return all attribute keys for each key in data, and not all data sources guarantee
 they will return the same set of attribute keys for each key in data in one returned

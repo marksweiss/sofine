@@ -7,6 +7,8 @@ import sofine.runner as runner
 
 class TestCase(unittest.TestCase):
     
+    # Just here in case you want to skip this one while running others manually
+    # @unittest.skip('')
     def test_runner_run_ystockquote(self):
         key = 'AAPL'
         data = {key : {}}
@@ -25,6 +27,8 @@ class TestCase(unittest.TestCase):
         self.assertTrue(data[key2])
 
 
+    # Just here in case you want to skip this one while running others manually
+    # @unittest.skip('')
     def test_schema_ystockquote(self):
         key = 'AAPL'
         data = {key : {}}
@@ -41,6 +45,7 @@ class TestCase(unittest.TestCase):
 
     
     @unittest.skip("MUST RUN MANUALLY. ARGS INCLUDE SENSITIVE INFORMATION.")
+    # LAST RUN: Jul 8 2014
     def test_runner_run_fidelity(self):
         customer_id = "FILL_ME_IN"
         password = "FILL_ME_IN"
@@ -48,14 +53,14 @@ class TestCase(unittest.TestCase):
         email = "FILL_ME_IN"
         data = {}
         data_sources = 'fidelity'
-        data_source_args = ["-c", customer_id, "-p", password, "-a", account_id, "-e", email]
-        validate_args = True
+        data_source_args = ['-c', customer_id, '-p', password, '-a', account_id, '-e', email]
         data = runner.run(data, data_sources, data_source_args)
         
         self.assertTrue(len(data.keys())) 
 
     
     @unittest.skip("MUST RUN MANUALLY. ARGS INCLUDE SENSITIVE INFORMATION.")
+    # LAST RUN: Jul 8 2014
     def test_runner_run_batch(self):
         customer_id = "FILL_ME_IN"
         password = "FILL_ME_IN"
@@ -63,9 +68,8 @@ class TestCase(unittest.TestCase):
         email = "FILL_ME_IN"
         data = {}
         data_sources = ['fidelity', 'ystockquotelib']
-        data_source_args = [["-c", customer_id, "-p", password, "-a", account_id, "-e", email], []]
-        validate_args = True
-        data = runner.run(data, data_sources, data_source_args)
+        data_source_args = [['-c', customer_id, '-p', password, '-a', account_id, '-e', email], []]
+        data = runner.run_batch(data, data_sources, data_source_args)
         
         self.assertTrue(len(data.keys())) 
 
