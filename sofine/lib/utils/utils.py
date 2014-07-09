@@ -1,9 +1,11 @@
 import sys
 import inspect
-# I know. Ouch. This is apparently what it takes to dynamically load
-#  modules in Python. At least it's wrapped up in a library, where it belongs
-sys.path.insert(0, '/'.join(inspect.stack()[0][1].split('/')[:-2]))
 import imp
+
+
+# Add the plugins direcgory to the system path so the dynamic module load
+#  finds any plugins in their and load_module just works
+sys.path.insert(0, '/'.join(inspect.stack()[0][1].split('/')[:-3]) + '/plugins')
 
 
 def load_module(module_name):
