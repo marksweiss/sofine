@@ -28,7 +28,7 @@ class TestCase(unittest.TestCase):
         #  have this argument
         # NOTE: Piped (and single non-piped) command lines need to enclose the 
         #  entire set of piped calls in quotes, which here are single quotes 
-        cmd_get_data = "{0}/runner.py '-s fidelity {1} {2} {3} {4} {5} {6} {7} {8}'".format(
+        cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}'".format(
                 path_to_runner, c, customer_id, p, password, a, account_id, e, email)
         # NOTE: This call failed with this error message: "sys.excepthook is missing.
         #  lost sys.stderr" until adding stderr arg to Popen() call
@@ -42,10 +42,10 @@ class TestCase(unittest.TestCase):
     def test_runner_main_fidelity_pipe_ystockquotelib(self):
         # NOTE: Piped (and single non-piped) command lines need to enclose the 
         #  entire set of piped calls in quotes, which here are single quotes 
-        cmd_get_data = "{0}/runner.py '-s fidelity {1} {2} {3} {4} {5} {6} {7} {8}".format(
+        cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
                 path_to_runner, c, customer_id, p, password, a, account_id, e, email)
         cmd_get_data += "|"
-        cmd_get_data += "-s ystockquotelib'"
+        cmd_get_data += "-s ystockquotelib -g example'"
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = eval(out)

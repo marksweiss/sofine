@@ -5,10 +5,14 @@ import imp
 
 # Add the plugins direcgory to the system path so the dynamic module load
 #  finds any plugins in their and load_module just works
-sys.path.insert(0, '/'.join(inspect.stack()[0][1].split('/')[:-3]) + '/plugins')
+PLUGIN_BASE_PATH = '/'.join(inspect.stack()[0][1].split('/')[:-3]) + '/plugins'
+sys.path.insert(0, PLUGIN_BASE_PATH) 
 
 
-def load_module(module_name):
+def load_module(module_name, plugin_group):
+    plugin_path = PLUGIN_BASE_PATH + '/' + plugin_group  
+    sys.path.insert(0, plugin_path)
+
     module = None
     module_file = None
     try:

@@ -13,14 +13,15 @@ class TestCase(unittest.TestCase):
         key = 'AAPL'
         data = {key : {}}
         data_source = 'ystockquotelib'
+        data_source_group = 'example'
         data_source_args = []
-        data = runner.run(data, data_source, data_source_args)
+        data = runner.run(data, data_source, data_source_group, data_source_args)
         
         self.assertTrue(data[key])
         
         key2 = 'MSFT'
         data = {key : {}, key2 : {}}
-        data = runner.run(data, data_source, data_source_args)
+        data = runner.run(data, data_source, data_source_group, data_source_args)
         
         # Assert that we have data for each key
         self.assertTrue(data[key])
@@ -33,10 +34,11 @@ class TestCase(unittest.TestCase):
         key = 'AAPL'
         data = {key : {}}
         data_source = 'ystockquotelib'
+        data_source_group = 'example'
         data_source_args = []
-        data = runner.run(data, data_source, data_source_args)
+        data = runner.run(data, data_source, data_source_group, data_source_args)
         
-        expected_attributes = runner.get_schema(data_source)
+        expected_attributes = runner.get_schema(data_source, data_source_group)
         # Set intersection of actual keys and expected keys must have at least
         #  one element. ystockquotelib doesn't guarantee returning all keys
         #  found in schema as attribute keys for every key passed to it,
@@ -52,9 +54,10 @@ class TestCase(unittest.TestCase):
         account_id = "FILL_ME_IN"
         email = "FILL_ME_IN"
         data = {}
-        data_sources = 'fidelity'
+        data_source = 'fidelity'
+        data_source_group = 'example'
         data_source_args = ['-c', customer_id, '-p', password, '-a', account_id, '-e', email]
-        data = runner.run(data, data_sources, data_source_args)
+        data = runner.run(data, data_source, data_source_group, data_source_args)
         
         self.assertTrue(len(data.keys())) 
 
@@ -68,8 +71,9 @@ class TestCase(unittest.TestCase):
         email = "FILL_ME_IN"
         data = {}
         data_sources = ['fidelity', 'ystockquotelib']
+        data_source_groups = ['example', 'example']
         data_source_args = [['-c', customer_id, '-p', password, '-a', account_id, '-e', email], []]
-        data = runner.run_batch(data, data_sources, data_source_args)
+        data = runner.run_batch(data, data_sources, data_source_groups, data_source_args)
         
         self.assertTrue(len(data.keys())) 
 
