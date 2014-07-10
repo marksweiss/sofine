@@ -120,7 +120,7 @@ class TestCase(unittest.TestCase):
     #  with attributes.
     # 
     # ==> The end result of the pipeline is the union of each step.
-    # @unittest.skip("MUST RUN MANUALLY. ARGS INCLUDE SENSITIVE INFORMATION.")
+    @unittest.skip("MUST RUN MANUALLY. ARGS INCLUDE SENSITIVE INFORMATION.")
     def test_runner_pipeline(self):
         data = {}
         data_sources = ['fidelity', 'file_source', 'ystockquotelib']
