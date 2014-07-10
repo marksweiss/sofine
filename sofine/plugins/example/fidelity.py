@@ -116,12 +116,7 @@ Your args:
         print usage
         is_valid = False
     
-    # This is slightly lame, but it supports calls from the CLI, which naturally
-    #  will have a list (even after the return of parse_args, which can return
-    #  a different-length tuple from any particular lib modules parse-args. So,
-    #  this can be called programmatically with the right number of args
-    #  by code that knows about it, or from the CLI with code that does not and
-    #  so needs to pass a list.
+    # NOTE: the protocol for parse_args is to pass the returned args in a list
     return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]
 
 

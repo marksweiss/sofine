@@ -2,8 +2,8 @@
 
 import lib.utils.utils as utils 
 from optparse import OptionParser
-import sys
 import json
+import sys
 
 
 def run(data, data_source, data_source_group, data_source_args):
@@ -18,12 +18,19 @@ command line."""
     new_data = mod.get_data(data, parsed_args)
     # Here are the core data aggregation semantics:
     #  - if this is the first call in the chain, data is empty, so just fill it with the return of this call
-    #  - if there is already data, the first call in the chain set the set of keys we care about, and each
-    #    call that follows can add attribute key/value pairs associated with that key, so call update() on the
-    #    value mapped to each key, which is a dict of attribute/values
+    #  - if there is already data, add attribute key/value pairs associated with any existing keys, 
+    #    so call update() on the value mapped to each key, which is a dict of attribute/values
+    #  - if there is already data, add any new keys discovered by this call to get_data as keys with new
+    #    empty attribute dicts
+    # So, the set of keys on each call is the union of all previously collected keys
+    # So, the set o attributes associated with each key is the union of all previously collected attribute/value
+    #  pairs collected for that key
     if data:
         for k in data.keys():
             data[k].update(new_data[k])
+        new_keys = set(new_data.keys()) - set(data.keys())
+        new_key_attrs = dict.fromkeys(new_keys, {})
+        data.update(new_key_attrs)
     else:
         data = new_data
     
@@ -45,15 +52,25 @@ data_source_args (len == {2)}""".format(len(data_sources), len(data_source_group
     return data
 
 
-def get_schema(data_source, data_source_group):
+def get_schema(data_source, data_source_group, args=None):
     """Return the schema fields for a data source. This is the set of keys in the
 attribute dict mapped to each key in data. Not all data sources gurarantee they will
 return all attribute keys for each key in data, and not all data sources guarantee
 they will return the same set of attribute keys for each key in data in one returned
 data set."""
     mod = utils.load_module(data_source, data_source_group)
-    schema = mod.get_schema()
+    schema = None
+    if not args:
+        schema = mod.get_schema()
+    else:
+        mod = utils.load_module(data_source, data_source_group)
+        is_valid, parsed_args = mod.parse_args(args)
+        if not is_valid:
+            raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
+        schema = mod.get_schema(parsed_args)
+    
     return schema
+
 
 def main(argv):
     """Entry point if called from the command line. Parses CLI args, validates them and calls run(). 
