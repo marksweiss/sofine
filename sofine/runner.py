@@ -15,7 +15,8 @@ command line."""
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
 
-    new_data = mod.get_data(data, parsed_args)
+    new_data = mod.get_data(data.keys(), parsed_args)
+    
     # Here are the core data aggregation semantics:
     #  - if this is the first call in the chain, data is empty, so just fill it with the return of this call
     #  - if there is already data, add attribute key/value pairs associated with any existing keys, 
@@ -25,14 +26,12 @@ command line."""
     # So, the set of keys on each call is the union of all previously collected keys
     # So, the set o attributes associated with each key is the union of all previously collected attribute/value
     #  pairs collected for that key
-    if data:
-        for k in data.keys():
-            data[k].update(new_data[k])
-        new_keys = set(new_data.keys()) - set(data.keys())
-        new_key_attrs = dict.fromkeys(new_keys, {})
-        data.update(new_key_attrs)
-    else:
-        data = new_data
+    if len(new_data.keys()) > 0:
+        for k in new_data.keys():
+            if k in data:
+                data[k].update(new_data[k])
+            else:
+                data[k] = new_data[k]
     
     return data
 

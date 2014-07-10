@@ -1,11 +1,12 @@
 import ystockquote
 
 
-def get_data(data, args):
+def get_data(keys, args):
     """Calls the Yahoo API to get all available fields for each ticker provided 
-as a key in 'data'."""
-    for ticker in data.keys():
-        data[ticker].update(ystockquote.get_all(ticker))
+as a key in 'keys'."""
+    data = {}
+    for ticker in keys:
+        data[ticker] = ystockquote.get_all(ticker)
     return data
 
 

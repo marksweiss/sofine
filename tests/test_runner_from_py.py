@@ -107,6 +107,47 @@ class TestCase(unittest.TestCase):
         self.assertTrue(expected_keys == set(actual_keys))
 
 
+    # Test composing operations where some are an initial source of keys, some
+    #  add new keys in an intermediate step, and some just add attributes to keys
+    # This thus starts with Fidelity, which is a source of keys based on the account
+    #  args passed to it, then calls a file_source, which is a source that adds new
+    #  keys to the existing set, and then calls Yahoo API, which will get attributes
+    #  for all the keys you pass it
+    #
+    # So, this test is a good example of usage of the lib to build a simple pipeline,
+    #  showing how each step can append new data to existing keys (and add new keys
+    #  with attributes), or just add new keys with empty attributes, or add new keys
+    #  with attributes.
+    # 
+    # ==> The end result of the pipeline is the union of each step.
+    # @unittest.skip("MUST RUN MANUALLY. ARGS INCLUDE SENSITIVE INFORMATION.")
+    def test_runner_pipeline(self):
+        data = {}
+        data_sources = ['fidelity', 'file_source', 'ystockquotelib']
+        data_source_groups = ['example', 'standard', 'example']
+        
+        customer_id = "marksweiss"
+        password = "abb123321"
+        account_id = "169746010"
+        email = "marksweiss@yahoo.com"
+        fidelity_args = ['-c', customer_id, '-p', password, '-a', account_id, '-e', email]
+        path = './tests/fixtures/file_source_test_data.txt'
+        file_source_args = ['-p', path]
+        ystockquote_args = []
+        
+        data_source_args = [fidelity_args, file_source_args, ystockquote_args]
+        data = runner.run_batch(data, data_sources, data_source_groups, data_source_args)
+
+        # Assert that final output has keys from the intermediate file_source step
+        file_source_keys = runner.get_schema('file_source', 'standard', file_source_args)
+        for k in file_source_keys:
+            self.assertTrue(k in data)
+        # Assert that the final output has values from ystockquotelib for 
+        #  keys added by file_source
+        for k in file_source_keys:
+            self.assertTrue(len(data[k].keys()) > 0)
+
+
 if __name__ == '__main__':  
     unittest.main()
 

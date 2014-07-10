@@ -48,21 +48,14 @@ PROXY = ''
 ACCOUNT_PAGE = 'https://oltx.fidelity.com/ftgw/fbc/ofpositions/brokerageAccountPositions?ACCOUNT=%s'
 
 
-def get_data(data, args):
-    """
-    Standard method in data source to retrieve, create or otherwise
-    produce data to be returned to the caller. Generic signature because
-    each source must implement this for itself and needs whatever args it needs
-    """
-    # This is a data source. It takes a data arg to conform to the get_data()
-    #  interface, but it does not use it. It either returns an empty dict
-    #  or a dict of keys mapped to dics of key/value attributes for each key
-    data = {}
-
+def get_data(keys, args):
+    """Retrieves data for the portfolio identified by the args passed in. Does not look
+at the value in keys argument, since this is a pure source that simply retrieves data
+from an outside resource for the args it recieves.
+"""
     customer_id, pin, account_id, customer_email = args
     br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
     data = _get_fidelity_position_data(br, account_id)
-    
     return data
 
 
@@ -80,7 +73,7 @@ file anywhere, ever.
 [-p|--pin] - Customer PIN number or password. Required.
 [-a|--account-id] - Customer account from which to retrieve position information. Required.
 [-e|--customer-email] - Customer email. Required.
-    """
+"""
     parser = OptionParser(usage=usage)
 
     parser.add_option("-c", "--customer-id", 
@@ -124,21 +117,22 @@ def is_source():
     """This data source must be the first call in a chain of calls. It will ignore 
 any data passed to it, and it will return data with a set of keys and attributes 
 matching those found in the account for the user and password and account passed as
-arguments to get_data()"""
+arguments to get_data()
+"""
     return True
 
 
 def get_schema():
     """The set of all possible attribute keys returned for each key from this data
 source. This data source should always return all of these keys, but does not
-guarantee this."""
+guarantee this.
+"""
     return ['change_since_purchase', 'description', 'change_since_purchase_pct', 
             'quantity']
 
 def _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email):
-    """
-    Login in to fidelity.com.
-    """
+    """Login in to fidelity.com.
+"""
     
     # By default, store the RRD file in the same directory as this script.
     # RRD = '%s/fidelity-balance.rrd' % os.path.dirname(sys.argv[0])

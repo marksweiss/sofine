@@ -1,22 +1,17 @@
-from collections import defaultdict as defaultdict
 from optparse import OptionParser
 import json
 
 
-def get_data(data, args):
-    """Loads a set of keys found in the file named in the 'path' arg. Keys 
-must be written in a valid JSON object, which has a single key "keys" and a JSON array of
-valid JSON values for keys. Note that JSON strings are only valid if double-quoted.
+def get_data(keys, args):
+    """Loads a set of keys found in the file named in the 'path' arg. Ignores any keys 
+passed in -- this is a pure data source. Keys must be written in a valid JSON object, 
+which has a single key 'keys' and a JSON array of valid JSON values for keys.  
 
 Example: {"keys" : ["AAPL", "MSFT"]}
 """
     path = args[0]
-    keys = _get_keys(path)
-    
-    data = defaultdict(dict)
-    for k in keys:
-        data[k]
-    
+    new_keys = _get_keys(path)
+    data = dict.fromkeys(new_keys, {})
     return data
 
 
