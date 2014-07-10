@@ -126,10 +126,10 @@ class TestCase(unittest.TestCase):
         data_sources = ['fidelity', 'file_source', 'ystockquotelib']
         data_source_groups = ['example', 'standard', 'example']
         
-        customer_id = "marksweiss"
-        password = "abb123321"
-        account_id = "169746010"
-        email = "marksweiss@yahoo.com"
+        customer_id = "FILL ME IN"
+        password = "FILL ME IN"
+        account_id = "FILL ME IN"
+        email = "FILL ME IN"
         fidelity_args = ['-c', customer_id, '-p', password, '-a', account_id, '-e', email]
         path = './tests/fixtures/file_source_test_data.txt'
         file_source_args = ['-p', path]
