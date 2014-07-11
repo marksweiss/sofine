@@ -23,9 +23,6 @@ email = "FILL_ME_IN"
 class TestCase(unittest.TestCase):
 
     def test_runner_main_fidelity(self):
-        # Need to restore zeroth argv arg (name of module) to the synthesized argv
-        #  passed runner.py. Because when it is called directly of course it will
-        #  have this argument
         # NOTE: Piped (and single non-piped) command lines need to enclose the 
         #  entire set of piped calls in quotes, which here are single quotes 
         cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}'".format(
@@ -38,10 +35,8 @@ class TestCase(unittest.TestCase):
     
         self.assertTrue(len(out.keys()))
 
-
+    
     def test_runner_main_fidelity_pipe_ystockquotelib(self):
-        # NOTE: Piped (and single non-piped) command lines need to enclose the 
-        #  entire set of piped calls in quotes, which here are single quotes 
         cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
                 path_to_runner, c, customer_id, p, password, a, account_id, e, email)
         cmd_get_data += "|"
@@ -51,6 +46,37 @@ class TestCase(unittest.TestCase):
         out = eval(out)
         
         self.assertTrue(len(out.keys()))
+
+
+    def test_runner_main_pipeline(self):
+        cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
+                path_to_runner, c, customer_id, p, password, a, account_id, e, email)
+        cmd_get_data += "|"
+        path = './tests/fixtures/file_source_test_data.txt'
+        cmd_get_data += "-s file_source -g standard -p {0}".format(path)
+        cmd_get_data += "|"
+        cmd_get_data += "-s ystockquotelib -g example'"
+        proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out = proc.stdout.read()
+        out = eval(out)
+       
+        # Assert from fidelity is there for at least some of the keys
+        # Note that there won't be fidelity data for the keys added by the file_source
+        #  and that adds two keys, so we test that we have n-2 keys with fidelity schema fields
+        count = 0
+        expected_attributes = runner.get_schema('fidelity', 'example')
+        for key in out.keys():
+            if set(out[key].keys()) & set(expected_attributes):
+                count += 1
+        self.assertTrue(count == len(out.keys()) - 2)
+
+        # Assert keys and data from keys added by file_source and retrieved by ystockquotelib are there
+        file_source_args = ['-p', path]
+        file_source_keys = runner.get_schema('file_source', 'standard', file_source_args)
+        for k in file_source_keys:
+            self.assertTrue(k in out)
+        for k in file_source_keys:
+            self.assertTrue(len(out[k].keys()))
 
 
 # NOTE: This runs as unittest but requires extra args from the command line (to
