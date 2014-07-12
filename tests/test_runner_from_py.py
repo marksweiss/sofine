@@ -7,19 +7,19 @@ import sofine.runner as runner
 
 class TestCase(unittest.TestCase):
     
-    def test_runner_run_ystockquote(self):
+    def test_runner_get_data_ystockquote(self):
         key = 'AAPL'
         data = {key : {}}
         data_source = 'ystockquotelib'
         data_source_group = 'example'
         data_source_args = []
-        data = runner.run(data, data_source, data_source_group, data_source_args)
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         self.assertTrue(data[key])
         
         key2 = 'MSFT'
         data = {key : {}, key2 : {}}
-        data = runner.run(data, data_source, data_source_group, data_source_args)
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         # Assert that we have data for each key
         self.assertTrue(data[key])
@@ -32,7 +32,7 @@ class TestCase(unittest.TestCase):
         data_source = 'ystockquotelib'
         data_source_group = 'example'
         data_source_args = []
-        data = runner.run(data, data_source, data_source_group, data_source_args)
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         expected_attributes = runner.get_schema(data_source, data_source_group)
         # Set intersection of actual keys and expected keys must have at least
@@ -50,7 +50,7 @@ class TestCase(unittest.TestCase):
         #  where the code using the path variable to find the test data file runs
         path = './tests/fixtures/file_source_test_data.txt'
         data_source_args = ['-p', path]
-        data = runner.run(data, data_source, data_source_group, data_source_args)
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
 
@@ -67,7 +67,7 @@ class TestCase(unittest.TestCase):
         self.assertTrue(expected_keys == set(actual_keys))
 
 
-    def test_runner_run_batch(self):
+    def test_runner_get_data_batch(self):
         data = {}
         data_sources = ['file_source', 'ystockquotelib']
         data_source_groups = ['standard', 'example']
@@ -76,7 +76,7 @@ class TestCase(unittest.TestCase):
         ystockquote_args = []
         data_source_args = [file_source_args, ystockquote_args]
         
-        data = runner.run_batch(data, data_sources, data_source_groups, data_source_args)
+        data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
         
         self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
         self.assertTrue(len(data['AAPL']) and len(data['MSFT'])) 
@@ -97,7 +97,7 @@ class TestCase(unittest.TestCase):
         ystockquote_args = []
         
         data_source_args = [file_source_args_1, file_source_args_2, ystockquote_args]
-        data = runner.run_batch(data, data_sources, data_source_groups, data_source_args)
+        data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
 
         # Assert that final output has keys from each file_source step
         file_source_keys_1 = runner.get_schema('file_source', 'standard', file_source_args_1)

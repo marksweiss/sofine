@@ -6,7 +6,7 @@ import json
 import sys
 
 
-def run(data, data_source, data_source_group, data_source_args):
+def get_data(data, data_source, data_source_group, data_source_args):
     """Main driver function. Takes a list of data_sources and a list of argument lists to call when 
 calling each data_source. Can be called directly or from main if this module was instantiated from the 
 command line."""
@@ -36,7 +36,7 @@ command line."""
     return data
 
 
-def run_batch(data, data_sources, data_source_groups, data_source_args):
+def get_data_batch(data, data_sources, data_source_groups, data_source_args):
     if len(data_sources) != len(data_source_args) or \
             len(data_sources) != len(data_source_groups) or \
             len(data_source_groups) != len(data_source_args):
@@ -46,7 +46,7 @@ data source_groups (len == {1}) and
 data_source_args (len == {2)}""".format(len(data_sources), len(data_source_groups), len(data_source_args)))
     
     for j in range(0, len(data_sources)):
-        data = run(data, data_sources[j], data_source_groups[j], data_source_args[j])
+        data = get_data(data, data_sources[j], data_source_groups[j], data_source_args[j])
 
     return data
 
@@ -170,7 +170,7 @@ An example get_schema call:
                 parse_runner_args(call.split())
         
         if action == 'get_data':
-            data = run(data, data_source, data_source_group, data_source_args)
+            data = get_data(data, data_source, data_source_group, data_source_args)
 
     print json.dumps(data)
 
