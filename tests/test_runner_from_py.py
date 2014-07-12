@@ -39,7 +39,7 @@ class TestCase(unittest.TestCase):
         #  one element. ystockquotelib doesn't guarantee returning all keys
         #  found in schema as attribute keys for every key passed to it,
         #  but it does guarantee those keys will be a subset of the keys in schema.
-        self.assertTrue(set(data[key].keys()) & set(expected_attributes))
+        self.assertTrue(set(data[key].keys()) & set(expected_attributes['schema']))
 
 
     def test_runner_file_source(self):
@@ -64,7 +64,25 @@ class TestCase(unittest.TestCase):
         
         expected_keys = set(['AAPL', 'MSFT'])
         
-        self.assertTrue(expected_keys == set(actual_keys))
+        self.assertTrue(expected_keys == set(actual_keys['schema']))
+
+
+    def test_adds_keys_file_source(self):
+        data_source = 'file_source'
+        data_source_group = 'standard'
+        actual = runner.adds_keys(data_source, data_source_group)
+        expected = True
+        self.assertTrue(actual['adds_keys'] == expected)
+
+
+    def test_parse_args_file_source(self):
+        data_source = 'file_source'
+        data_source_group = 'standard'
+        path = './tests/fixtures/file_source_test_data.txt'
+        args = ['-p', path]
+        actual = runner.parse_args(data_source, data_source_group, args)
+
+        self.assertTrue(actual['is_valid'] and actual['parsed_args'] == [path])
 
 
     def test_runner_get_data_batch(self):
@@ -102,15 +120,15 @@ class TestCase(unittest.TestCase):
         # Assert that final output has keys from each file_source step
         file_source_keys_1 = runner.get_schema('file_source', 'standard', file_source_args_1)
         file_source_keys_2 = runner.get_schema('file_source', 'standard', file_source_args_2)
-        for k in file_source_keys_1:
+        for k in file_source_keys_1['schema']:
             self.assertTrue(k in data)
-        for k in file_source_keys_2:
+        for k in file_source_keys_2['schema']:
             self.assertTrue(k in data)
         # Assert that the final output has values from ystockquotelib for 
         #  keys added by file_source
-        for k in file_source_keys_1:
+        for k in file_source_keys_1['schema']:
             self.assertTrue(len(data[k].keys()))
-        for k in file_source_keys_2:
+        for k in file_source_keys_2['schema']:
             self.assertTrue(len(data[k].keys()))
 
 

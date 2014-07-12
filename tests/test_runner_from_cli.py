@@ -64,19 +64,45 @@ class TestCase(unittest.TestCase):
         # Note that there won't be fidelity data for the keys added by the file_source
         #  and that adds two keys, so we test that we have n-2 keys with fidelity schema fields
         count = 0
-        expected_attributes = runner.get_schema('fidelity', 'example')
+        expected = runner.get_schema('fidelity', 'example')
         for key in out.keys():
-            if set(out[key].keys()) & set(expected_attributes):
+            if set(out[key].keys()) & set(expected['schema']):
                 count += 1
         self.assertTrue(count == len(out.keys()) - 2)
 
         # Assert keys and data from keys added by file_source and retrieved by ystockquotelib are there
         file_source_args = ['-p', path]
         file_source_keys = runner.get_schema('file_source', 'standard', file_source_args)
-        for k in file_source_keys:
+        for k in file_source_keys['schema']:
             self.assertTrue(k in out)
-        for k in file_source_keys:
+        for k in file_source_keys['schema']:
             self.assertTrue(len(out[k].keys()))
+
+
+    def test_runner_main_get_schema(self):
+        path = './tests/fixtures/file_source_test_data.txt'
+        cmd = "{0}/runner.py '--SF-s file_source --SF-g standard --SF-a get_schema -p {1}'".format(path_to_runner, path)
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out = proc.stdout.read()
+        out = json.loads(out)
+        self.assertTrue(set(out['schema']) == set(['MSFT', 'AAPL']))
+
+    
+    def test_runner_main_adds_keys(self):
+        cmd = "{0}/runner.py '--SF-s file_source --SF-g standard --SF-a adds_keys'".format(path_to_runner)
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out = proc.stdout.read()
+        out = json.loads(out)
+        self.assertTrue(out['adds_keys'])
+        
+
+    def test_runner_main_parse_args(self):
+        path = './tests/fixtures/file_source_test_data.txt'
+        cmd = "{0}/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p {1}'".format(path_to_runner, path)
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out = proc.stdout.read()
+        out = json.loads(out) 
+        self.assertTrue(out['is_valid'] and out['parsed_args'] == [path])
 
 
 # NOTE: This runs as unittest but requires extra args from the command line (to

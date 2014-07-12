@@ -62,14 +62,25 @@ data set."""
     if not args:
         schema = mod.get_schema()
     else:
-        mod = utils.load_module(data_source, data_source_group)
         is_valid, parsed_args = mod.parse_args(args)
         if not is_valid:
             raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
         schema = mod.get_schema(parsed_args)
-    
-    return schema
+   
+    return {"schema" : schema} 
 
+
+def adds_keys(data_source, data_source_group):
+    mod = utils.load_module(data_source, data_source_group)
+    adds_keys = mod.adds_keys()
+    return {"adds_keys" : adds_keys}
+
+
+def parse_args(data_source, data_source_group, data_source_args):
+    mod = utils.load_module(data_source, data_source_group)
+    is_valid, parsed_args = mod.parse_args(data_source_args)
+    return {"is_valid" : is_valid, "parsed_args" : parsed_args}
+    
 
 def main(argv):
     """Entry point if called from the command line. Parses CLI args, validates them and calls run(). 
@@ -85,12 +96,14 @@ There is a short form and long form of each command:
     [--SF-a|--SF-action] - The plugin action being called. One of four supported actions
         that must be part of every plugin:
             - 'get_data' - retrieves available data for the keys passed to it
-            - 'adds_keys' - boolean indicating whether the data source adds keys or just gets data 
+            - 'adds_keys' - returns a JSON object with the attribute 'adds_keys' and a 
+                boolean indicating whether the data source adds keys or just gets data 
                 for the keys passed to it
-            - 'get_schema' - returns the schema of attributes which this data source may add for each key 
-                as a JSON object
+            - 'get_schema' - returns a JSON object with the attribute 'schema' and the 
+                schema of attributes which this data source may add for each key
             - 'parse_args' - returns the values parsed for the arguments passed to the call being 
-                made as comma-delimited list. You can use this for debugging purposes.
+                made as a JSON object with an attribute 'args' and an array of parsed args,
+                and an attribute 'is_valid' with a boolean indicating whether parsing succeeded.
     The '--SF-a|--SF-action' argument is Optional. If you don't pass it, 'get_data' is assumed.  
 
 Calls to 'get_data' can be piped together. All the calls must be enclosed in quotes as shown 
@@ -160,7 +173,7 @@ An example get_schema call:
 
         return data_source, data_source_group, action, args
     
-    data = {}
+    ret = {}
     # Get each piped data source and set of args to call it from the CLI
     # CLI syntax is split on pipes
     calls = ' '.join(argv).split('|')
@@ -168,11 +181,21 @@ An example get_schema call:
         call = call.strip()
         data_source, data_source_group, action, data_source_args = \
                 parse_runner_args(call.split())
-        
-        if action == 'get_data':
-            data = get_data(data, data_source, data_source_group, data_source_args)
 
-    print json.dumps(data)
+        if action == 'get_data':
+            ret = get_data(ret, data_source, data_source_group, data_source_args)
+        # Only get_data() supports chaining, so just break after one of other actions
+        elif action == 'get_schema':
+            ret = get_schema(data_source, data_source_group, data_source_args)
+            break
+        elif action == 'adds_keys':
+            ret = adds_keys(data_source, data_source_group)
+            break
+        elif action == 'parse_args':
+            ret = parse_args(data_source, data_source_group, data_source_args)
+            break
+
+    print json.dumps(ret)
 
 
 if __name__ == '__main__':

@@ -39,7 +39,7 @@ Your args:
     return is_valid, [opts.path]
 
 
-def is_source():
+def adds_keys():
     """This data source must be the first call in a chain of calls. It will ignore 
 any data passed to it, and it will return data with a set of keys and attributes 
 matching those found in the file it reads from."""
