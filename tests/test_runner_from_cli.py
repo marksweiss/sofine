@@ -4,6 +4,7 @@ import unittest
 import sys
 import subprocess
 import inspect
+import json
 sys.path.insert(0, '..')
 import sofine.runner as runner
 
@@ -25,40 +26,39 @@ class TestCase(unittest.TestCase):
     def test_runner_main_fidelity(self):
         # NOTE: Piped (and single non-piped) command lines need to enclose the 
         #  entire set of piped calls in quotes, which here are single quotes 
-        cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}'".format(
+        cmd_get_data = "{0}/runner.py '--SF-s fidelity --SF-g example {1} {2} {3} {4} {5} {6} {7} {8}'".format(
                 path_to_runner, c, customer_id, p, password, a, account_id, e, email)
         # NOTE: This call failed with this error message: "sys.excepthook is missing.
         #  lost sys.stderr" until adding stderr arg to Popen() call
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
-        out = eval(out)
+        out = json.loads(out)
     
         self.assertTrue(len(out.keys()))
 
-    
+
     def test_runner_main_fidelity_pipe_ystockquotelib(self):
-        cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
+        cmd_get_data = "{0}/runner.py '--SF-s fidelity --SF-g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
                 path_to_runner, c, customer_id, p, password, a, account_id, e, email)
         cmd_get_data += "|"
-        cmd_get_data += "-s ystockquotelib -g example'"
+        cmd_get_data += "--SF-s ystockquotelib --SF-g example'"
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
-        out = eval(out)
-        
+        out = json.loads(out)
         self.assertTrue(len(out.keys()))
 
 
     def test_runner_main_pipeline(self):
-        cmd_get_data = "{0}/runner.py '-s fidelity -g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
+        cmd_get_data = "{0}/runner.py '--SF-s fidelity --SF-g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
                 path_to_runner, c, customer_id, p, password, a, account_id, e, email)
         cmd_get_data += "|"
         path = './tests/fixtures/file_source_test_data.txt'
-        cmd_get_data += "-s file_source -g standard -p {0}".format(path)
+        cmd_get_data += "--SF-s file_source --SF-g standard -p {0}".format(path)
         cmd_get_data += "|"
-        cmd_get_data += "-s ystockquotelib -g example'"
+        cmd_get_data += "--SF-s ystockquotelib --SF-g example'"
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
-        out = eval(out)
+        out = json.loads(out)
        
         # Assert from fidelity is there for at least some of the keys
         # Note that there won't be fidelity data for the keys added by the file_source

@@ -73,34 +73,92 @@ data set."""
 
 def main(argv):
     """Entry point if called from the command line. Parses CLI args, validates them and calls run(). 
-The interface for call is as follows:
-    PATH/runner.py '-s DATA_SOURCE_1 -g DATA_SOURCE_GROUP_1 ARGS | -s DATA_SOURCE_2 -g DATA_SOURCE_GROUP_2 ARGS'
-Example:
-    PATH/runner.py '-s fidelity -g examples -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL | -s ystockquotelib -g examples'
+The arguments dedicated to this framework are expected to precede the remaining args 
+(for clarity of reading the entire command) but don't need to. In order to clearly
+separate from the args required for the call being run, they are preceded by '--SF_*'.
+
+There is a short form and long form of each command:
+    [--SF-s|--SF-data-source] - The name of the data source being called. This is the 
+        name of the plugin module being called. Required.
+    [--SF-g|--SF-data-source-group] - The plugin group where the plugin lives. This is 
+        the plugins subdirectory where the plugin module is deployed. Required.
+    [--SF-a|--SF-action] - The plugin action being called. One of four supported actions
+        that must be part of every plugin:
+            - 'get_data' - retrieves available data for the keys passed to it
+            - 'adds_keys' - boolean indicating whether the data source adds keys or just gets data 
+                for the keys passed to it
+            - 'get_schema' - returns the schema of attributes which this data source may add for each key 
+                as a JSON object
+            - 'parse_args' - returns the values parsed for the arguments passed to the call being 
+                made as comma-delimited list. You can use this for debugging purposes.
+    The '--SF-a|--SF-action' argument is Optional. If you don't pass it, 'get_data' is assumed.  
+
+Calls to 'get_data' can be piped together. All the calls must be enclosed in quotes as shown 
+in the examples below.  Calls to 'adds_keys' and 'get_schema' and 'parse_args' cannot 
+be piped. Only the first data-source and data-source group passed to the call with this 
+action will be used to perform that action and return the result.
+
+The complete interface for a call piping two get_data calls together:
+    PATH/runner.py '[--SF-s|--SF-data-source] DATA_SOURCE_1 \
+                    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_1 \
+                    ARGS | \ 
+                    [--SF-s|--SF-data-source] DATA_SOURCE_2 \
+                    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_2 \
+                    ARGS'
+
+An example call piping two get_data calls together:
+    PATH/runner.py '--SF-s fidelity --SF-g examples \
+                    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL | \
+                    --SF-s ystockquotelib --SF-g examples'
+
+An example get_schema call:
+    PATH/runner.py '--SF-s fidelity --SF-g examples --SF-a get_schema \
+                    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL'
+
 """
     def parse_runner_args(args):
         data_source = None
         data_source_group = None
-        data_source_args = []
-        
-        def parse_runner_arg(args, arg_flag):
-            i = -1
-            try:
-                i = args.index(arg_flag)
-            except ValueError:
-                raise ValueError('Required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag))
-            if i == len(args) - 1:
-                raise ValueError ('Value for required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag))
-            ret = args[i + 1]
-            del args[i + 1]
-            del args[i]
-            
-            return ret
-        
-        data_source = parse_runner_arg(args, '-s')
-        data_source_group = parse_runner_arg(args, '-g')
+        action = None
 
-        return data_source, data_source_group, args
+        def parse_runner_arg(args, arg_flags):
+            ret = None
+            
+            def try_arg_flag(arg_flag):
+                e = ''
+                i = -1
+                try:
+                    i = args.index(arg_flag)
+                except ValueError:
+                    e = 'Required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
+                if i == len(args) - 1:
+                    e = 'Value for required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
+
+                return e, i
+
+            # Try twice if necessary, for each of the two forms of the arg flag
+            err, idx = try_arg_flag(arg_flags[0])
+            if err:
+                err, idx = try_arg_flag(arg_flags[1])
+            # Flag was found, value for it parsed, and flag and value removed from args
+            if not err:
+                ret = args[idx + 1]
+                del args[idx + 1]
+                del args[idx]
+
+            return err, ret
+      
+        # Parse for both versions of required flags and raise error if not found
+        err, data_source = parse_runner_arg(args, ['--SF-s', '--SF-data-source'])
+        if err: raise ValueError(err)
+        err, data_source_group = parse_runner_arg(args, ['--SF-g','--SF-data-source-group'])
+        if err: raise ValueError(err)
+        # For optional argument, don't throw if not found, just set default value
+        err, action = parse_runner_arg(args, ['--SF-a', '--SF-action'])
+        if err:
+            action = 'get_data'
+
+        return data_source, data_source_group, action, args
     
     data = {}
     # Get each piped data source and set of args to call it from the CLI
@@ -108,8 +166,11 @@ Example:
     calls = ' '.join(argv).split('|')
     for call in calls:
         call = call.strip()
-        data_source, data_source_group, data_source_args = parse_runner_args(call.split())
-        data = run(data, data_source, data_source_group, data_source_args)
+        data_source, data_source_group, action, data_source_args = \
+                parse_runner_args(call.split())
+        
+        if action == 'get_data':
+            data = run(data, data_source, data_source_group, data_source_args)
 
     print json.dumps(data)
 
