@@ -26,3 +26,8 @@ def load_module(module_name, plugin_group):
             module_file.close()
 
     return module
+
+
+def has_stdin():
+    return not sys.stdin.isatty()
+

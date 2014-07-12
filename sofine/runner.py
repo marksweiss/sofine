@@ -172,8 +172,14 @@ An example get_schema call:
             action = 'get_data'
 
         return data_source, data_source_group, action, args
-    
+   
+    # If input passed from stdin, set initial data in chain of calls to that.
+    # Thus supports composing sofine piped chains with preceding outer piped
+    #  command line statements that include sofine pipes within them
     ret = {}
+    if utils.has_stdin():
+        ret = sys.stdin.read()
+        ret = json.loads(ret)
     # Get each piped data source and set of args to call it from the CLI
     # CLI syntax is split on pipes
     calls = ' '.join(argv).split('|')

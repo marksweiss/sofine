@@ -94,7 +94,7 @@ class TestCase(unittest.TestCase):
         out = proc.stdout.read()
         out = json.loads(out)
         self.assertTrue(out['adds_keys'])
-        
+
 
     def test_runner_main_parse_args(self):
         path = './tests/fixtures/file_source_test_data.txt'
@@ -103,6 +103,17 @@ class TestCase(unittest.TestCase):
         out = proc.stdout.read()
         out = json.loads(out) 
         self.assertTrue(out['is_valid'] and out['parsed_args'] == [path])
+
+
+    def test_runner_main_piped_input(self):
+        path = './tests/fixtures/file_source_test_data.txt'
+        cmd = "echo '{\"TWTR\" : {}}'"
+        cmd += "|"
+        cmd += "{0}/runner.py '--SF-s file_source --SF-g standard -p {1}'".format(path_to_runner, path)
+        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out = proc.stdout.read()
+        out = json.loads(out) 
+        self.assertTrue(set(out.keys()) == set(['TWTR', 'AAPL', 'MSFT']))
 
 
 # NOTE: This runs as unittest but requires extra args from the command line (to
