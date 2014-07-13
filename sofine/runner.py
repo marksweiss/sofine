@@ -1,5 +1,3 @@
-#!/anaconda/bin/python -tt
-
 import lib.utils.utils as utils 
 from optparse import OptionParser
 import json

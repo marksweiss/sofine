@@ -5,53 +5,45 @@ import sofine.runner as runner
 
 class TestCase(unittest.TestCase):
     
-    def test_runner_file_source(self):
-        data = {}
-        data_source = 'file_source'
-        data_source_group = 'standard'
-        # This path needs to match the path relative to file_source.py
-        #  where the code using the path variable to find the test data file runs
-        path = './tests/fixtures/file_source_test_data.txt'
-        data_source_args = ['-p', path]
+    def test_runner_get_data_ystockquote(self):
+        key = 'AAPL'
+        data = {key : {}}
+        data_source = 'ystockquotelib'
+        data_source_group = 'example'
+        data_source_args = []
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
-        self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
-
-
-    def test_schema_file_source(self):
-        data_source = 'file_source'
-        data_source_group = 'standard'
-        path = './tests/fixtures/file_source_test_data.txt'
-        args = ['-p', path]
-        actual_keys = runner.get_schema(data_source, data_source_group, args)
+        self.assertTrue(data[key])
         
-        expected_keys = set(['AAPL', 'MSFT'])
+        key2 = 'MSFT'
+        data = {key : {}, key2 : {}}
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
-        self.assertTrue(expected_keys == set(actual_keys['schema']))
+        # Assert that we have data for each key
+        self.assertTrue(data[key])
+        self.assertTrue(data[key2])
 
 
-    def test_adds_keys_file_source(self):
-        data_source = 'file_source'
-        data_source_group = 'standard'
-        actual = runner.adds_keys(data_source, data_source_group)
-        expected = True
-        self.assertTrue(actual['adds_keys'] == expected)
-
-
-    def test_parse_args_file_source(self):
-        data_source = 'file_source'
-        data_source_group = 'standard'
-        path = './tests/fixtures/file_source_test_data.txt'
-        args = ['-p', path]
-        actual = runner.parse_args(data_source, data_source_group, args)
-
-        self.assertTrue(actual['is_valid'] and actual['parsed_args'] == [path])
+    def test_schema_ystockquote(self):
+        key = 'AAPL'
+        data = {key : {}}
+        data_source = 'ystockquotelib'
+        data_source_group = 'example'
+        data_source_args = []
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
+        
+        expected_attributes = runner.get_schema(data_source, data_source_group)
+        # Set intersection of actual keys and expected keys must have at least
+        #  one element. ystockquotelib doesn't guarantee returning all keys
+        #  found in schema as attribute keys for every key passed to it,
+        #  but it does guarantee those keys will be a subset of the keys in schema.
+        self.assertTrue(set(data[key].keys()) & set(expected_attributes['schema']))
 
 
     def test_runner_get_data_batch(self):
         data = {}
-        data_sources = ['file_source', 'ystockquotelib_mock']
-        data_source_groups = ['standard', 'mock']
+        data_sources = ['file_source', 'ystockquotelib']
+        data_source_groups = ['standard', 'example']
         path = './tests/fixtures/file_source_test_data.txt'
         file_source_args = ['-p', path]
         ystockquote_args = []
@@ -68,8 +60,8 @@ class TestCase(unittest.TestCase):
     # ==> The end result of the pipeline is the union of each step.
     def test_runner_pipeline(self):
         data = {}
-        data_sources = ['file_source', 'file_source', 'ystockquotelib_mock']
-        data_source_groups = ['standard', 'standard', 'mock']
+        data_sources = ['file_source', 'file_source', 'ystockquotelib']
+        data_source_groups = ['standard', 'standard', 'example']
         
         path = './tests/fixtures/file_source_test_data.txt'
         file_source_args_1 = ['-p', path]
@@ -87,7 +79,7 @@ class TestCase(unittest.TestCase):
             self.assertTrue(k in data)
         for k in file_source_keys_2['schema']:
             self.assertTrue(k in data)
-        # Assert that the final output has values from ystockquotelib_mock for 
+        # Assert that the final output has values from ystockquotelib for 
         #  keys added by file_source
         for k in file_source_keys_1['schema']:
             self.assertTrue(len(data[k].keys()))

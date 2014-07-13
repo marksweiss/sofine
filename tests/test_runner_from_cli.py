@@ -1,5 +1,3 @@
-#!/anaconda/bin/python -tt
-
 import unittest
 import sys
 import subprocess
@@ -9,87 +7,78 @@ sys.path.insert(0, '..')
 import sofine.runner as runner
 
 
-# Hack to fill in the sensitive values from the command line
-path_to_runner = "FILL ME IN"
-c = "FILL ME IN"
-p = "FILL ME IN"
-a = "FILL ME IN"
-e = "FILL ME IN"
-customer_id = "FILL_ME_IN"
-password = "FILL_ME_IN"
-account_id = "FILL_ME_IN"
-email = "FILL_ME_IN"
+class RunnerFromCliTestCase(unittest.TestCase):
 
-
-class TestCase(unittest.TestCase):
-
-    def test_runner_main_fidelity(self):
+    def test_runner_main(self):
         # NOTE: Piped (and single non-piped) command lines need to enclose the 
         #  entire set of piped calls in quotes, which here are single quotes 
-        cmd_get_data = "{0}/runner.py '--SF-s fidelity --SF-g example {1} {2} {3} {4} {5} {6} {7} {8}'".format(
-                path_to_runner, c, customer_id, p, password, a, account_id, e, email)
+        path = './tests/fixtures/file_source_test_data.txt'
+        cmd_get_data = "python ./sofine/runner.py '--SF-s file_source --SF-g standard -p {0}'".format(path)
         # NOTE: This call failed with this error message: "sys.excepthook is missing.
         #  lost sys.stderr" until adding stderr arg to Popen() call
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = json.loads(out)
-    
-        self.assertTrue(len(out.keys()))
+        self.assertTrue(len(out.keys()) == 2)
+        self.assertTrue(set(out.keys()) == set(['AAPL', 'MSFT']))
 
 
-    def test_runner_main_fidelity_pipe_ystockquotelib(self):
-        cmd_get_data = "{0}/runner.py '--SF-s fidelity --SF-g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
-                path_to_runner, c, customer_id, p, password, a, account_id, e, email)
-        cmd_get_data += "|"
-        cmd_get_data += "--SF-s ystockquotelib --SF-g example'"
+    def test_runner_main_pipe(self):
+        path = './tests/fixtures/file_source_test_data.txt'
+        path_2 = './tests/fixtures/file_source_test_data_2.txt'
+        cmd_get_data = "python ./sofine/runner.py '--SF-s file_source --SF-g standard -p {0}".format(path)
+        cmd_get_data += " | "
+        cmd_get_data += "--SF-s file_source --SF-g standard -p {0}'".format(path_2)
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = json.loads(out)
-        self.assertTrue(len(out.keys()))
+        self.assertTrue(len(out.keys()) == 4)
+        self.assertTrue(set(out.keys()) == set(['AAPL', 'MSFT', 'MCO', 'TWTR']))
 
 
     def test_runner_main_pipeline(self):
-        cmd_get_data = "{0}/runner.py '--SF-s fidelity --SF-g example {1} {2} {3} {4} {5} {6} {7} {8}".format(
-                path_to_runner, c, customer_id, p, password, a, account_id, e, email)
-        cmd_get_data += "|"
         path = './tests/fixtures/file_source_test_data.txt'
-        cmd_get_data += "--SF-s file_source --SF-g standard -p {0}".format(path)
-        cmd_get_data += "|"
-        cmd_get_data += "--SF-s ystockquotelib --SF-g example'"
+        path_2 = './tests/fixtures/file_source_test_data_2.txt'
+        path_3 = './tests/fixtures/file_source_test_data_3.txt'
+        cmd_get_data = "python ./sofine/runner.py '--SF-s file_source --SF-g standard -p {0}".format(path)
+        cmd_get_data += " | "
+        cmd_get_data += "--SF-s file_source --SF-g standard -p {0}".format(path_2)
+        cmd_get_data += " | "
+        cmd_get_data += "--SF-s file_source --SF-g standard -p {0}".format(path_3)
+        cmd_get_data += " | "
+        cmd_get_data += "--SF-s ystockquotelib_mock --SF-g mock'"
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = json.loads(out)
-       
-        # Assert from fidelity is there for at least some of the keys
-        # Note that there won't be fidelity data for the keys added by the file_source
-        #  and that adds two keys, so we test that we have n-2 keys with fidelity schema fields
-        count = 0
-        expected = runner.get_schema('fidelity', 'example')
-        for key in out.keys():
-            if set(out[key].keys()) & set(expected['schema']):
-                count += 1
-        self.assertTrue(count == len(out.keys()) - 2)
-
-        # Assert keys and data from keys added by file_source and retrieved by ystockquotelib are there
-        file_source_args = ['-p', path]
-        file_source_keys = runner.get_schema('file_source', 'standard', file_source_args)
-        for k in file_source_keys['schema']:
-            self.assertTrue(k in out)
-        for k in file_source_keys['schema']:
-            self.assertTrue(len(out[k].keys()))
+        self.assertTrue(len(out.keys()) == 6)
+        self.assertTrue(set(out.keys()) == set(['AAPL', 'MSFT', 'MCO', 'TWTR', 'IBM', 'ORCL']))
+        # Assert that the final output has values from ystockquotelib_mock for 
+        #  keys added by file_source
+        for k in out.keys():
+            attr_keys = out[k].keys()
+            self.assertTrue(len(attr_keys))
+            for ak in attr_keys:
+                self.assertTrue(out[k][ak] is not None)
 
 
     def test_runner_main_get_schema(self):
         path = './tests/fixtures/file_source_test_data.txt'
-        cmd = "{0}/runner.py '--SF-s file_source --SF-g standard --SF-a get_schema -p {1}'".format(path_to_runner, path)
+        cmd = "python ./sofine/runner.py '--SF-s file_source --SF-g standard --SF-a get_schema -p {0}'".format(path)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = json.loads(out)
         self.assertTrue(set(out['schema']) == set(['MSFT', 'AAPL']))
+        # Now assert the keys in get_data() out match those in get_schema() out
+        path = './tests/fixtures/file_source_test_data.txt'
+        cmd_get_data = "python ./sofine/runner.py '--SF-s file_source --SF-g standard -p {0}'".format(path)
+        proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        data_out = proc.stdout.read()
+        data_out = json.loads(data_out)
+        self.assertTrue(set(out['schema']) == set(data_out.keys()))
 
     
     def test_runner_main_adds_keys(self):
-        cmd = "{0}/runner.py '--SF-s file_source --SF-g standard --SF-a adds_keys'".format(path_to_runner)
+        cmd = "python ./sofine/runner.py '--SF-s file_source --SF-g standard --SF-a adds_keys'"
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = json.loads(out)
@@ -98,7 +87,7 @@ class TestCase(unittest.TestCase):
 
     def test_runner_main_parse_args(self):
         path = './tests/fixtures/file_source_test_data.txt'
-        cmd = "{0}/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p {1}'".format(path_to_runner, path)
+        cmd = "python ./sofine/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p {0}'".format(path)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = json.loads(out) 
@@ -108,33 +97,14 @@ class TestCase(unittest.TestCase):
     def test_runner_main_piped_input(self):
         path = './tests/fixtures/file_source_test_data.txt'
         cmd = "echo '{\"TWTR\" : {}}'"
-        cmd += "|"
-        cmd += "{0}/runner.py '--SF-s file_source --SF-g standard -p {1}'".format(path_to_runner, path)
+        cmd += " | "
+        cmd += "python ./sofine/runner.py '--SF-s file_source --SF-g standard -p {0}'".format(path)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.stdout.read()
         out = json.loads(out) 
         self.assertTrue(set(out.keys()) == set(['TWTR', 'AAPL', 'MSFT']))
 
 
-# NOTE: This runs as unittest but requires extra args from the command line (to
-#  not embed sensitive ids here or in config files etc.). So it's basically a manual
-#  test with nice unittest output
-# Sample call: ~/code/sofine markweiss$ ./tests/test_runner_from_cli.py \
-#              ~/code/sofine/sofine \
-#              -c MY_CUSTOMER_ID \
-#              -p MY_PASSWORD \
-#              -a MY_ACCOUNT_ID \
-#              -e MY_EMAIL
 if __name__ == '__main__':
-    # Load the module scope variables from CLI args
-    # This lets us not hard-code sensitive values needed for the test
-    path_to_runner, c, customer_id, p, password, a, account_id, e, email = sys.argv[1:]
-    # Now delete CLI args from argv because calling unittest.main() with
-    #  argv args other than the module name in arg 0 causes unittest exception
-    # This loop from last index to first index, not 0th, stepping down by 1
-    # We want this because the we want to truncate all of sys.argv except for the first arg
-    for i in range(len(sys.argv) - 1, 0, -1):
-        del sys.argv[i]
-
     unittest.main()
 
