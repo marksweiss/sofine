@@ -5,7 +5,8 @@ import conf
 
 def load_module(module_name, plugin_group):
     sys.path.insert(0, conf.PLUGIN_BASE_PATH + '/' + plugin_group)
-    sys.path.insert(0, conf.CUSTOM_PLUGIN_BASE_PATH + '/' + plugin_group)
+    if conf.CUSTOM_PLUGIN_BASE_PATH:
+        sys.path.insert(0, conf.CUSTOM_PLUGIN_BASE_PATH + '/' + plugin_group)
 
     module = None
     module_file = None
