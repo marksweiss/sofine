@@ -1,4 +1,5 @@
-import lib.utils.utils as utils 
+import lib.utils.utils as utils
+import lib.utils.conf as conf
 from optparse import OptionParser
 import json
 import sys

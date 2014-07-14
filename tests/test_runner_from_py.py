@@ -18,6 +18,26 @@ class TestCase(unittest.TestCase):
         self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
 
 
+    # To run:
+    # - create a custom plugin directory for your plugins, outside the sofine project tree
+    # - create a subdirectory in the custom plugin directory called 'test'
+    # - make a copy of PROJECT_ROOT/sofine/plugins/standard/file_source.py as
+    #   CUSTOM_PLUGIN_DIR/standard/file_source_custom_path.py
+    # Uncomment the unittest.skip(True) attribute after above steps are completed
+    @unittest.skip(True)
+    def test_runner_file_source_custom_plugin_path(self):
+        data = {}
+        data_source = 'file_source_custom_path'
+        data_source_group = 'standard'
+        # This path needs to match the path relative to file_source.py
+        #  where the code using the path variable to find the test data file runs
+        path = './tests/fixtures/file_source_test_data.txt'
+        data_source_args = ['-p', path]
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
+        
+        self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
+
+
     def test_schema_file_source(self):
         data_source = 'file_source'
         data_source_group = 'standard'
