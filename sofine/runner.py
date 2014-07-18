@@ -13,7 +13,7 @@ command line."""
     is_valid, parsed_args = mod.parse_args(data_source_args)
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
-
+    
     new_data = mod.get_data(data.keys(), parsed_args)
     
     # Here are the core data aggregation semantics:
@@ -79,7 +79,66 @@ def parse_args(data_source, data_source_group, data_source_args):
     mod = utils.load_module(data_source, data_source_group)
     is_valid, parsed_args = mod.parse_args(data_source_args)
     return {"is_valid" : is_valid, "parsed_args" : parsed_args}
-    
+
+
+def _parse_runner_args(args):
+    data_source = None
+    data_source_group = None
+    action = None
+
+    def parse_runner_arg(args, arg_flags):
+        ret = None
+            
+        def try_arg_flag(arg_flag):
+            e = ''
+            i = -1
+            try:
+                i = args.index(arg_flag)
+            except ValueError:
+                e = 'Required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
+            if i == len(args) - 1:
+                e = 'Value for required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
+
+            return e, i
+
+        # Try twice if necessary, for each of the two forms of the arg flag
+        err, idx = try_arg_flag(arg_flags[0])
+        if err:
+            err, idx = try_arg_flag(arg_flags[1])
+        # Flag was found, value for it parsed, and flag and value removed from args
+        if not err:
+            ret = args[idx + 1]
+            del args[idx + 1]
+            del args[idx]
+
+        return err, ret
+      
+    # Parse for both versions of required flags and raise error if not found
+    err, data_source = parse_runner_arg(args, ['--SF-s', '--SF-data-source'])
+    if err: raise ValueError(err)
+    err, data_source_group = parse_runner_arg(args, ['--SF-g','--SF-data-source-group'])
+    if err: raise ValueError(err)
+    # For optional argument, don't throw if not found, just set default value
+    err, action = parse_runner_arg(args, ['--SF-a', '--SF-action'])
+    if err:
+        action = 'get_data'
+
+    return data_source, data_source_group, action, args
+
+
+def _run_action(action, ret, data_source, data_source_group, data_source_args):
+    if action == 'get_data':
+        ret = get_data(ret, data_source, data_source_group, data_source_args)
+    # Only get_data() supports chaining, so just break after one of other actions
+    elif action == 'get_schema':
+        ret = get_schema(data_source, data_source_group, data_source_args)
+    elif action == 'adds_keys':
+        ret = adds_keys(data_source, data_source_group)
+    elif action == 'parse_args':
+        ret = parse_args(data_source, data_source_group, data_source_args)
+
+    return ret
+
 
 def main(argv):
     """Entry point if called from the command line. Parses CLI args, validates them and calls run(). 
@@ -128,49 +187,6 @@ An example get_schema call:
                     -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL'
 
 """
-    def parse_runner_args(args):
-        data_source = None
-        data_source_group = None
-        action = None
-
-        def parse_runner_arg(args, arg_flags):
-            ret = None
-            
-            def try_arg_flag(arg_flag):
-                e = ''
-                i = -1
-                try:
-                    i = args.index(arg_flag)
-                except ValueError:
-                    e = 'Required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
-                if i == len(args) - 1:
-                    e = 'Value for required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
-
-                return e, i
-
-            # Try twice if necessary, for each of the two forms of the arg flag
-            err, idx = try_arg_flag(arg_flags[0])
-            if err:
-                err, idx = try_arg_flag(arg_flags[1])
-            # Flag was found, value for it parsed, and flag and value removed from args
-            if not err:
-                ret = args[idx + 1]
-                del args[idx + 1]
-                del args[idx]
-
-            return err, ret
-      
-        # Parse for both versions of required flags and raise error if not found
-        err, data_source = parse_runner_arg(args, ['--SF-s', '--SF-data-source'])
-        if err: raise ValueError(err)
-        err, data_source_group = parse_runner_arg(args, ['--SF-g','--SF-data-source-group'])
-        if err: raise ValueError(err)
-        # For optional argument, don't throw if not found, just set default value
-        err, action = parse_runner_arg(args, ['--SF-a', '--SF-action'])
-        if err:
-            action = 'get_data'
-
-        return data_source, data_source_group, action, args
    
     # If input passed from stdin, set initial data in chain of calls to that.
     # Thus supports composing sofine piped chains with preceding outer piped
@@ -180,30 +196,14 @@ An example get_schema call:
         ret = sys.stdin.read()
         ret = json.loads(ret)
 
-    
-    # TODO same type of check but from an HTTP POST, for rest_runner.py
-
-
     # Get each piped data source and set of args to call it from the CLI
     # CLI syntax is split on pipes
     calls = ' '.join(argv).split('|')
     for call in calls:
         call = call.strip()
         data_source, data_source_group, action, data_source_args = \
-                parse_runner_args(call.split())
-
-        if action == 'get_data':
-            ret = get_data(ret, data_source, data_source_group, data_source_args)
-        # Only get_data() supports chaining, so just break after one of other actions
-        elif action == 'get_schema':
-            ret = get_schema(data_source, data_source_group, data_source_args)
-            break
-        elif action == 'adds_keys':
-            ret = adds_keys(data_source, data_source_group)
-            break
-        elif action == 'parse_args':
-            ret = parse_args(data_source, data_source_group, data_source_args)
-            break
+                _parse_runner_args(call.split())
+        ret = _run_action(action, ret, data_source, data_source_group, data_source_args)
 
     print json.dumps(ret)
 
