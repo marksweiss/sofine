@@ -179,6 +179,11 @@ An example get_schema call:
     if utils.has_stdin():
         ret = sys.stdin.read()
         ret = json.loads(ret)
+
+    
+    # TODO same type of check but from an HTTP POST, for rest_runner.py
+
+
     # Get each piped data source and set of args to call it from the CLI
     # CLI syntax is split on pipes
     calls = ' '.join(argv).split('|')
