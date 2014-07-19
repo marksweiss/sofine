@@ -10,7 +10,50 @@ import json
 #  which is the best basic DIY wsgi tutorial I found
 
 
+def _parse_calls_from_path(path): 
+    """Parses call args from PATH_INFO. Loops through args from the path
+and splits them into key/val pairs. Each time a new 'SF-s' path element is 
+encounted this delimits the start of a new call. 
+
+NOTE: The path must pass args
+in order: /SF-s/<SOURCE>/SF-g/<GROUP>/SF-a/<ACTION>/<ARG1_NAME>/<ARG1_VAL>/ ...
+
+As with CLI and Python lib usage, the 'action' argument is optional for the
+'get_data' action"""
+    
+    # Put each new list of args making up a call into calls. Then loop
+    #  through calls to make each call and append to ret. Just like CLI impl.
+    args = path[1:].split('/')
+
+    calls = []
+    call = [] 
+    count = 0
+    for a in args:
+        # A bit ugly. Loop over args. Key args can trigger a new call 
+        #  so detect whether position is key or value position in list of args.
+        if count % 2 == 0:
+            # Pretty lame but the runner method that validates args expects
+            #  a list that looks like CLI args/values in sequence, so prepend '--'
+            a = '--' + escape(a)
+            if a == '--SF-s' or a == '--SF-data-source':
+                # Sigh. Guard to not copy first empty call into calls
+                if call:
+                    calls.append(list(call))
+                call = []
+        call.append(escape(a))
+        count += 1
+    # Copy the last call left from the loop we didn't copy into calls
+    if len(call):
+        calls.append(list(call))
+    
+    return calls
+
+
 def application(environ, start_response):
+    """The runner for REST calls to plugins. Note that use of the 'file_source'
+plugin included in the 'standard' sofine plugins directory is NOT supported, for
+security reasons. Allowing it would allow HTTP calls access to the local file system."""
+
     ret = '{}'
     status = ''
     headers = None
@@ -27,42 +70,11 @@ def application(environ, start_response):
             ret = environ['wsgi.input'].read(ret_len)
             ret = json.loads(ret)
                 
-            # Parse call args from PATH_INFO
-            # Loop through args from QS. Split into key/val pairs. Each time
-            #  a new --SF-s is encounted this delimits the start of a new call.
-            #  NOTE: Must pass args in order: --SF-s, --SF-g, --SF-a, args
-            #  Must document this!
-            # Put each new list of args making up a call into calls. Then loop
-            #  through calls to make each call and append to ret. Just like CLI impl.
-            args = environ.get('PATH_INFO')
-            args = args[1:].split('/')
+            calls = _parse_calls_from_path(environ.get('PATH_INFO'))
 
-            calls = []
-            call = [] 
-            count = 0
-            for a in args:
-                # A bit ugly. Loop over args. Key args can trigger a new call 
-                #  so detect whether position is key or value position in list of args.
-                if count % 2 == 0:
-                    # Pretty lame but the runner method that validates args expects
-                    #  a list that looks like CLI args/values in sequence, so prepend '--'
-                    a = '--' + escape(a)
-                    if a == '--SF-s' or a == '--SF-data-source':
-                        # Sigh. Guard to not copy first empty call into calls
-                        if call:
-                            calls.append(list(call))
-                        call = []
-                call.append(escape(a))
-                count += 1
-            # Copy the last call left from the loop we didn't copy into calls
-            if len(call):
-                calls.append(list(call))
-                
             for call in calls:
                 data_source, data_source_group, action, data_source_args = \
                         runner._parse_runner_args(call)
-                
-                
                 ret = runner._run_action(action, ret, data_source, data_source_group, data_source_args)
 
             status = '200 OK'
