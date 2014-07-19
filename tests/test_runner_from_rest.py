@@ -2,31 +2,44 @@ import unittest
 import sys
 sys.path.insert(0, '..')
 import sofine.rest_runner as rest_runner
+import sofine.lib.utils.conf as conf
 import urllib2
 import json
-import cgitb
-cgitb.enable()
+import multiprocessing
 
 
 class TestCase(unittest.TestCase):
-    
-    def test_runner_file_source(self):
-        rest_runner.make_test_rest_runner()
-        
-        post_data = {}
-        data_source = 'file_source'
-        data_source_group = 'standard'
-        path_arg = '-p'
-        path = './tests/fixtures/file_source_test_data.txt'
-        
-        url = 'http://localhost:{0}?FS-s={1}&FS-g={2}&{3}={3}'.format(
-                conf.REST_PORT, data_source, data_source_group, path_arg, path)
-        url_ret = urllib2.urlopen(url, post_data)
-        url_ret = url_ret.read()
-        url_ret = json.loads(url_ret)
+   
+    def setUp(self):
+        from wsgiref.simple_server import make_server
+        server = make_server('localhost', conf.REST_PORT, rest_runner.application)
+        self.server_process = multiprocessing.Process(target=server.serve_forever)
+        self.server_process.start()
 
-        self.assertTrue(set(url_ret.keys()) == set(['AAPL', 'MSFT']))
+
+    def tearDown(self):
+        self.server_process.terminate()
+        self.server_process.join()
+        del(self.server_process)
+
+
+    def test_rest_runner(self):
+        post_data = {"AAPL" : {}, "MSFT" : {}}
+        data_source = 'ystockquotelib'
+        data_source_group = 'example'
+        
+        url = 'http://localhost:{0}/SF-s/{1}/SF-g/{2}'.format(
+                conf.REST_PORT, data_source, data_source_group)
+        ret = urllib2.urlopen(url, json.dumps(post_data))
+        ret = ret.read()
+        ret = json.loads(ret)
+
+        # The keys returned match and there are attributes from the call for each key
+        self.assertTrue(set(ret.keys()) == set(['AAPL', 'MSFT']))
+        for k in ret.keys():
+            self.assertTrue(ret[k].keys())
 
 
 if __name__ == '__main__':  
     unittest.main()
+
