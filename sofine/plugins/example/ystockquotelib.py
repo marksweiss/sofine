@@ -1,4 +1,5 @@
 import ystockquote
+import sofine.lib.utils.utils as utils
 
 
 def get_data(keys, args):
@@ -26,9 +27,15 @@ def get_schema():
     """The set of all possible attribute keys returned for each key from this data
 source. This data source can return a different arbitrary subset of these keys
 in the dict of attributes returned for each key passed in the 'data' arg to get_data()."""
-    return ['fifty_two_week_low', 'market_cap', 'price', 'short_ratio', 'volume',
+    # Note the idiom of passing __file__ and current working directory and the schema names 
+    #  to a utility function to prepend each key with the plugin group and plugin name. 
+    #  This insures that each plugin returns attributes which have uniquely named keys 
+    #  and don't overwrite attributes from other plugins.
+    return utils.schema_namespacer(
+            utils.get_plugin_name(__file__), utils.get_plugin_group(__file__), 
+            ['fifty_two_week_low', 'market_cap', 'price', 'short_ratio', 'volume',
             'dividend_yield', 'avg_daily_volume', 'ebitda', 'change',
             'dividend_per_share', 'stock_exchange', 'two_hundred_day_moving_avg', 
             'fifty_two_week_high', 'price_sales_ratio', 'price_earnings_growth_ratio',
             'fifty_day_moving_avg', 'price_book_ratio', 'earnings_per_share', 
-            'price_earnings_ratio', 'book_value']
+            'price_earnings_ratio', 'book_value'])

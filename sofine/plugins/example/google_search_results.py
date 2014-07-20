@@ -1,0 +1,69 @@
+import urllib2
+import json
+import sofine.lib.utils.utils as utils
+
+
+def _query_google_search(k):
+    url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q={0}'.format(k)
+    ret = urllib2.urlopen(url)
+    ret = ret.read()
+    ret = json.loads(ret)
+    # Returns an array of JSON objects ("docs") in the ['responseData']['results'] key
+    # See get_schema() docstring below for more comlete documentation
+    
+    if ret: 
+        ret = {'results' : ret['responseData']['results']}
+    else:
+        ret = {'resutls' : []}
+    return ret
+
+
+def get_data(keys, args):
+    """Calls Google Search using their AJAX API to send a search query and return JSON."""
+    data = {}
+    for k in keys:
+        data[k] = _query_google_search(k)
+    return data
+
+
+def parse_args(argv):
+    """get_data() takes no arguments so this is a trivial pass-through."""
+    is_valid = True
+    return is_valid, argv
+
+
+def adds_keys():
+    """This data source cannot be the first in a chain of calls. It will add available 
+attributes to those mapped to each key in the data arg passed to get_data()"""
+    return False
+
+
+def get_schema():
+    return utils.schema_namespacer(
+            utils.get_plugin_name(__file__), utils.get_plugin_group(__file__), 
+            ['results'])
+
+
+def get_child_schema():
+    """An optional function to let users query this property of this plugin, which 
+returns a nested value which is itself a JSON object with these keys.
+
+This API returns an array of JSON objects, with the possible fields shown in the example.
+Hence the return time for this get_schema is a list of lists, because this plugin returns
+a list of objects, each with this possible set of keys.
+
+Example:
+{
+    "GsearchResultClass": "GwebSearch",
+    "cacheUrl": "http://www.google.com/search?q=cache:XhbIlCyrcXMJ:finance.yahoo.com",
+    "content": "View the basic <b>AAPL</b> stock chart on Yahoo! Finance. Change the date range, \nchart type and compare Apple Inc. against other companies.",
+    "title": "<b>AAPL</b>: Summary for Apple Inc.- Yahoo! Finance",
+    "titleNoFormatting": "AAPL: Summary for Apple Inc.- Yahoo! Finance",
+    "unescapedUrl": "http://finance.yahoo.com/q?s=AAPL",
+    "url": "http://finance.yahoo.com/q%3Fs%3DAAPL",
+    "visibleUrl": "finance.yahoo.com"
+}
+"""
+    return [['GsearchResultClass', 'unescapedUrl', 'url', 'visibleUrl', 'cacheUrl', 'title', 
+             'titleNoFormatting', 'content']]
+

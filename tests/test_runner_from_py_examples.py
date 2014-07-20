@@ -22,8 +22,46 @@ class TestCase(unittest.TestCase):
         # Assert that we have data for each key
         self.assertTrue(data[key])
         self.assertTrue(data[key2])
+    
+    
+    def test_runner_get_data_archive_dot_org(self):
+        key = 'AAPL'
+        data = {key : {}}
+        data_source = 'archive_dot_org_search_results'
+        data_source_group = 'example'
+        data_source_args = []
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
+        
+        self.assertTrue(data[key])
+        
+        key2 = 'MSFT'
+        data = {key : {}, key2 : {}}
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
+        
+        # Assert that we have data for each key
+        self.assertTrue(data[key])
+        self.assertTrue(data[key2])
 
 
+    def test_runner_get_data_google_search_results(self):
+        key = 'AAPL'
+        data = {key : {}}
+        data_source = 'google_search_results'
+        data_source_group = 'example'
+        data_source_args = []
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
+        
+        self.assertTrue(data[key])
+        
+        key2 = 'MSFT'
+        data = {key : {}, key2 : {}}
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
+        
+        # Assert that we have data for each key
+        self.assertTrue(data[key])
+        self.assertTrue(data[key2])
+    
+    
     def test_schema_ystockquote(self):
         key = 'AAPL'
         data = {key : {}}

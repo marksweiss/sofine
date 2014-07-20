@@ -8,29 +8,38 @@ import sys
 def get_data(data, data_source, data_source_group, data_source_args):
     """Main driver function. Takes a list of data_sources and a list of argument lists to call when 
 calling each data_source. Can be called directly or from main if this module was instantiated from the 
-command line."""
+command line.
+
+Here are the core data aggregation semantics:
+- If this is the first call in the chain, data is empty, so just fill it with the return of this call
+- If there is already data, add attribute key/value pairs associated with any existing keys 
+- Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and
+  do not overwrite other attributes with the same name from other plugins.  
+So, the set of keys on each call is the union of all previously collected keys
+So, the set of attributes associated with each key is the union of all previously collected attribute/value
+ pairs collected for that key.
+
+The final output looks like this:
+  {"key_1" : {"plugin_1::attr_name_1" : value, "plugin_1::attr_name_2" : value, "plugin_2::attr_name_1, value},
+   "key_2" : ...
+  }
+"""
     mod = utils.load_module(data_source, data_source_group)
     is_valid, parsed_args = mod.parse_args(data_source_args)
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
     
     new_data = mod.get_data(data.keys(), parsed_args)
-    
-    # Here are the core data aggregation semantics:
-    #  - if this is the first call in the chain, data is empty, so just fill it with the return of this call
-    #  - if there is already data, add attribute key/value pairs associated with any existing keys, 
-    #    so call update() on the value mapped to each key, which is a dict of attribute/values
-    #  - if there is already data, add any new keys discovered by this call to get_data as keys with new
-    #    empty attribute dicts
-    # So, the set of keys on each call is the union of all previously collected keys
-    # So, the set o attributes associated with each key is the union of all previously collected attribute/value
-    #  pairs collected for that key
+
     if len(new_data.keys()) > 0:
         for k in new_data.keys():
+            # Namespace the key of the attribute with a prefix of the name of the current plugin
+            namespaced_attrs = {utils.namespacer(data_source_group, data_source, name) : val 
+                                for name, val in new_data[k].iteritems()}            
             if k in data:
-                data[k].update(new_data[k])
+                data[k].update(namespaced_attrs)
             else:
-                data[k] = new_data[k]
+                data[k] = namespaced_attrs
     
     return data
 

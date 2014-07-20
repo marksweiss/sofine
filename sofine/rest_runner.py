@@ -49,45 +49,64 @@ As with CLI and Python lib usage, the 'action' argument is optional for the
     return calls
 
 
+def _get_traceback():
+    e_type, e_value, tb = exc_info()
+    traceback = format_tb(tb)
+    traceback.append('%s: %s' % (e_type.__name__, e_value))
+    return '\n'.join(traceback)
+
+
+def _run_action(ret, call):
+    data_source, data_source_group, action, data_source_args = \
+            runner._parse_runner_args(call)
+    return runner._run_action(action, ret, data_source, data_source_group, data_source_args)
+
+
 def application(environ, start_response):
     """The runner for REST calls to plugins. Note that use of the 'file_source'
 plugin included in the 'standard' sofine plugins directory is NOT supported, for
 security reasons. Allowing it would allow HTTP calls access to the local file system."""
-
-    ret = '{}'
-    status = ''
-    headers = None
+    ret = {} 
+    status = '200 OK'
+    headers = [('Content-type', 'application/json')]
+    
+    calls = _parse_calls_from_path(environ.get('PATH_INFO'))
 
     method = environ['REQUEST_METHOD']
-    if method != 'POST':
-        status = '405 Method Not Allowed'
-        headers = [('Content-type', 'text/plain')]
-        ret = status + '. Only POST method is allowed'
-    else:
+    # This is a POST call to get_data. Get any data from the POST body, and support
+    #  parsing out and looping over multiple calls in the REST path
+    if method == 'POST':
         try:
             # Get ret, which initializes to any data provided in the POST body 
             ret_len = int(environ['CONTENT_LENGTH'])
             ret = environ['wsgi.input'].read(ret_len)
             ret = json.loads(ret)
                 
-            calls = _parse_calls_from_path(environ.get('PATH_INFO'))
-
             for call in calls:
-                data_source, data_source_group, action, data_source_args = \
-                        runner._parse_runner_args(call)
-                ret = runner._run_action(action, ret, data_source, data_source_group, data_source_args)
+                ret = _run_action(ret, call)
 
             status = '200 OK'
             headers = [('Content-type', 'application/json')]
         except:
-            e_type, e_value, tb = exc_info()
-            traceback = format_tb(tb)
-            traceback.append('%s: %s' % (e_type.__name__, e_value))
-            result = '\n'.join(traceback)
-        
+            ret = _get_traceback()
             status = '404 Not Found'
             headers = [('Content-type', 'text/plain')]
-    
+    # This is a GET call to get_schema, adds_keys or parse_args
+    elif method == 'GET':
+        try:
+            # The query GET methods don't support chaining. _parse_calls_from_path()
+            #  returns a list of calls. So here just get the first call.
+            ret = _run_action(ret, calls[0])
+        except:
+            ret = _get_traceback()
+            status = '404 Not Found'
+            headers = [('Content-type', 'text/plain')]
+    # Only POST and GET are allowed
+    else:
+        status = '405 Method Not Allowed'
+        headers = [('Content-type', 'text/plain')]
+        ret = status + '. Only the POST and GET verbs are allowed'
+
     start_response(status, headers)
     return [json.dumps(ret)]
 
