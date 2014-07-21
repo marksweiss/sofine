@@ -1,10 +1,28 @@
 import unittest
 import sys
-sys.path.insert(0, '..')
 import sofine.runner as runner
+import sofine.lib.utils.utils as utils
+
 
 class TestCase(unittest.TestCase):
     
+    def test_runner_mock(self):
+        data = {"AAPL" : {}, "MSFT" : {}}
+        data_source = 'ystockquotelib_mock'
+        data_source_group = 'mock'
+        data_source_args = []
+        data = runner.get_data(data, data_source, data_source_group, data_source_args)
+        
+        actual_keys = set(data.keys())
+        expected_keys = set(['AAPL', 'MSFT'])
+
+        self.assertTrue(expected_keys == actual_keys)
+        for k in actual_keys:
+            self.assertTrue(len(data[k]))
+            for attr_key in data[k]:
+                self.assertTrue(data[k][attr_key] is not None)
+
+
     def test_runner_file_source(self):
         data = {}
         data_source = 'file_source'
@@ -14,8 +32,10 @@ class TestCase(unittest.TestCase):
         path = './tests/fixtures/file_source_test_data.txt'
         data_source_args = ['-p', path]
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
-        
-        self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
+       
+        actual_keys = set(data.keys())
+        expected_keys = set(['AAPL', 'MSFT']) 
+        self.assertTrue(expected_keys == actual_keys)
 
 
     # To run:
@@ -35,19 +55,26 @@ class TestCase(unittest.TestCase):
         data_source_args = ['-p', path]
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
-        self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
+        expected_keys = set(
+                [utils.namespacer(data_source_group, data_source, key) for key in ['AAPL', 'MSFT']])
+        
+        self.assertTrue(expected_keys == set(data.keys()))
 
 
-    def test_schema_file_source(self):
+    def test_get_keys_file_source(self):
+        data = {}
         data_source = 'file_source'
         data_source_group = 'standard'
         path = './tests/fixtures/file_source_test_data.txt'
         args = ['-p', path]
-        actual_keys = runner.get_schema(data_source, data_source_group, args)
         
-        expected_keys = set(['AAPL', 'MSFT'])
+        data = runner.get_data(data, data_source, data_source_group, args)
+        keys_from_data = set(data.keys())
         
-        self.assertTrue(expected_keys == set(actual_keys['schema']))
+        plugin_mod = runner.get_plugin_module(data_source, data_source_group)
+        keys_from_get_keys = set(plugin_mod.get_keys(path))
+        
+        self.assertTrue(keys_from_data == keys_from_get_keys)
 
 
     def test_adds_keys_file_source(self):
@@ -66,6 +93,17 @@ class TestCase(unittest.TestCase):
         actual = runner.parse_args(data_source, data_source_group, args)
 
         self.assertTrue(actual['is_valid'] and actual['parsed_args'] == [path])
+
+    
+    def test_get_schema(self):
+        data = {'AAPL' : {}}
+        data_source = 'ystockquotelib_mock'
+        data_source_group = 'mock'
+        args = []
+        data = runner.get_data(data, data_source, data_source_group, args)
+        schema = runner.get_schema(data_source, data_source_group)
+
+        self.assertTrue(set(data['AAPL'].keys()) == set(schema['schema']))
 
 
     def test_runner_get_data_batch(self):
@@ -91,8 +129,8 @@ class TestCase(unittest.TestCase):
         data_sources = ['file_source', 'file_source', 'ystockquotelib_mock']
         data_source_groups = ['standard', 'standard', 'mock']
         
-        path = './tests/fixtures/file_source_test_data.txt'
-        file_source_args_1 = ['-p', path]
+        path_1 = './tests/fixtures/file_source_test_data.txt'
+        file_source_args_1 = ['-p', path_1]
         path_2 = './tests/fixtures/file_source_test_data_2.txt'
         file_source_args_2 = ['-p', path_2]
         ystockquote_args = []
@@ -100,18 +138,30 @@ class TestCase(unittest.TestCase):
         data_source_args = [file_source_args_1, file_source_args_2, ystockquote_args]
         data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
 
+        # Use the runner interface to get a plugin module to call the public 
+        #  module-scope helper defined in file_source, get_keys(). This lets us
+        #  pass in a path and get back the keys that that file_source config
+        #  at that path adds.
+        # This design pattern of being able to retrieve a module is useful in general
+        #  for plugin implementations that want to expose module-scope attributes
+        #  and helper. Here it lets us introspect state that the module can access.
+        #  This could be useful in many situations besides testing. For example,
+        #  the very thing we are doing here, looking at which step in a pipeline
+        #  added which keys, might be useful in other situations.
+        file_source_plug_mod = runner.get_plugin_module('file_source', 'standard')
+        file_source_keys_1 = file_source_plug_mod.get_keys(path_1)
+        file_source_keys_2 = file_source_plug_mod.get_keys(path_2)
+
         # Assert that final output has keys from each file_source step
-        file_source_keys_1 = runner.get_schema('file_source', 'standard', file_source_args_1)
-        file_source_keys_2 = runner.get_schema('file_source', 'standard', file_source_args_2)
-        for k in file_source_keys_1['schema']:
+        for k in file_source_keys_1:
             self.assertTrue(k in data)
-        for k in file_source_keys_2['schema']:
+        for k in file_source_keys_2:
             self.assertTrue(k in data)
         # Assert that the final output has values from ystockquotelib_mock for 
         #  keys added by file_source
-        for k in file_source_keys_1['schema']:
+        for k in file_source_keys_1:
             self.assertTrue(len(data[k].keys()))
-        for k in file_source_keys_2['schema']:
+        for k in file_source_keys_2:
             self.assertTrue(len(data[k].keys()))
 
 

@@ -3,7 +3,6 @@ import sys
 import subprocess
 import inspect
 import json
-sys.path.insert(0, '..')
 import sofine.runner as runner
 
 
@@ -62,19 +61,21 @@ class RunnerFromCliTestCase(unittest.TestCase):
 
 
     def test_runner_main_get_schema(self):
-        path = './tests/fixtures/file_source_test_data.txt'
-        cmd = "python ./sofine/runner.py '--SF-s file_source --SF-g standard --SF-a get_schema -p {0}'".format(path)
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out = proc.stdout.read()
-        out = json.loads(out)
-        self.assertTrue(set(out['schema']) == set(['MSFT', 'AAPL']))
-        # Now assert the keys in get_data() out match those in get_schema() out
-        path = './tests/fixtures/file_source_test_data.txt'
-        cmd_get_data = "python ./sofine/runner.py '--SF-s file_source --SF-g standard -p {0}'".format(path)
+        cmd_get_schema = "python ./sofine/runner.py '--SF-s ystockquotelib_mock --SF-g mock --SF-a get_schema'"
+        proc = subprocess.Popen(cmd_get_schema, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        schema_out = proc.stdout.read()
+        schema_out = json.loads(schema_out)
+        schema_attr_keys = set(schema_out['schema'])
+
+        cmd_get_data = "echo '{\"TWTR\" : {}}'"
+        cmd_get_data += " | "
+        cmd_get_data += "python ./sofine/runner.py '--SF-s ystockquotelib_mock --SF-g mock'"
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         data_out = proc.stdout.read()
         data_out = json.loads(data_out)
-        self.assertTrue(set(out['schema']) == set(data_out.keys()))
+        data_attr_keys = set(data_out['TWTR'].keys())
+        
+        self.assertTrue(schema_attr_keys == data_attr_keys)
 
     
     def test_runner_main_adds_keys(self):

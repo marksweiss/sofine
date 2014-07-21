@@ -5,6 +5,14 @@ import json
 import sys
 
 
+# TODO Real packaging so can install into Python
+# NOTE THAT user plugins directory will be broken until this is done
+#  because plugins now depend on importing sofine.plugins.plugin_base
+# TODO README documentation in markdown
+# TODO LICENSE
+# TODO Present at a Python projects meetup to get feedback
+
+
 def get_data(data, data_source, data_source_group, data_source_args):
     """Main driver function. Takes a list of data_sources and a list of argument lists to call when 
 calling each data_source. Can be called directly or from main if this module was instantiated from the 
@@ -24,18 +32,19 @@ The final output looks like this:
    "key_2" : ...
   }
 """
-    mod = utils.load_module(data_source, data_source_group)
-    is_valid, parsed_args = mod.parse_args(data_source_args)
+    plugin = utils.load_plugin(data_source, data_source_group)
+    is_valid, parsed_args = plugin.parse_args(data_source_args)
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
     
-    new_data = mod.get_data(data.keys(), parsed_args)
+    new_data = plugin.get_data(data.keys(), parsed_args)
 
     if len(new_data.keys()) > 0:
         for k in new_data.keys():
             # Namespace the key of the attribute with a prefix of the name of the current plugin
             namespaced_attrs = {utils.namespacer(data_source_group, data_source, name) : val 
                                 for name, val in new_data[k].iteritems()}            
+            
             if k in data:
                 data[k].update(namespaced_attrs)
             else:
@@ -55,7 +64,7 @@ data_source_args (len == {2)}""".format(len(data_sources), len(data_source_group
     
     for j in range(0, len(data_sources)):
         data = get_data(data, data_sources[j], data_source_groups[j], data_source_args[j])
-
+    
     return data
 
 
@@ -65,29 +74,40 @@ attribute dict mapped to each key in data. Not all data sources gurarantee they 
 return all attribute keys for each key in data, and not all data sources guarantee
 they will return the same set of attribute keys for each key in data in one returned
 data set."""
-    mod = utils.load_module(data_source, data_source_group)
+    plugin = utils.load_plugin(data_source, data_source_group)
     schema = None
     if not args:
-        schema = mod.get_schema()
+        schema = plugin.get_schema()
     else:
-        is_valid, parsed_args = mod.parse_args(args)
+        is_valid, parsed_args = plugin.parse_args(args)
         if not is_valid:
             raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
-        schema = mod.get_schema(parsed_args)
+        schema = plugin.get_schema(parsed_args)
    
     return {"schema" : schema} 
 
 
 def adds_keys(data_source, data_source_group):
-    mod = utils.load_module(data_source, data_source_group)
-    adds_keys = mod.adds_keys()
+    plugin = utils.load_plugin(data_source, data_source_group)
+    adds_keys = plugin.adds_keys()
     return {"adds_keys" : adds_keys}
 
 
 def parse_args(data_source, data_source_group, data_source_args):
-    mod = utils.load_module(data_source, data_source_group)
-    is_valid, parsed_args = mod.parse_args(data_source_args)
+    plugin = utils.load_plugin(data_source, data_source_group)
+    is_valid, parsed_args = plugin.parse_args(data_source_args)
     return {"is_valid" : is_valid, "parsed_args" : parsed_args}
+
+
+def get_plugin_module(data_source, data_source_group):
+    """Convenience function for clients to get an instance of a plugin module. 
+This lets plugin implementers expose free functions in the module and have client 
+code be able to access them."""
+    return utils.load_plugin_module(data_source, data_source_group)
+
+
+def get_plugin(data_source, data_source_group):
+    return utils.load_plugin(data_source, data_source_group)
 
 
 def _parse_runner_args(args):

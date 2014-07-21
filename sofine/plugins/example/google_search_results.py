@@ -1,9 +1,9 @@
 import urllib2
 import json
-import sofine.lib.utils.utils as utils
+from sofine.plugins import plugin_base as plugin_base
 
 
-def _query_google_search(k):
+def query_google_search(k):
     url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q={0}'.format(k)
     ret = urllib2.urlopen(url)
     ret = ret.read()
@@ -14,34 +14,9 @@ def _query_google_search(k):
     if ret: 
         ret = {'results' : ret['responseData']['results']}
     else:
-        ret = {'resutls' : []}
+        ret = {'results' : []}
+    
     return ret
-
-
-def get_data(keys, args):
-    """Calls Google Search using their AJAX API to send a search query and return JSON."""
-    data = {}
-    for k in keys:
-        data[k] = _query_google_search(k)
-    return data
-
-
-def parse_args(argv):
-    """get_data() takes no arguments so this is a trivial pass-through."""
-    is_valid = True
-    return is_valid, argv
-
-
-def adds_keys():
-    """This data source cannot be the first in a chain of calls. It will add available 
-attributes to those mapped to each key in the data arg passed to get_data()"""
-    return False
-
-
-def get_schema():
-    return utils.schema_namespacer(
-            utils.get_plugin_name(__file__), utils.get_plugin_group(__file__), 
-            ['results'])
 
 
 def get_child_schema():
@@ -66,4 +41,34 @@ Example:
 """
     return [['GsearchResultClass', 'unescapedUrl', 'url', 'visibleUrl', 'cacheUrl', 'title', 
              'titleNoFormatting', 'content']]
+
+
+class GoogleSearchResults(plugin_base.PluginBase):
+
+    def __init__(self):
+        self.name = 'google_search_results'
+        self.group = 'example'
+        self.schema = ['results']
+
+    def get_data(self, keys, args):
+        """Calls Google Search using their AJAX API to send a search query and return JSON."""
+        data = {}
+        for k in keys:
+            data[k] = query_google_search(k)
+        return data
+
+
+    def parse_args(self, argv):
+        """get_data() takes no arguments so this is a trivial pass-through."""
+        is_valid = True
+        return is_valid, argv
+
+
+    def adds_keys(self):
+        """This data source cannot be the first in a chain of calls. It will add available 
+attributes to those mapped to each key in the data arg passed to get_data()"""
+        return False
+
+
+plugin = GoogleSearchResults 
 

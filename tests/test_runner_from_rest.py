@@ -55,7 +55,7 @@ class TestCase(unittest.TestCase):
         ret = json.loads(ret)
 
         # The keys returned match and there are attributes from the call for each key
-        self.assertTrue(set(ret.keys()) == set(['AAPL', 'MSFT']))
+        self.assertTrue(set(ret.keys()) == set(post_data.keys()))
         for k in ret.keys():
             self.assertTrue(ret[k].keys())
 

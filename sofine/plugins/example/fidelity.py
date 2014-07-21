@@ -40,6 +40,9 @@ from optparse import OptionParser
 from bs4 import BeautifulSoup
 import mechanize
 
+from sofine.plugins import plugin_base as plugin_base
+
+
 HOST = 'www.fidelity.com'
 LOGIN_PAGE = 'https://login.fidelity.com/ftgw/Fidelity/RtlCust/Login/Init'
 LOGIN_FORM_ACTION = 'https://login.fidelity.com/ftgw/Fas/Fidelity/RtlCust/Login/Response'
@@ -48,91 +51,8 @@ PROXY = ''
 ACCOUNT_PAGE = 'https://oltx.fidelity.com/ftgw/fbc/ofpositions/brokerageAccountPositions?ACCOUNT=%s'
 
 
-def get_data(keys, args):
-    """Retrieves data for the portfolio identified by the args passed in. Does not look
-at the value in keys argument, since this is a pure source that simply retrieves data
-from an outside resource for the args it recieves.
-"""
-    customer_id, pin, account_id, customer_email = args
-    br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
-    data = _get_fidelity_position_data(br, account_id)
-    return data
-
-
-def parse_args(argv):
-    usage = """
-WARNING: This script requires that you pass your username, password 
-and accountId. This script calls cleartext only to the login form. 
-Once logged in subsequent HTML calls are https. That said, you are 
-passing this in clear text when running this from your shell, 
-so your system must be secure and that is YOUR responsibility. Also, 
-of course, do NOT store this information unencryted in a plain text
-file anywhere, ever.
-
-[-c|--customer-id] - Customer Id. Required.
-[-p|--pin] - Customer PIN number or password. Required.
-[-a|--account-id] - Customer account from which to retrieve position information. Required.
-[-e|--customer-email] - Customer email. Required.
-"""
-    parser = OptionParser(usage=usage)
-
-    parser.add_option("-c", "--customer-id", 
-                      action="store", dest="customer_id",
-                      help="Customer Id of the customer to retrieve position data for. Required.") 
-
-    parser.add_option("-p", "--pin", 
-                      action="store", dest="pin",
-                      help="Customer pin number. Required.") 
-
-    parser.add_option("-a", "--account-id", 
-                      action="store", dest="account_id",
-                      help="Customer account from which to retrieve position information. Required.") 
-    
-    parser.add_option("-e", "--customer-email", 
-                      action="store", dest="customer_email",
-                      help="Customer account from which to retrieve position information. Required.") 
-
-    (opts, args) = parser.parse_args(argv)
-    
-    is_valid = True
-    if not (opts.customer_id and \
-            opts.pin and \
-            opts.account_id and \
-            opts.customer_email):
-        print "Invalid argument error."
-        print """
-Your args:  
-  customer_id {0} 
-  pin {1} 
-  account_id {2} 
-  customer_email {3}""".format(opts.customer_id, opts.pin, opts.account_id, opts.customer_email)
-        print usage
-        is_valid = False
-    
-    # NOTE: the protocol for parse_args is to pass the returned args in a list
-    return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]
-
-
-def adds_keys():
-    """This data source must be the first call in a chain of calls. It will ignore 
-any data passed to it, and it will return data with a set of keys and attributes 
-matching those found in the account for the user and password and account passed as
-arguments to get_data()
-"""
-    return True
-
-
-def get_schema():
-    """The set of all possible attribute keys returned for each key from this data
-source. This data source should always return all of these keys, but does not
-guarantee this.
-"""
-    return ['change_since_purchase', 'description', 'change_since_purchase_pct', 
-            'quantity']
-
 def _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email):
-    """Login in to fidelity.com.
-"""
+    """Login in to fidelity.com."""
     
     # By default, store the RRD file in the same directory as this script.
     # RRD = '%s/fidelity-balance.rrd' % os.path.dirname(sys.argv[0])
@@ -197,9 +117,7 @@ def _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, custom
 
 
 def _get_fidelity_position_data(br, account_id):
-    """
-    Retrieve the data from the Fidelity Account Positions page.
-    """
+    """Retrieve the data from the Fidelity Account Positions page."""
     
     r = br.open(ACCOUNT_PAGE % account_id)
     strip_script = re.compile(r'<script\s+.*?</script>', re.I + re.S)
@@ -269,4 +187,90 @@ def _get_fidelity_position_data(br, account_id):
                 }
 
     return position_data
+
+
+class FidelityPortfolioScraper(plugin_base.PluginBase):
+
+    def __init__(self):
+        self.name = 'fidelity'
+        self.group = 'example'
+        self.schema = ['change_since_purchase', 'description', 
+                       'change_since_purchase_pct', 'quantity']
+
+
+    def get_data(self, keys, args):
+        """Retrieves data for the portfolio identified by the args passed in. Does not look
+at the value in keys argument, since this is a pure source that simply retrieves data
+from an outside resource for the args it recieves.
+"""
+        customer_id, pin, account_id, customer_email = args
+        br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
+        data = _get_fidelity_position_data(br, account_id)
+        return data
+
+
+    def parse_args(self, argv):
+        usage = """
+WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.
+
+[-c|--customer-id] - Customer Id. Required.
+[-p|--pin] - Customer PIN number or password. Required.
+[-a|--account-id] - Customer account from which to retrieve position information. Required.
+[-e|--customer-email] - Customer email. Required.
+"""
+        parser = OptionParser(usage=usage)
+
+        parser.add_option("-c", "--customer-id", 
+                        action="store", dest="customer_id",
+                        help="Customer Id of the customer to retrieve position data for. Required.") 
+
+        parser.add_option("-p", "--pin", 
+                        action="store", dest="pin",
+                        help="Customer pin number. Required.") 
+
+        parser.add_option("-a", "--account-id", 
+                        action="store", dest="account_id",
+                        help="Customer account from which to retrieve position information. Required.") 
+    
+        parser.add_option("-e", "--customer-email", 
+                        action="store", dest="customer_email",
+                        help="Customer account from which to retrieve position information. Required.") 
+
+        (opts, args) = parser.parse_args(argv)
+    
+        is_valid = True
+        if not (opts.customer_id and \
+                opts.pin and \
+                opts.account_id and \
+                opts.customer_email):
+            print "Invalid argument error."
+            print """
+Your args:  
+  customer_id {0} 
+  pin {1} 
+  account_id {2} 
+  customer_email {3}""".format(opts.customer_id, opts.pin, opts.account_id, opts.customer_email)
+            print usage
+            is_valid = False
+    
+        # NOTE: the protocol for parse_args is to pass the returned args in a list
+        return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]
+
+
+    def adds_keys(self):
+        """This data source must be the first call in a chain of calls. It will ignore 
+any data passed to it, and it will return data with a set of keys and attributes 
+matching those found in the account for the user and password and account passed as
+arguments to get_data()
+"""
+        return True
+
+
+plugin = FidelityPortfolioScraper
 

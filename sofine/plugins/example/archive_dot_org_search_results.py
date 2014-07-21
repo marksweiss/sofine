@@ -1,46 +1,9 @@
 import urllib2
 import json
-import sofine.lib.utils.utils as utils
+from sofine.plugins import plugin_base as plugin_base
 
 
-def _query_archive_dot_org(k):
-    url = 'http://archive.org/advancedsearch.php?q={0}&output=json'.format(k)
-    ret = urllib2.urlopen(url)
-    ret = ret.read()
-    ret = json.loads(ret)
-    # Returns an array of JSON objects ("docs") in the ['response']['docs'] key
-    # See get_schema() docstring below for more comlete documentation
-    return {'docs' : ret['response']['docs']}
-
-
-def get_data(keys, args):
-    """Calls archive.org using their CGI query string API to send a search query and
-return JSON."""
-    data = {}
-    for k in keys:
-        data[k] = _query_archive_dot_org(k)
-    return data
-
-
-def parse_args(argv):
-    """get_data() takes no arguments so this is a trivial pass-through."""
-    is_valid = True
-    return is_valid, argv
-
-
-def adds_keys():
-    """This data source cannot be the first in a chain of calls. It will add available 
-attributes to those mapped to each key in the data arg passed to get_data()"""
-    return False
-
-
-def get_schema():
-    return utils.schema_namespacer(
-            utils.get_plugin_name(__file__), utils.get_plugin_group(__file__), 
-            ['docs'])
-
-
-def get_child_schema():
+def get_child_schema(self):
     """An optional function to let users query this property of this plugin, which 
 returns a nested value which is itself a JSON object with these keys.
 
@@ -75,5 +38,53 @@ Example:
 }
 """
     return [['year', 'title', 'description', 'mediatype', 'publicdate', 'downloads', 'week',
-            'month', 'identifier', 'format', 'collection', 'creator', 'score']]
+             'month', 'identifier', 'format', 'collection', 'creator', 'score']]
+
+
+def query_archive_dot_org(k):
+    url = 'http://archive.org/advancedsearch.php?q={0}&output=json'.format(k)
+    ret = urllib2.urlopen(url)
+    ret = ret.read()
+    ret = json.loads(ret)
+    # Returns an array of JSON objects ("docs") in the ['response']['docs'] key
+    # See get_schema() docstring below for more comlete documentation
+    if ret:
+        ret = {'docs' : ret['response']['docs']}
+    else:
+        ret = {'docs' : []}
+
+    return ret
+
+
+class ArchiveDotOrgSearchResults(plugin_base.PluginBase):
+
+    def __init__(self):
+        self.name = 'archive_dot_org_search_results'
+        self.group = 'example'
+        self.schema = ['docs']
+   
+
+    def get_data(self, keys, args):
+        """Calls archive.org using their CGI query string API to send a search query and
+return JSON."""
+        data = {}
+        for k in keys:
+            data[k] = query_archive_dot_org(k)
+        return data
+
+
+    def parse_args(self, argv):
+        """get_data() takes no arguments so this is a trivial pass-through."""
+        is_valid = True
+        return is_valid, argv
+
+
+    def adds_keys(self):
+        """This data source cannot be the first in a chain of calls. It will add available 
+attributes to those mapped to each key in the data arg passed to get_data()"""
+        return False
+
+
+
+plugin = ArchiveDotOrgSearchResults
 
