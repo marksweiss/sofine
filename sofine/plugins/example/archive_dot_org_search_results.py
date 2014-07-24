@@ -62,6 +62,7 @@ class ArchiveDotOrgSearchResults(plugin_base.PluginBase):
         self.name = 'archive_dot_org_search_results'
         self.group = 'example'
         self.schema = ['docs']
+        self.adds_keys = False
    
 
     def get_data(self, keys, args):
@@ -77,13 +78,6 @@ return JSON."""
         """get_data() takes no arguments so this is a trivial pass-through."""
         is_valid = True
         return is_valid, argv
-
-
-    def adds_keys(self):
-        """This data source cannot be the first in a chain of calls. It will add available 
-attributes to those mapped to each key in the data arg passed to get_data()"""
-        return False
-
 
 
 plugin = ArchiveDotOrgSearchResults

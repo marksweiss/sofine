@@ -14,6 +14,7 @@ class YStockQuoteLib(plugin_base.PluginBase):
                        'price_sales_ratio', 'price_earnings_growth_ratio',
                        'fifty_day_moving_avg', 'price_book_ratio', 'earnings_per_share', 
                        'price_earnings_ratio', 'book_value']
+        self.adds_keys = False
 
             
     def get_data(self, keys, args):
@@ -27,11 +28,6 @@ as a key in 'keys'."""
         is_valid = True
         return is_valid, argv
 
-
-    def adds_keys(self):
-        """This data source cannot be the first in a chain of calls. It will add available 
-attributes to those mapped to each key in the data arg passed to get_data()"""
-        return False
 
 plugin = YStockQuoteLib
 

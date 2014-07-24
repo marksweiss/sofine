@@ -4,9 +4,14 @@ import sofine.lib.utils.utils as utils
 class PluginBase(object):
     
     def __init__(self):
+        """The default implementation just returns the default value for the attribute. 
+This is the correct behavior for a simple plugin that doesn't add keys but simply adds 
+name/value attribute data to the keys it receives. A plugin that does add keys should simply 
+override the default value for 'self.adds_keys' in '__init__()'."""
         self.name = None
         self.group = None
         self.schema = []
+        self.adds_keys = False
 
 
     def get_schema(self, args=None):

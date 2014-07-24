@@ -196,6 +196,11 @@ class FidelityPortfolioScraper(plugin_base.PluginBase):
         self.group = 'example'
         self.schema = ['change_since_purchase', 'description', 
                        'change_since_purchase_pct', 'quantity']
+        # This data source must be the first call in a chain of calls. It will ignore 
+        #  any data passed to it, and it will return data with a set of keys and 
+        #  attributes matching those found in the account for the user and 
+        #  password and account passed in
+        self.adds_keys = True
 
 
     def get_data(self, keys, args):
@@ -261,15 +266,6 @@ Your args:
     
         # NOTE: the protocol for parse_args is to pass the returned args in a list
         return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]
-
-
-    def adds_keys(self):
-        """This data source must be the first call in a chain of calls. It will ignore 
-any data passed to it, and it will return data with a set of keys and attributes 
-matching those found in the account for the user and password and account passed as
-arguments to get_data()
-"""
-        return True
 
 
 plugin = FidelityPortfolioScraper
