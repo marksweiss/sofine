@@ -14,6 +14,12 @@ override the default value for 'self.adds_keys' in '__init__()'."""
         self.adds_keys = False
 
 
+    def parse_args(self, argv):
+        """The default implementation for a simplep plugin that takes no arguments"""
+        is_valid = True
+        return is_valid, argv
+
+
     def get_schema(self, args=None):
         """The default implementation is to just call the helper to namespace the 
 list of attribute names in self.schema. Dynamic plugins, like 'file_source' in the 

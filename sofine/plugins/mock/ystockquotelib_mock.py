@@ -23,11 +23,5 @@ as a key in 'keys'."""
         return {ticker : mock_attributes for ticker in keys}
 
 
-    def parse_args(self, argv):
-        """get_data() takes no arguments so this is a trivial pass-through."""
-        is_valid = True
-        return is_valid, argv
-
-
 plugin = YstockquoteLibMock
 

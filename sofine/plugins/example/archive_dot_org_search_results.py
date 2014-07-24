@@ -74,11 +74,5 @@ return JSON."""
         return data
 
 
-    def parse_args(self, argv):
-        """get_data() takes no arguments so this is a trivial pass-through."""
-        is_valid = True
-        return is_valid, argv
-
-
 plugin = ArchiveDotOrgSearchResults
 
