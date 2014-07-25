@@ -1,3 +1,14 @@
+"""
+This module is the main driver for calls to plugins from the CLI interface. 
+It also has all of the scaffolding and wrapper functions required to generically invoke 
+and run any of the supported plugin methods in the plugin interface for any plugin 
+with just the plugin name, group and args.
+
+rest_runner.py uses all of the facilities of runner.py, basically just wrapping it and 
+translating HTTP paths and POST payloads into calls into this API.
+"""
+
+
 import lib.utils.utils as utils
 import lib.utils.conf as conf
 from optparse import OptionParser
@@ -9,7 +20,6 @@ import sys
 # NOTE THAT user plugins directory will be broken until this is done
 #  because plugins now depend on importing sofine.plugins.plugin_base
 # TODO README documentation in markdown
-# TODO LICENSE
 # TODO Present at a Python projects meetup to get feedback
 
 
@@ -107,6 +117,9 @@ code be able to access them."""
 
 
 def get_plugin(data_source, data_source_group):
+    """Convenience function for clients to get an instance of a plugin. 
+This lets plugin implementers expose free functions in the module and have client 
+code be able to access them."""
     return utils.load_plugin(data_source, data_source_group)
 
 
