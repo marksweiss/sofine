@@ -97,16 +97,16 @@ data set."""
     return {"schema" : schema} 
 
 
-def adds_keys(data_source, data_source_group):
-    plugin = utils.load_plugin(data_source, data_source_group)
-    adds_keys = plugin.adds_keys()
-    return {"adds_keys" : adds_keys}
-
-
 def parse_args(data_source, data_source_group, data_source_args):
     plugin = utils.load_plugin(data_source, data_source_group)
     is_valid, parsed_args = plugin.parse_args(data_source_args)
     return {"is_valid" : is_valid, "parsed_args" : parsed_args}
+
+
+def adds_keys(data_source, data_source_group):
+    plugin = utils.load_plugin(data_source, data_source_group)
+    adds_keys = plugin.adds_keys
+    return {"adds_keys" : adds_keys}
 
 
 def get_plugin_module(data_source, data_source_group):

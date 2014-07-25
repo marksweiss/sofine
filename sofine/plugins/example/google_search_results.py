@@ -49,6 +49,8 @@ class GoogleSearchResults(plugin_base.PluginBase):
         self.name = 'google_search_results'
         self.group = 'example'
         self.schema = ['results']
+        self.adds_keys = False
+
 
     def get_data(self, keys, args):
         """Calls Google Search using their AJAX API to send a search query and return JSON."""
@@ -56,18 +58,6 @@ class GoogleSearchResults(plugin_base.PluginBase):
         for k in keys:
             data[k] = query_google_search(k)
         return data
-
-
-    def parse_args(self, argv):
-        """get_data() takes no arguments so this is a trivial pass-through."""
-        is_valid = True
-        return is_valid, argv
-
-
-    def adds_keys(self):
-        """This data source cannot be the first in a chain of calls. It will add available 
-attributes to those mapped to each key in the data arg passed to get_data()"""
-        return False
 
 
 plugin = GoogleSearchResults 

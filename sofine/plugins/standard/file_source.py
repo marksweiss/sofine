@@ -32,6 +32,8 @@ class FileSource(plugin_base.PluginBase):
         #  provides keys to the data set, not attributes for those keys. So
         #  it's schema property is [] 
         self.schema = []
+        # This plugin adds keys from it's file
+        self.adds_keys = True
 
 
     def get_data(self, keys, args):
@@ -70,13 +72,6 @@ Your args:
 
         return is_valid, [opts.path]
 
-
-    def adds_keys(self):
-        """This data source must be the first call in a chain of calls. It will ignore 
-any data passed to it, and it will return data with a set of keys and attributes 
-matching those found in the file it reads from."""
-        return True
-  
 
 plugin = FileSource
 
