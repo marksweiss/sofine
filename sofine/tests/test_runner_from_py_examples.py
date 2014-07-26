@@ -82,7 +82,7 @@ class TestCase(unittest.TestCase):
         data = {}
         data_sources = ['file_source', 'ystockquotelib']
         data_source_groups = ['standard', 'example']
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         file_source_args = ['-p', path]
         ystockquote_args = []
         data_source_args = [file_source_args, ystockquote_args]
@@ -101,9 +101,9 @@ class TestCase(unittest.TestCase):
         data_sources = ['file_source', 'file_source', 'ystockquotelib']
         data_source_groups = ['standard', 'standard', 'example']
         
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         file_source_args_1 = ['-p', path]
-        path_2 = './tests/fixtures/file_source_test_data_2.txt'
+        path_2 = './sofine/tests/fixtures/file_source_test_data_2.txt'
         file_source_args_2 = ['-p', path_2]
         ystockquote_args = []
         

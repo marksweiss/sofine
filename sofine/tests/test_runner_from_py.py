@@ -29,7 +29,7 @@ class TestCase(unittest.TestCase):
         data_source_group = 'standard'
         # This path needs to match the path relative to file_source.py
         #  where the code using the path variable to find the test data file runs
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         data_source_args = ['-p', path]
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
        
@@ -51,7 +51,7 @@ class TestCase(unittest.TestCase):
         data_source_group = 'standard'
         # This path needs to match the path relative to file_source.py
         #  where the code using the path variable to find the test data file runs
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         data_source_args = ['-p', path]
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
@@ -65,7 +65,7 @@ class TestCase(unittest.TestCase):
         data = {}
         data_source = 'file_source'
         data_source_group = 'standard'
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         args = ['-p', path]
         
         data = runner.get_data(data, data_source, data_source_group, args)
@@ -88,7 +88,7 @@ class TestCase(unittest.TestCase):
     def test_parse_args_file_source(self):
         data_source = 'file_source'
         data_source_group = 'standard'
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         args = ['-p', path]
         actual = runner.parse_args(data_source, data_source_group, args)
 
@@ -110,7 +110,7 @@ class TestCase(unittest.TestCase):
         data = {}
         data_sources = ['file_source', 'ystockquotelib_mock']
         data_source_groups = ['standard', 'mock']
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         file_source_args = ['-p', path]
         ystockquote_args = []
         data_source_args = [file_source_args, ystockquote_args]
@@ -129,9 +129,9 @@ class TestCase(unittest.TestCase):
         data_sources = ['file_source', 'file_source', 'ystockquotelib_mock']
         data_source_groups = ['standard', 'standard', 'mock']
         
-        path_1 = './tests/fixtures/file_source_test_data.txt'
+        path_1 = './sofine/tests/fixtures/file_source_test_data.txt'
         file_source_args_1 = ['-p', path_1]
-        path_2 = './tests/fixtures/file_source_test_data_2.txt'
+        path_2 = './sofine/tests/fixtures/file_source_test_data_2.txt'
         file_source_args_2 = ['-p', path_2]
         ystockquote_args = []
         

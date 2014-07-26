@@ -48,7 +48,7 @@ class RunnerFromCliExamplesTestCase(unittest.TestCase):
         cmd_get_data = "python ./sofine/runner.py '--SF-s fidelity --SF-g example {0} {1} {2} {3} {4} {5} {6} {7}".format(
                 c, customer_id, p, password, a, account_id, e, email)
         cmd_get_data += "|"
-        path = './tests/fixtures/file_source_test_data.txt'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
         cmd_get_data += "--SF-s file_source --SF-g standard -p {0}".format(path)
         cmd_get_data += "|"
         cmd_get_data += "--SF-s ystockquotelib --SF-g example'"

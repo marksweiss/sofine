@@ -9,8 +9,8 @@ translating HTTP paths and POST payloads into calls into this API.
 """
 
 
-import lib.utils.utils as utils
-import lib.utils.conf as conf
+import sofine.lib.utils.utils as utils
+import sofine.lib.utils.conf as conf
 from optparse import OptionParser
 import json
 import sys
