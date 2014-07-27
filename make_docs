@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Cleaning previous docs"
+echo "Cleaning previous documentation"
 rm -rf docs
 mkdir docs
 mkdir docs/sofine

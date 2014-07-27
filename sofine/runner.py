@@ -2,12 +2,8 @@
 This module is the main driver for calls to plugins from the CLI interface. 
 It also has all of the scaffolding and wrapper functions required to generically invoke 
 and run any of the supported plugin methods in the plugin interface for any plugin 
-with just the plugin name, group and args.
-
-rest_runner.py uses all of the facilities of runner.py, basically just wrapping it and 
-translating HTTP paths and POST payloads into calls into this API.
+using just the plugin name, plugin group and call args.
 """
-
 
 import sofine.lib.utils.utils as utils
 import sofine.lib.utils.conf as conf
@@ -19,28 +15,42 @@ import sys
 # TODO Real packaging so can install into Python
 # NOTE THAT user plugins directory will be broken until this is done
 #  because plugins now depend on importing sofine.plugins.plugin_base
-# TODO README documentation in markdown
 # TODO Present at a Python projects meetup to get feedback
 
 
 def get_data(data, data_source, data_source_group, data_source_args):
-    """Main driver function. Takes a list of data_sources and a list of argument lists to call when 
-calling each data_source. Can be called directly or from main if this module was instantiated from the 
-command line.
+    """
+* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+Any data collected by this call with append new keys and values to `data`, and append new attribute keys 
+and values for existing keys into the dict associated with that key. Also, if this call is invoked from a 
+piped command line call piping to sofine, that will be detected and `data` will be read from `stdin`, 
+overriding whatever value is passed in for this arg.
+* `data_source` - `string`. The name of the plugin being called.
+* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.
+* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements 
+referring to argument names and argument values.
 
-Here are the core data aggregation semantics:
-- If this is the first call in the chain, data is empty, so just fill it with the return of this call
-- If there is already data, add attribute key/value pairs associated with any existing keys 
-- Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and
-  do not overwrite other attributes with the same name from other plugins.  
-So, the set of keys on each call is the union of all previously collected keys
-So, the set of attributes associated with each key is the union of all previously collected attribute/value
- pairs collected for that key.
+Main driver function for retrieving data from a plugin. Calls a plugin's _required_ `get_data` method. 
+Takes a list of data_sources and a list of argument lists to call when calling each data_source. 
+Can be called directly or from `main` if this module was instantiated from the command line.
+
+This method operates based on the core data aggregation semantics of the library:
+
+* If this is the first call in the chain, data is empty, so just fill it with the return of this call
+* If there is already data, add any new keys retrieved and add attribute key/value pairs associated 
+with any new or existing keys 
+* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and
+do not overwrite other attributes with the same name from other plugins  
+* So, the set of keys on each call is the union of all previously collected keys
+* So, the set of attributes associated with each key is the union of all previously collected attribute/value
+ pairs collected for that key
 
 The final output looks like this:
-  {"key_1" : {"plugin_1::attr_name_1" : value, "plugin_1::attr_name_2" : value, "plugin_2::attr_name_1, value},
-   "key_2" : ...
-  }
+    
+    {"key_1" : {"plugin_1::attr_name_1" : value, "plugin_1::attr_name_2" : value, "plugin_2::attr_name_1, value},
+    "key_2" : ...
+    }
+
 """
     plugin = utils.load_plugin(data_source, data_source_group)
     is_valid, parsed_args = plugin.parse_args(data_source_args)
@@ -64,6 +74,21 @@ The final output looks like this:
 
 
 def get_data_batch(data, data_sources, data_source_groups, data_source_args):
+    """
+* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+Any data collected by this call with append new keys and values to `data`, and append new attribute keys 
+and values for existing keys into the dict associated with that key. 
+* `data_source` - `list`. A list of names of plugins being called.
+* `data_source_group` - `list`.  A list of names of plugin groups for the plugins being called.
+* `data_source_args` - `list of list`. A list of lists of args for the plugin calls, in argv format with alternating elements 
+referring to argument names and argument values.
+    
+Convenience wrapper for users of sofine as a Python library. This function lets a user pass in 
+a list of data sources, a list of plugin groups and a list of lists of arguments for each plugin call. 
+Note that the elements must be in order in each argument: data source name in position 0 must match 
+data source group in position 0 and the list of args for that call in `data_source_args[0]`.
+"""
+    
     if len(data_sources) != len(data_source_args) or \
             len(data_sources) != len(data_source_groups) or \
             len(data_source_groups) != len(data_source_args):
@@ -79,11 +104,26 @@ data_source_args (len == {2)}""".format(len(data_sources), len(data_source_group
 
 
 def get_schema(data_source, data_source_group, args=None):
-    """Return the schema fields for a data source. This is the set of keys in the
-attribute dict mapped to each key in data. Not all data sources gurarantee they will
-return all attribute keys for each key in data, and not all data sources guarantee
-they will return the same set of attribute keys for each key in data in one returned
-data set."""
+    """
+* `data_source` - `string`. The name of the plugin being called.
+* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.
+* `args` - `any`. This is a bit of a hack, but basically there are use cases that could require args in 
+order to figure out the schema of available fields. Maybe a plugin wraps access to a data store that allows 
+arbitary or varying schemas per document retrieved. Or maybe, like the included `standard.file_source` 
+plugin, it wraps access to a config that can provide an arbitrary list of fields.
+
+This returns the value for a plugin's _optional_ (but highly recommended) `self.schema` attribute. 
+This method lets plugin users introspect the plugin to ask what schema fields it provides, that is, what 
+set of attribute keys can it to the attributes dict for each key in data.
+
+Note that the default implementation is provided by `PluginBase` and it returns a properly namespaced list 
+of attribute keys. All the plugin creator has to do is set the `self.schema` attribute of their plugin to a 
+list of strings of the attribute keys it can return.
+
+Not all data sources gurarantee they will return all attribute keys for each key in data, and not 
+all data sources guarantee they will return the same set of attribute keys for each key in data in 
+one returned data set.
+"""
     plugin = utils.load_plugin(data_source, data_source_group)
     schema = None
     if not args:
@@ -98,28 +138,59 @@ data set."""
 
 
 def parse_args(data_source, data_source_group, data_source_args):
+    """
+* `data_source` - `string`. The name of the plugin being called.
+* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.
+* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements 
+referring to argument names and argument values.
+
+A wrapper which calls a plugin's _required_ `parse_args` method. This method must parse arguments the plugin's `get_data` 
+call requires, with the arguments in argv format with alternating elements referring to argument 
+names and argument values.
+
+The method is also responsible for validating arguments and returning a boolean `is_valid` as well as the 
+parsed (and possibly modified) args.
+"""
     plugin = utils.load_plugin(data_source, data_source_group)
     is_valid, parsed_args = plugin.parse_args(data_source_args)
     return {"is_valid" : is_valid, "parsed_args" : parsed_args}
 
 
 def adds_keys(data_source, data_source_group):
+    """
+* `data_source` - `string`. The name of the plugin being called.
+* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.
+
+A wrapper which calls a plugin's _optional_ (but recommended) `adds_keys` method. This introspection method 
+lets plugin users ask whether a plugin adds its own keys to the `data` output or simply adds key/value 
+attributes to the dicts being built by sofine for each key in `data`.
+"""
     plugin = utils.load_plugin(data_source, data_source_group)
     adds_keys = plugin.adds_keys
     return {"adds_keys" : adds_keys}
 
 
 def get_plugin_module(data_source, data_source_group):
-    """Convenience function for clients to get an instance of a plugin module. 
+    """
+* `data_source` - `string`. The name of the plugin being called.
+* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.
+    
+Convenience function for clients to get an instance of a plugin module. 
 This lets plugin implementers expose free functions in the module and have client 
-code be able to access them."""
+code be able to access them.
+"""
     return utils.load_plugin_module(data_source, data_source_group)
 
 
 def get_plugin(data_source, data_source_group):
-    """Convenience function for clients to get an instance of a plugin. 
+    """
+* `data_source` - `string`. The name of the plugin being called.
+* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.
+
+Convenience function for clients to get an instance of a plugin. 
 This lets plugin implementers expose free functions in the module and have client 
-code be able to access them."""
+code be able to access them.
+"""
     return utils.load_plugin(data_source, data_source_group)
 
 
@@ -186,48 +257,52 @@ def main(argv):
     """Entry point if called from the command line. Parses CLI args, validates them and calls run(). 
 The arguments dedicated to this framework are expected to precede the remaining args 
 (for clarity of reading the entire command) but don't need to. In order to clearly
-separate from the args required for the call being run, they are preceded by '--SF_*'.
+separate from the args required for the call being run, they are preceded by `--SF_*`.
 
 There is a short form and long form of each command:
-    [--SF-s|--SF-data-source] - The name of the data source being called. This is the 
-        name of the plugin module being called. Required.
-    [--SF-g|--SF-data-source-group] - The plugin group where the plugin lives. This is 
-        the plugins subdirectory where the plugin module is deployed. Required.
-    [--SF-a|--SF-action] - The plugin action being called. One of four supported actions
-        that must be part of every plugin:
-            - 'get_data' - retrieves available data for the keys passed to it
-            - 'adds_keys' - returns a JSON object with the attribute 'adds_keys' and a 
-                boolean indicating whether the data source adds keys or just gets data 
-                for the keys passed to it
-            - 'get_schema' - returns a JSON object with the attribute 'schema' and the 
-                schema of attributes which this data source may add for each key
-            - 'parse_args' - returns the values parsed for the arguments passed to the call being 
-                made as a JSON object with an attribute 'args' and an array of parsed args,
-                and an attribute 'is_valid' with a boolean indicating whether parsing succeeded.
-    The '--SF-a|--SF-action' argument is Optional. If you don't pass it, 'get_data' is assumed.  
+    
+* `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the
+name of the plugin module being called. Required.
+* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is 
+the plugins subdirectory where the plugin module is deployed. Required.
+`[--SF-a|--SF-action]` - The plugin action being called. One of four supported actions that must be part of every plugin:
+`get_data`: 
 
-Calls to 'get_data' can be piped together. All the calls must be enclosed in quotes as shown 
-in the examples below.  Calls to 'adds_keys' and 'get_schema' and 'parse_args' cannot 
+- retrieves available data for the keys passed to it
+- `adds_keys` - returns a JSON object with the attribute `adds_keys` and a 
+boolean indicating whether the data source adds keys or just gets data for the keys passed to it
+- `get_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which 
+this data source may add for each key
+- `parse_args` - returns the values parsed for the arguments passed to the call being 
+made as a JSON object with an attribute `args` and an array of parsed args,
+and an attribute `is_valid` with a boolean indicating whether parsing succeeded.
+
+The `[--SF-a|--SF-action]` argument is Optional. If you don't pass it, `get_data` is assumed.  
+
+Calls to `get_data` can be piped together. All the calls must be enclosed in quotes as shown 
+in the examples below.  Calls to `adds_keys` and `get_schema` and `parse_args` cannot 
 be piped. Only the first data-source and data-source group passed to the call with this 
 action will be used to perform that action and return the result.
 
 The complete interface for a call piping two get_data calls together:
-    PATH/runner.py '[--SF-s|--SF-data-source] DATA_SOURCE_1 \
-                    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_1 \
-                    ARGS | \ 
-                    [--SF-s|--SF-data-source] DATA_SOURCE_2 \
-                    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_2 \
-                    ARGS'
+    
+    PATH/runner.py \'[--SF-s|--SF-data-source] DATA_SOURCE_1 \\
+    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_1 \\
+    ARGS | \\ 
+    [--SF-s|--SF-data-source] DATA_SOURCE_2 \\
+    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_2 \\
+    ARGS\'
 
 An example call piping two get_data calls together:
-    PATH/runner.py '--SF-s fidelity --SF-g examples \
-                    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL | \
-                    --SF-s ystockquotelib --SF-g examples'
+    
+    PATH/runner.py \'--SF-s fidelity --SF-g examples \\
+    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL | \\
+    --SF-s ystockquotelib --SF-g examples\'
 
 An example get_schema call:
-    PATH/runner.py '--SF-s fidelity --SF-g examples --SF-a get_schema \
-                    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL'
-
+    
+    PATH/runner.py \'--SF-s fidelity --SF-g examples --SF-a get_schema \\
+    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL\'
 """
    
     # If input passed from stdin, set initial data in chain of calls to that.

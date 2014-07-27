@@ -1,0 +1,1880 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>		<html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>		<html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+
+      <title>fidelity API documentation</title>
+      <meta name="description" content="">
+
+  
+  <style type="text/css">
+  
+/*! normalize.css v1.1.1 | MIT License | git.io/normalize */
+
+/* ==========================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/**
+ * Correct `block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/**
+ * Correct `inline-block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
+ * Known issue: no IE 6 support.
+ */
+
+[hidden] {
+    display: none;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+/**
+ * 1. Prevent system color scheme's background color being used in Firefox, IE,
+ *    and Opera.
+ * 2. Prevent system color scheme's text color being used in Firefox, IE, and
+ *    Opera.
+ * 3. Correct text resizing oddly in IE 6/7 when body `font-size` is set using
+ *    `em` units.
+ * 4. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+    background: #fff; /* 1 */
+    color: #000; /* 2 */
+    font-size: 100%; /* 3 */
+    -webkit-text-size-adjust: 100%; /* 4 */
+    -ms-text-size-adjust: 100%; /* 4 */
+}
+
+/**
+ * Address `font-family` inconsistency between `textarea` and other form
+ * elements.
+ */
+
+html,
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+}
+
+/**
+ * Address margins handled incorrectly in IE 6/7.
+ */
+
+body {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+/**
+ * Address `outline` inconsistency between Chrome and other browsers.
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/**
+ * Improve readability when focused and also mouse hovered in all browsers.
+ */
+
+a:active,
+a:hover {
+    outline: 0;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/**
+ * Address font sizes and margins set differently in IE 6/7.
+ * Address font sizes within `section` and `article` in Firefox 4+, Safari 5,
+ * and Chrome.
+ */
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 0.83em 0;
+}
+
+h3 {
+    font-size: 1.17em;
+    margin: 1em 0;
+}
+
+h4 {
+    font-size: 1em;
+    margin: 1.33em 0;
+}
+
+h5 {
+    font-size: 0.83em;
+    margin: 1.67em 0;
+}
+
+h6 {
+    font-size: 0.67em;
+    margin: 2.33em 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Safari 5, and Chrome.
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/**
+ * Address style set to `bolder` in Firefox 3+, Safari 4/5, and Chrome.
+ */
+
+b,
+strong {
+    font-weight: bold;
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/**
+ * Address styling not present in Safari 5 and Chrome.
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/**
+ * Address differences between Firefox and other browsers.
+ * Known issue: no IE 6/7 normalization.
+ */
+
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 6/7/8/9.
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+p,
+pre {
+    margin: 1em 0;
+}
+
+/**
+ * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.
+ */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/**
+ * Improve readability of pre-formatted text in all browsers.
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/**
+ * Address CSS quotes not supported in IE 6/7.
+ */
+
+q {
+    quotes: none;
+}
+
+/**
+ * Address `quotes` property not supported in Safari 4.
+ */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+
+small {
+    font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+dl,
+menu,
+ol,
+ul {
+    margin: 1em 0;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+/**
+ * Address paddings set differently in IE 6/7.
+ */
+
+menu,
+ol,
+ul {
+    padding: 0 0 0 40px;
+}
+
+/**
+ * Correct list images handled incorrectly in IE 7.
+ */
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+/* ==========================================================================
+   Embedded content
+   ========================================================================== */
+
+/**
+ * 1. Remove border when inside `a` element in IE 6/7/8/9 and Firefox 3.
+ * 2. Improve image quality when scaled in IE 7.
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/**
+ * Correct overflow displayed oddly in IE 9.
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+/**
+ * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.
+ */
+
+figure {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+/**
+ * Correct margin displayed oddly in IE 6/7.
+ */
+
+form {
+    margin: 0;
+}
+
+/**
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/**
+ * 1. Correct color not being inherited in IE 6/7/8/9.
+ * 2. Correct text not wrapping in Firefox 3.
+ * 3. Correct alignment displayed oddly in IE 6/7.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0;
+    white-space: normal; /* 2 */
+    *margin-left: -7px; /* 3 */
+}
+
+/**
+ * 1. Correct font size not being inherited in all browsers.
+ * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,
+ *    and Chrome.
+ * 3. Improve appearance and consistency in all browsers.
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+}
+
+/**
+ * Address Firefox 3+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct `select` style inheritance in Firefox 4+ and Opera.
+ */
+
+button,
+select {
+    text-transform: none;
+}
+
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ * 4. Remove inner spacing in IE 7 without affecting normal text inputs.
+ *    Known issue: inner spacing remains in IE 6.
+ */
+
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+    -webkit-appearance: button; /* 2 */
+    cursor: pointer; /* 3 */
+    *overflow: visible;  /* 4 */
+}
+
+/**
+ * Re-set default cursor for disabled elements.
+ */
+
+button[disabled],
+html input[disabled] {
+    cursor: default;
+}
+
+/**
+ * 1. Address box sizing set to content-box in IE 8/9.
+ * 2. Remove excess padding in IE 8/9.
+ * 3. Remove excess padding in IE 7.
+ *    Known issue: excess padding remains in IE 6.
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+    *height: 13px; /* 3 */
+    *width: 13px; /* 3 */
+}
+
+/**
+ * 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome.
+ * 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome
+ *    (include `-moz` to future-proof).
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/**
+ * Remove inner padding and search cancel button in Safari 5 and Chrome
+ * on OS X.
+ */
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/**
+ * Remove inner padding and border in Firefox 3+.
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/**
+ * 1. Remove default vertical scrollbar in IE 6/7/8/9.
+ * 2. Improve readability and alignment in all browsers.
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+/**
+ * Remove most spacing between table cells.
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+  </style>
+
+  <style type="text/css">
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #ddd;
+    height: 100%;
+  }
+
+  #container {
+    width: 840px;
+    background-color: #fdfdfd;
+    color: #111;
+    margin: 0 auto;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    padding: 10px 25px;
+    min-height: 100%;
+  }
+
+  #nav {
+    font-size: 130%;
+    margin: 0 0 15px 0;
+  }
+
+  #top {
+    display: block;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    font-size: 140%;
+  }
+
+  h1 {
+    margin: 0 0 10px 0;
+  }
+
+  h2 {
+    margin: 25px 0 10px 0;
+  }
+
+  h3 {
+    margin: 25px 0 10px 0;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 105%;
+  }
+
+  a {
+    color: #058;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #e08524;
+  }
+
+  p {
+    line-height: 1.35em;
+  }
+
+  pre, code, .mono, .name {
+    font-family: "Ubuntu Mono", "Cousine", "DejaVu Sans Mono", monospace;
+  }
+
+  .ident {
+    color: #900;
+  }
+
+  code {
+    background: #e8e8e8;
+  } 
+
+  pre {
+    background: #e8e8e8;
+    padding: 6px;
+    margin: 0 30px;
+  }
+
+  .codehilite {
+    margin: 0 30px 10px 30px;
+  }
+
+    .codehilite pre {
+      margin: 0;
+    }
+
+  table#module-list {
+    font-size: 110%;
+  }
+
+    table#module-list tr td:first-child {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    table#module-list td {
+      vertical-align: top;
+      padding-bottom: 8px;
+    }
+
+      table#module-list td p {
+        margin: 0 0 7px 0;
+      }
+
+  .def {
+    display: table;
+  }
+
+    .def p {
+      display: table-cell;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .def p:first-child {
+      white-space: nowrap;
+    }
+
+    .def p:last-child {
+      width: 100%;
+    }
+
+  ul#index {
+    padding: 0;
+    margin: 0;
+  }
+
+    ul#index .class_name {
+      /* font-size: 110%; */
+      font-weight: bold;
+    }
+
+    ul#index li {
+      margin-bottom: 18px;
+    }
+
+      ul#index ul li {
+        margin-bottom: 8px;
+      }
+
+    ul#index, ul#index ul {
+      list-style-type: none;
+    }
+
+    ul#index ul {
+      margin: 0 0 10px 20px;
+      padding: 0;
+    }
+
+  .column_list {
+    width: 100%;
+    display: inline-block;
+    margin-left: 20px;
+  }
+
+  .column_list:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    height: 0;
+    content: " ";
+    clear: both;
+  }
+
+    .column_list ul {
+      float: left;
+      text-align: left;
+      width: 32%;
+      margin: 0 !important;
+    }
+
+  .item {
+    margin: 0 0 25px 0;
+  }
+
+    .item .class {
+      margin: 0 0 25px 30px;
+    }
+
+      .item .class ul.class_list {
+        margin: 0 0 20px 0;
+      }
+
+    .item .name {
+      background: #e8e8e8;
+      padding: 4px;
+      margin: 0 0 8px 0;
+      font-size: 110%;
+      font-weight: bold;
+    }
+
+    .item .empty_desc {
+      margin: 0 0 5px 0;
+      padding: 0;
+    }
+
+    .item .inheritance {
+      margin: 3px 0 10px 0;
+      padding: 0 8px;
+    }
+
+    .item .inherited {
+      color: #666;
+    }
+
+    .item .desc {
+      padding: 0 8px;
+      margin: 0;
+    }
+
+      .item .desc p {
+        margin: 0 0 10px 0;
+      }
+
+    .source_cont {
+      margin: 10px 8px 0 8px;
+      padding: 0;
+    }
+
+    .source_link {
+      font-weight: bold;
+    }
+
+    .source {
+      display: none;
+      max-height: 600px;
+      overflow-y: scroll;
+      margin-bottom: 15px;
+    }
+
+      .source .codehilite {
+        margin: 0;
+      }
+
+  .desc h1, .desc h2, .desc h3 {
+    font-size: 100% !important;
+  }
+
+  /*****************************/
+
+  </style>
+
+    <style type="text/css">
+    .codehilite .hll { background-color: #ffffcc }
+.codehilite  { background: #f8f8f8; }
+.codehilite .c { color: #408080; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #FF0000 } /* Error */
+.codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666666 } /* Operator */
+.codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
+.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .gr { color: #FF0000 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888888 } /* Generic.Output */
+.codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #0044DD } /* Generic.Traceback */
+.codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+.codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #B00040 } /* Keyword.Type */
+.codehilite .m { color: #666666 } /* Literal.Number */
+.codehilite .s { color: #BA2121 } /* Literal.String */
+.codehilite .na { color: #7D9029 } /* Name.Attribute */
+.codehilite .nb { color: #008000 } /* Name.Builtin */
+.codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #880000 } /* Name.Constant */
+.codehilite .nd { color: #AA22FF } /* Name.Decorator */
+.codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #0000FF } /* Name.Function */
+.codehilite .nl { color: #A0A000 } /* Name.Label */
+.codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #19177C } /* Name.Variable */
+.codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+.codehilite .mf { color: #666666 } /* Literal.Number.Float */
+.codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+.codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+.codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+.codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+.codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+.codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+.codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.codehilite .sx { color: #008000 } /* Literal.String.Other */
+.codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
+.codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+.codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+.codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.codehilite .vc { color: #19177C } /* Name.Variable.Class */
+.codehilite .vg { color: #19177C } /* Name.Variable.Global */
+.codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+.codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+    </style>
+
+  <style type="text/css">
+  
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
+
+  </style>
+
+  <script type="text/javascript">
+    function toggle(id, $link) {
+      $node = document.getElementById(id);
+      if (!$node)
+        return;
+      if (!$node.style.display || $node.style.display == 'none') {
+        $node.style.display = 'block';
+        $link.innerHTML = 'Hide source.';
+      } else {
+        $node.style.display = 'none';
+        $link.innerHTML = 'Show source.';
+      }
+    }
+  </script>
+</head>
+<body>
+
+<div id="container">
+
+    
+  
+
+  
+
+
+  <h1>Module fidelity</h1>
+  
+  
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity', this);">Show source.</a></p>
+    <div id="source-fidelity" class="source">
+      <div class="codehilite"><pre><span class="c"># www.fidelity.com account positions scraper</span>
+
+<span class="c"># Copyright (c) 2009 Matthew J Ernisse &lt;mernisse@ub3rgeek.net&gt;</span>
+<span class="c"># Copyright (c) 2009 John Morrissey &lt;jwm@horde.net&gt;</span>
+<span class="c"># Copyright (c) 2014 Mark Weiss &lt;marksweiss@yahoo.com&gt;</span>
+
+<span class="c"># Redistribution and use in source and binary forms,</span>
+<span class="c"># with or without modification, are permitted provided</span>
+<span class="c"># that the following conditions are met:</span>
+<span class="c">#</span>
+<span class="c">#    * Redistributions of source code must retain the</span>
+<span class="c">#      above copyright notice, this list of conditions</span>
+<span class="c">#      and the following disclaimer.</span>
+<span class="c">#    * Redistributions in binary form must reproduce</span>
+<span class="c">#      the above copyright notice, this list of conditions</span>
+<span class="c">#      and the following disclaimer in the documentation</span>
+<span class="c">#      and/or other materials provided with the distribution.</span>
+<span class="c">#</span>
+<span class="c"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS</span>
+<span class="c"># FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE</span>
+<span class="c"># COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,</span>
+<span class="c"># INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,</span>
+<span class="c"># BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS</span>
+<span class="c"># OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</span>
+<span class="c"># ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR</span>
+<span class="c"># TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE</span>
+<span class="c"># USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c">#</span>
+<span class="c"># $Id$</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">HTTPError</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+
+<span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="kn">import</span> <span class="nn">mechanize</span>
+
+<span class="kn">from</span> <span class="nn">sofine.plugins</span> <span class="kn">import</span> <span class="n">plugin_base</span> <span class="k">as</span> <span class="n">plugin_base</span>
+
+
+<span class="n">HOST</span> <span class="o">=</span> <span class="s">&#39;www.fidelity.com&#39;</span>
+<span class="n">LOGIN_PAGE</span> <span class="o">=</span> <span class="s">&#39;https://login.fidelity.com/ftgw/Fidelity/RtlCust/Login/Init&#39;</span>
+<span class="n">LOGIN_FORM_ACTION</span> <span class="o">=</span> <span class="s">&#39;https://login.fidelity.com/ftgw/Fas/Fidelity/RtlCust/Login/Response&#39;</span>
+<span class="n">DEBUG</span> <span class="o">=</span> <span class="bp">False</span> 
+<span class="n">PROXY</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="n">ACCOUNT_PAGE</span> <span class="o">=</span> <span class="s">&#39;https://oltx.fidelity.com/ftgw/fbc/ofpositions/brokerageAccountPositions?ACCOUNT=</span><span class="si">%s</span><span class="s">&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Login in to fidelity.com.&quot;&quot;&quot;</span>
+    
+    <span class="c"># By default, store the RRD file in the same directory as this script.</span>
+    <span class="c"># RRD = &#39;%s/fidelity-balance.rrd&#39; % os.path.dirname(sys.argv[0])</span>
+    <span class="c"># Keep this many years of data in the RRD.</span>
+    <span class="c"># RRD_KEEP_LENGTH = 3</span>
+
+    <span class="c"># Set this to a filename if you want to write a tab file instead of</span>
+    <span class="c"># creating/updating an RRD. The file format is compatible with the</span>
+    <span class="c"># T. Rowe Price (trp) scraper by John Morrissey &lt;jwm@horde.net&gt;.</span>
+    <span class="c"># TAB = &#39;&#39;</span>
+
+    <span class="c"># Initialize mechanize settings</span>
+    <span class="n">br</span> <span class="o">=</span> <span class="n">mechanize</span><span class="o">.</span><span class="n">Browser</span><span class="p">()</span>
+    <span class="n">br</span><span class="o">.</span><span class="n">set_handle_robots</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">br</span><span class="o">.</span><span class="n">set_handle_refresh</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">br</span><span class="o">.</span><span class="n">set_handle_redirect</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+    <span class="c"># This e-mail address will be appended to the User-Agent header, so</span>
+    <span class="c"># the site can contact you about your scraping if they so desire.</span>
+    <span class="n">br</span><span class="o">.</span><span class="n">addheaders</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">&#39;User-agent&#39;</span><span class="p">,</span>
+            <span class="s">&#39;Mozilla/5.0 (X11; U; Linux i686; en-US; rv 1.0) </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">customer_email</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">PROXY</span><span class="p">:</span>
+        <span class="n">br</span><span class="o">.</span><span class="n">set_proxies</span><span class="p">({</span>
+            <span class="s">&#39;http&#39;</span><span class="p">:</span> <span class="n">PROXY</span><span class="p">,</span>
+            <span class="s">&#39;https&#39;</span><span class="p">:</span> <span class="n">PROXY</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">DEBUG</span><span class="p">:</span>
+        <span class="n">br</span><span class="o">.</span><span class="n">set_debug_http</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">br</span><span class="o">.</span><span class="n">set_debug_responses</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">br</span><span class="o">.</span><span class="n">set_debug_redirects</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&#39;mechanize&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">br</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">LOGIN_PAGE</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%d</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">msg</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">br</span><span class="o">.</span><span class="n">viewing_html</span><span class="p">():</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;Unable to retrieve HTML for login page, has </span><span class="si">%s</span><span class="s"> changed?&#39;</span> <span class="o">%</span> <span class="n">HOST</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">br</span><span class="o">.</span><span class="n">select_form</span><span class="p">(</span><span class="s">&#39;Login&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">mechanize</span><span class="o">.</span><span class="n">FormNotFoundError</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;Unable to locate login form, has </span><span class="si">%s</span><span class="s"> changed?&#39;</span> <span class="o">%</span> <span class="n">HOST</span><span class="p">)</span>
+
+    <span class="c"># The form action is set by some validation JavaScript, so we have to</span>
+    <span class="c"># blindly set it ourselves.</span>
+    <span class="n">br</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">LOGIN_FORM_ACTION</span>
+    <span class="n">br</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">set_all_readonly</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">br</span><span class="p">[</span><span class="s">&#39;SSN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">customer_id</span> 
+    <span class="n">br</span><span class="p">[</span><span class="s">&#39;PIN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pin</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">submit</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%d</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">msg</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">br</span>
+
+
+<span class="k">def</span> <span class="nf">_get_fidelity_position_data</span><span class="p">(</span><span class="n">br</span><span class="p">,</span> <span class="n">account_id</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retrieve the data from the Fidelity Account Positions page.&quot;&quot;&quot;</span>
+    
+    <span class="n">r</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">ACCOUNT_PAGE</span> <span class="o">%</span> <span class="n">account_id</span><span class="p">)</span>
+    <span class="n">strip_script</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;&lt;script\s+.*?&lt;/script&gt;&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">strip_script</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">get_data</span><span class="p">()),</span> <span class="s">&quot;lxml&quot;</span><span class="p">)</span>
+
+    <span class="c"># This is the data structure we fill up with data about each position in the portfolio</span>
+    <span class="c"># Keyed to ticker for that security</span>
+    <span class="n">position_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">positions_div</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;class&#39;</span> <span class="p">:</span> <span class="s">&#39;layout-open-positions-data-tables-region&#39;</span><span class="p">})</span>
+        
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;Unable to locate positions div&#39;</span><span class="p">)</span>
+
+    <span class="n">ticker_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">&#39;^javascript:popWin\(</span><span class="se">\&#39;</span><span class="s">https://fastquote.fidelity.com/webxpress/popup_frameset.phtml\?SID_VALUE_ID=&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">posn</span> <span class="ow">in</span> <span class="n">positions_div</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;tbody&#39;</span><span class="p">):</span>
+        <span class="n">ticker</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="n">quantity</span> <span class="o">=</span> <span class="s">&#39;&#39;</span> 
+        <span class="n">change_since_purchase</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="n">change_since_purchase_pct</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+
+        <span class="n">posn_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">posn</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;td&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">posn_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">quantity</span> <span class="o">=</span> <span class="n">posn_list</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            
+            <span class="n">cspl</span> <span class="o">=</span> <span class="n">posn_list</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span><span class="o">.</span><span class="n">contents</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cspl</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">change_since_purchase</span> <span class="o">=</span> <span class="n">cspl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+            <span class="n">csppl</span> <span class="o">=</span> <span class="n">posn_list</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="o">.</span><span class="n">contents</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">csppl</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">change_since_purchase_pct</span> <span class="o">=</span> <span class="n">csppl</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">posn</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">&#39;td&#39;</span><span class="p">):</span>
+            <span class="c"># First cell in the row has the ticker</span>
+            <span class="n">ticker_elem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;href&#39;</span> <span class="p">:</span> <span class="n">ticker_re</span><span class="p">})</span>
+            <span class="c"># ticker_elem = elem.find(attrs={&#39;id&#39; : &#39;anchor_{0}_DrillDown&#39;.format(account_id)})</span>
+            <span class="k">if</span> <span class="n">ticker_elem</span><span class="p">:</span>
+                <span class="n">ticker_str</span> <span class="o">=</span> <span class="n">ticker_elem</span><span class="o">.</span><span class="n">string</span>
+                <span class="k">if</span> <span class="n">ticker_str</span><span class="p">:</span>
+                    <span class="n">ticker_str</span> <span class="o">=</span> <span class="n">ticker_str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">ticker_str</span> <span class="o">!=</span> <span class="s">&#39;News&#39;</span><span class="p">:</span>
+                        <span class="n">ticker</span> <span class="o">=</span> <span class="n">ticker_str</span>
+            <span class="c"># Second cell in the row has the short and full description</span>
+            <span class="n">desc_elem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;id&#39;</span> <span class="p">:</span> <span class="s">&#39;fullDesc&#39;</span><span class="p">})</span>
+            <span class="k">if</span> <span class="n">desc_elem</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">desc_elem</span><span class="o">.</span><span class="n">contents</span><span class="p">):</span>
+                <span class="n">desc_str</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="c"># Sometimes this has an anchor tag etc., but only if it&#39;s a row</span>
+                <span class="c">#  with cash or something else that doesn&#39;t have a ticket</span>
+                <span class="c"># So try to get string and we will be able to if there is a ticker</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">desc_str</span> <span class="o">=</span> <span class="n">desc_elem</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">string</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="k">if</span> <span class="n">desc_str</span><span class="p">:</span>
+                    <span class="n">description</span> <span class="o">=</span> <span class="n">desc_str</span>
+       
+        <span class="k">if</span> <span class="n">ticker</span><span class="p">:</span>
+            <span class="n">position_data</span><span class="p">[</span><span class="n">ticker</span><span class="p">]</span> <span class="o">=</span> \
+                <span class="p">{</span>
+                    <span class="s">&#39;description&#39;</span> <span class="p">:</span> <span class="n">description</span><span class="p">,</span> 
+                    <span class="s">&#39;quantity&#39;</span> <span class="p">:</span> <span class="n">quantity</span><span class="p">,</span>
+                    <span class="s">&#39;change_since_purchase&#39;</span> <span class="p">:</span> <span class="n">change_since_purchase</span><span class="p">,</span>
+                    <span class="s">&#39;change_since_purchase_pct&#39;</span> <span class="p">:</span> <span class="n">change_since_purchase_pct</span>
+                <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">position_data</span>
+
+
+<span class="k">class</span> <span class="nc">FidelityPortfolioScraper</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
+                       <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
+        <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
+        <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
+        <span class="c">#  attributes matching those found in the account for the user and </span>
+        <span class="c">#  password and account passed in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
+<span class="sd">at the value in keys argument, since this is a pure source that simply retrieves data</span>
+<span class="sd">from an outside resource for the args it recieves.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">br</span> <span class="o">=</span> <span class="n">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_get_fidelity_position_data</span><span class="p">(</span><span class="n">br</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+
+    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">WARNING: This script requires that you pass your username, password </span>
+<span class="s">and accountId. This script calls cleartext only to the login form. </span>
+<span class="s">Once logged in subsequent HTML calls are https. That said, you are </span>
+<span class="s">passing this in clear text when running this from your shell, </span>
+<span class="s">so your system must be secure and that is YOUR responsibility. Also, </span>
+<span class="s">of course, do NOT store this information unencryted in a plain text</span>
+<span class="s">file anywhere, ever.</span>
+
+<span class="s">[-c|--customer-id] - Customer Id. Required.</span>
+<span class="s">[-p|--pin] - Customer PIN number or password. Required.</span>
+<span class="s">[-a|--account-id] - Customer account from which to retrieve position information. Required.</span>
+<span class="s">[-e|--customer-email] - Customer email. Required.</span>
+<span class="s">&quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-id&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_id&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer Id of the customer to retrieve position data for. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="s">&quot;--pin&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;pin&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer pin number. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-a&quot;</span><span class="p">,</span> <span class="s">&quot;--account-id&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;account_id&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+    
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-e&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-email&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_email&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+    
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">pin</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;Invalid argument error.&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">Your args:  </span>
+<span class="s">  customer_id {0} </span>
+<span class="s">  pin {1} </span>
+<span class="s">  account_id {2} </span>
+<span class="s">  customer_email {3}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">)</span>
+            <span class="k">print</span> <span class="n">usage</span>
+            <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">False</span>
+    
+        <span class="c"># NOTE: the protocol for parse_args is to pass the returned args in a list</span>
+        <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">]</span>
+
+
+<span class="n">plugin</span> <span class="o">=</span> <span class="n">FidelityPortfolioScraper</span>
+</pre></div>
+
+    </div>
+
+  <hr>
+
+
+
+
+
+
+  <h2 id="header-variables">Module variables</h2>
+      <div class="item">
+        <p id="fidelity.ACCOUNT_PAGE" class="name">var <span class="ident">ACCOUNT_PAGE</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="fidelity.DEBUG" class="name">var <span class="ident">DEBUG</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="fidelity.HOST" class="name">var <span class="ident">HOST</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="fidelity.LOGIN_FORM_ACTION" class="name">var <span class="ident">LOGIN_FORM_ACTION</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="fidelity.LOGIN_PAGE" class="name">var <span class="ident">LOGIN_PAGE</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="fidelity.PROXY" class="name">var <span class="ident">PROXY</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+
+
+  <h2 id="header-classes">Classes</h2>
+      
+      <div class="item">
+        <p id="fidelity.FidelityPortfolioScraper" class="name">class <span class="ident">FidelityPortfolioScraper</span></p>
+        
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper" class="source">
+      <div class="codehilite"><pre><span class="k">class</span> <span class="nc">FidelityPortfolioScraper</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
+                       <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
+        <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
+        <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
+        <span class="c">#  attributes matching those found in the account for the user and </span>
+        <span class="c">#  password and account passed in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
+<span class="sd">at the value in keys argument, since this is a pure source that simply retrieves data</span>
+<span class="sd">from an outside resource for the args it recieves.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">br</span> <span class="o">=</span> <span class="n">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_get_fidelity_position_data</span><span class="p">(</span><span class="n">br</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+
+    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">WARNING: This script requires that you pass your username, password </span>
+<span class="s">and accountId. This script calls cleartext only to the login form. </span>
+<span class="s">Once logged in subsequent HTML calls are https. That said, you are </span>
+<span class="s">passing this in clear text when running this from your shell, </span>
+<span class="s">so your system must be secure and that is YOUR responsibility. Also, </span>
+<span class="s">of course, do NOT store this information unencryted in a plain text</span>
+<span class="s">file anywhere, ever.</span>
+
+<span class="s">[-c|--customer-id] - Customer Id. Required.</span>
+<span class="s">[-p|--pin] - Customer PIN number or password. Required.</span>
+<span class="s">[-a|--account-id] - Customer account from which to retrieve position information. Required.</span>
+<span class="s">[-e|--customer-email] - Customer email. Required.</span>
+<span class="s">&quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-id&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_id&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer Id of the customer to retrieve position data for. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="s">&quot;--pin&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;pin&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer pin number. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-a&quot;</span><span class="p">,</span> <span class="s">&quot;--account-id&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;account_id&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+    
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-e&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-email&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_email&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+    
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">pin</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;Invalid argument error.&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">Your args:  </span>
+<span class="s">  customer_id {0} </span>
+<span class="s">  pin {1} </span>
+<span class="s">  account_id {2} </span>
+<span class="s">  customer_email {3}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">)</span>
+            <span class="k">print</span> <span class="n">usage</span>
+            <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">False</span>
+    
+        <span class="c"># NOTE: the protocol for parse_args is to pass the returned args in a list</span>
+        <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+
+
+        <div class="class">
+              <h4>Instance variables</h4>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.adds_keys" class="name">var <span class="ident">adds_keys</span></p>
+                    
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.group" class="name">var <span class="ident">group</span></p>
+                    
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.name" class="name">var <span class="ident">name</span></p>
+                    
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.schema" class="name">var <span class="ident">schema</span></p>
+                    
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+              <h4>Methods</h4>
+                  
+    <div class="item">
+      <div class="name def" id="fidelity.FidelityPortfolioScraper.__init__">
+        <p>def <span class="ident">__init__</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.__init__', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper.__init__" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
+                   <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
+    <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
+    <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
+    <span class="c">#  attributes matching those found in the account for the user and </span>
+    <span class="c">#  password and account passed in</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="fidelity.FidelityPortfolioScraper.get_data">
+        <p>def <span class="ident">get_data</span>(</p><p>self, keys, args)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>Retrieves data for the portfolio identified by the args passed in. Does not look
+at the value in keys argument, since this is a pure source that simply retrieves data
+from an outside resource for the args it recieves.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.get_data', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper.get_data" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="s">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
+<span class="s">he value in keys argument, since this is a pure source that simply retrieves data</span>
+<span class="s"> an outside resource for the args it recieves.</span>
+<span class="s">    customer_id, pin, account_id, customer_email = args</span>
+<span class="s">    br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)</span>
+<span class="s">    data = _get_fidelity_position_data(br, account_id)</span>
+<span class="s">    return data</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="fidelity.FidelityPortfolioScraper.parse_args">
+        <p>def <span class="ident">parse_args</span>(</p><p>self, argv)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.parse_args', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper.parse_args" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">ING: This script requires that you pass your username, password </span>
+<span class="s">accountId. This script calls cleartext only to the login form. </span>
+<span class="s"> logged in subsequent HTML calls are https. That said, you are </span>
+<span class="s">ing this in clear text when running this from your shell, </span>
+<span class="s">our system must be secure and that is YOUR responsibility. Also, </span>
+<span class="s">ourse, do NOT store this information unencryted in a plain text</span>
+<span class="s"> anywhere, ever.</span>
+<span class="s">--customer-id] - Customer Id. Required.</span>
+<span class="s">--pin] - Customer PIN number or password. Required.</span>
+<span class="s">--account-id] - Customer account from which to retrieve position information. Required.</span>
+<span class="s">--customer-email] - Customer email. Required.</span>
+<span class="s">    parser = OptionParser(usage=usage)</span>
+<span class="s">    parser.add_option(&quot;-c&quot;, &quot;--customer-id&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_id&quot;,</span>
+<span class="s">                    help=&quot;Customer Id of the customer to retrieve position data for. Required.&quot;) </span>
+<span class="s">    parser.add_option(&quot;-p&quot;, &quot;--pin&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;pin&quot;,</span>
+<span class="s">                    help=&quot;Customer pin number. Required.&quot;) </span>
+<span class="s">    parser.add_option(&quot;-a&quot;, &quot;--account-id&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;account_id&quot;,</span>
+<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
+
+<span class="s">    parser.add_option(&quot;-e&quot;, &quot;--customer-email&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_email&quot;,</span>
+<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
+<span class="s">    (opts, args) = parser.parse_args(argv)</span>
+
+<span class="s">    is_valid = True</span>
+<span class="s">    if not (opts.customer_id and </span><span class="se">\</span>
+<span class="s">            opts.pin and </span><span class="se">\</span>
+<span class="s">            opts.account_id and </span><span class="se">\</span>
+<span class="s">            opts.customer_email):</span>
+<span class="s">        print &quot;Invalid argument error.&quot;</span>
+<span class="s">        print &quot;&quot;&quot;</span>
+ <span class="n">args</span><span class="p">:</span>  
+<span class="n">stomer_id</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span> 
+<span class="n">n</span> <span class="p">{</span><span class="mi">1</span><span class="p">}</span> 
+<span class="n">count_id</span> <span class="p">{</span><span class="mi">2</span><span class="p">}</span> 
+<span class="n">stomer_email</span> <span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="s">&quot;&quot;&quot;.format(opts.customer_id, opts.pin, opts.account_id, opts.customer_email)</span>
+<span class="s">        print usage</span>
+<span class="s">        is_valid = False</span>
+
+<span class="s">    # NOTE: the protocol for parse_args is to pass the returned args in a list</span>
+<span class="s">    return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+        </div>
+      </div>
+      
+      <div class="item">
+        <p id="fidelity.FidelityPortfolioScraper" class="name">class <span class="ident">plugin</span></p>
+        
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper" class="source">
+      <div class="codehilite"><pre><span class="k">class</span> <span class="nc">FidelityPortfolioScraper</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
+                       <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
+        <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
+        <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
+        <span class="c">#  attributes matching those found in the account for the user and </span>
+        <span class="c">#  password and account passed in</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+
+
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
+<span class="sd">at the value in keys argument, since this is a pure source that simply retrieves data</span>
+<span class="sd">from an outside resource for the args it recieves.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+        <span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">br</span> <span class="o">=</span> <span class="n">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">_get_fidelity_position_data</span><span class="p">(</span><span class="n">br</span><span class="p">,</span> <span class="n">account_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+
+    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">WARNING: This script requires that you pass your username, password </span>
+<span class="s">and accountId. This script calls cleartext only to the login form. </span>
+<span class="s">Once logged in subsequent HTML calls are https. That said, you are </span>
+<span class="s">passing this in clear text when running this from your shell, </span>
+<span class="s">so your system must be secure and that is YOUR responsibility. Also, </span>
+<span class="s">of course, do NOT store this information unencryted in a plain text</span>
+<span class="s">file anywhere, ever.</span>
+
+<span class="s">[-c|--customer-id] - Customer Id. Required.</span>
+<span class="s">[-p|--pin] - Customer PIN number or password. Required.</span>
+<span class="s">[-a|--account-id] - Customer account from which to retrieve position information. Required.</span>
+<span class="s">[-e|--customer-email] - Customer email. Required.</span>
+<span class="s">&quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-id&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_id&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer Id of the customer to retrieve position data for. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="s">&quot;--pin&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;pin&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer pin number. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-a&quot;</span><span class="p">,</span> <span class="s">&quot;--account-id&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;account_id&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+    
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-e&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-email&quot;</span><span class="p">,</span> 
+                        <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_email&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+
+        <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+    
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">pin</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span> <span class="ow">and</span> \
+                <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">):</span>
+            <span class="k">print</span> <span class="s">&quot;Invalid argument error.&quot;</span>
+            <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">Your args:  </span>
+<span class="s">  customer_id {0} </span>
+<span class="s">  pin {1} </span>
+<span class="s">  account_id {2} </span>
+<span class="s">  customer_email {3}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">)</span>
+            <span class="k">print</span> <span class="n">usage</span>
+            <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">False</span>
+    
+        <span class="c"># NOTE: the protocol for parse_args is to pass the returned args in a list</span>
+        <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+
+
+        <div class="class">
+              <h4>Instance variables</h4>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.adds_keys" class="name">var <span class="ident">adds_keys</span></p>
+                    
+      <p class="inheritance">
+         <strong>Inheritance:</strong>
+           <code><a href="#fidelity.FidelityPortfolioScraper">plugin</a></code>.<code><a href="#fidelity.FidelityPortfolioScraper.adds_keys">adds_keys</a></code>
+      </p>
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.group" class="name">var <span class="ident">group</span></p>
+                    
+      <p class="inheritance">
+         <strong>Inheritance:</strong>
+           <code><a href="#fidelity.FidelityPortfolioScraper">plugin</a></code>.<code><a href="#fidelity.FidelityPortfolioScraper.group">group</a></code>
+      </p>
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.name" class="name">var <span class="ident">name</span></p>
+                    
+      <p class="inheritance">
+         <strong>Inheritance:</strong>
+           <code><a href="#fidelity.FidelityPortfolioScraper">plugin</a></code>.<code><a href="#fidelity.FidelityPortfolioScraper.name">name</a></code>
+      </p>
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+                  <div class="item">
+                    <p id="fidelity.FidelityPortfolioScraper.schema" class="name">var <span class="ident">schema</span></p>
+                    
+      <p class="inheritance">
+         <strong>Inheritance:</strong>
+           <code><a href="#fidelity.FidelityPortfolioScraper">plugin</a></code>.<code><a href="#fidelity.FidelityPortfolioScraper.schema">schema</a></code>
+      </p>
+
+                    
+  
+    <div class="source_cont">
+</div>
+
+                  </div>
+              <h4>Methods</h4>
+                  
+    <div class="item">
+      <div class="name def" id="fidelity.FidelityPortfolioScraper.__init__">
+        <p>def <span class="ident">__init__</span>(</p><p>self)</p>
+      </div>
+      
+      <p class="inheritance">
+         <strong>Inheritance:</strong>
+           <code><a href="#fidelity.FidelityPortfolioScraper">plugin</a></code>.<code><a href="#fidelity.FidelityPortfolioScraper.__init__">__init__</a></code>
+      </p>
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.__init__', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper.__init__" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
+                   <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
+    <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
+    <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
+    <span class="c">#  attributes matching those found in the account for the user and </span>
+    <span class="c">#  password and account passed in</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="fidelity.FidelityPortfolioScraper.get_data">
+        <p>def <span class="ident">get_data</span>(</p><p>self, keys, args)</p>
+      </div>
+      
+      <p class="inheritance">
+         <strong>Inheritance:</strong>
+           <code><a href="#fidelity.FidelityPortfolioScraper">plugin</a></code>.<code><a href="#fidelity.FidelityPortfolioScraper.get_data">get_data</a></code>
+      </p>
+
+      
+  
+      <div class="desc inherited"><p>Retrieves data for the portfolio identified by the args passed in. Does not look
+at the value in keys argument, since this is a pure source that simply retrieves data
+from an outside resource for the args it recieves.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.get_data', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper.get_data" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="s">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
+<span class="s">he value in keys argument, since this is a pure source that simply retrieves data</span>
+<span class="s"> an outside resource for the args it recieves.</span>
+<span class="s">    customer_id, pin, account_id, customer_email = args</span>
+<span class="s">    br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)</span>
+<span class="s">    data = _get_fidelity_position_data(br, account_id)</span>
+<span class="s">    return data</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="fidelity.FidelityPortfolioScraper.parse_args">
+        <p>def <span class="ident">parse_args</span>(</p><p>self, argv)</p>
+      </div>
+      
+      <p class="inheritance">
+         <strong>Inheritance:</strong>
+           <code><a href="#fidelity.FidelityPortfolioScraper">plugin</a></code>.<code><a href="#fidelity.FidelityPortfolioScraper.parse_args">parse_args</a></code>
+      </p>
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.parse_args', this);">Show source.</a></p>
+    <div id="source-fidelity.FidelityPortfolioScraper.parse_args" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s">ING: This script requires that you pass your username, password </span>
+<span class="s">accountId. This script calls cleartext only to the login form. </span>
+<span class="s"> logged in subsequent HTML calls are https. That said, you are </span>
+<span class="s">ing this in clear text when running this from your shell, </span>
+<span class="s">our system must be secure and that is YOUR responsibility. Also, </span>
+<span class="s">ourse, do NOT store this information unencryted in a plain text</span>
+<span class="s"> anywhere, ever.</span>
+<span class="s">--customer-id] - Customer Id. Required.</span>
+<span class="s">--pin] - Customer PIN number or password. Required.</span>
+<span class="s">--account-id] - Customer account from which to retrieve position information. Required.</span>
+<span class="s">--customer-email] - Customer email. Required.</span>
+<span class="s">    parser = OptionParser(usage=usage)</span>
+<span class="s">    parser.add_option(&quot;-c&quot;, &quot;--customer-id&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_id&quot;,</span>
+<span class="s">                    help=&quot;Customer Id of the customer to retrieve position data for. Required.&quot;) </span>
+<span class="s">    parser.add_option(&quot;-p&quot;, &quot;--pin&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;pin&quot;,</span>
+<span class="s">                    help=&quot;Customer pin number. Required.&quot;) </span>
+<span class="s">    parser.add_option(&quot;-a&quot;, &quot;--account-id&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;account_id&quot;,</span>
+<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
+
+<span class="s">    parser.add_option(&quot;-e&quot;, &quot;--customer-email&quot;, </span>
+<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_email&quot;,</span>
+<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
+<span class="s">    (opts, args) = parser.parse_args(argv)</span>
+
+<span class="s">    is_valid = True</span>
+<span class="s">    if not (opts.customer_id and </span><span class="se">\</span>
+<span class="s">            opts.pin and </span><span class="se">\</span>
+<span class="s">            opts.account_id and </span><span class="se">\</span>
+<span class="s">            opts.customer_email):</span>
+<span class="s">        print &quot;Invalid argument error.&quot;</span>
+<span class="s">        print &quot;&quot;&quot;</span>
+ <span class="n">args</span><span class="p">:</span>  
+<span class="n">stomer_id</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span> 
+<span class="n">n</span> <span class="p">{</span><span class="mi">1</span><span class="p">}</span> 
+<span class="n">count_id</span> <span class="p">{</span><span class="mi">2</span><span class="p">}</span> 
+<span class="n">stomer_email</span> <span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="s">&quot;&quot;&quot;.format(opts.customer_id, opts.pin, opts.account_id, opts.customer_email)</span>
+<span class="s">        print usage</span>
+<span class="s">        is_valid = False</span>
+
+<span class="s">    # NOTE: the protocol for parse_args is to pass the returned args in a list</span>
+<span class="s">    return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+        </div>
+      </div>
+
+
+
+<hr>
+<p style="text-align: right;">
+  Documentation generated by
+  <code><a href="https://github.com/BurntSushi/pdoc">pdoc</a></code>
+  0.2.4.
+
+  pdoc is in the public domain with the
+  <a href="http://unlicense.org">UNLICENSE</a>.
+</p>
+</div>
+</body>
+</html>

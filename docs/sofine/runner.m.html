@@ -1,0 +1,1877 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>		<html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>		<html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+	<meta charset="utf-8">
+
+      <title>runner API documentation</title>
+      <meta name="description" content="This module is the main driver for calls to plugins from the CLI interface. 
+It also has all of the ...">
+
+  
+  <style type="text/css">
+  
+/*! normalize.css v1.1.1 | MIT License | git.io/normalize */
+
+/* ==========================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/**
+ * Correct `block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/**
+ * Correct `inline-block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
+ * Known issue: no IE 6 support.
+ */
+
+[hidden] {
+    display: none;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+/**
+ * 1. Prevent system color scheme's background color being used in Firefox, IE,
+ *    and Opera.
+ * 2. Prevent system color scheme's text color being used in Firefox, IE, and
+ *    Opera.
+ * 3. Correct text resizing oddly in IE 6/7 when body `font-size` is set using
+ *    `em` units.
+ * 4. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+    background: #fff; /* 1 */
+    color: #000; /* 2 */
+    font-size: 100%; /* 3 */
+    -webkit-text-size-adjust: 100%; /* 4 */
+    -ms-text-size-adjust: 100%; /* 4 */
+}
+
+/**
+ * Address `font-family` inconsistency between `textarea` and other form
+ * elements.
+ */
+
+html,
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+}
+
+/**
+ * Address margins handled incorrectly in IE 6/7.
+ */
+
+body {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+/**
+ * Address `outline` inconsistency between Chrome and other browsers.
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/**
+ * Improve readability when focused and also mouse hovered in all browsers.
+ */
+
+a:active,
+a:hover {
+    outline: 0;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/**
+ * Address font sizes and margins set differently in IE 6/7.
+ * Address font sizes within `section` and `article` in Firefox 4+, Safari 5,
+ * and Chrome.
+ */
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 0.83em 0;
+}
+
+h3 {
+    font-size: 1.17em;
+    margin: 1em 0;
+}
+
+h4 {
+    font-size: 1em;
+    margin: 1.33em 0;
+}
+
+h5 {
+    font-size: 0.83em;
+    margin: 1.67em 0;
+}
+
+h6 {
+    font-size: 0.67em;
+    margin: 2.33em 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Safari 5, and Chrome.
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/**
+ * Address style set to `bolder` in Firefox 3+, Safari 4/5, and Chrome.
+ */
+
+b,
+strong {
+    font-weight: bold;
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/**
+ * Address styling not present in Safari 5 and Chrome.
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/**
+ * Address differences between Firefox and other browsers.
+ * Known issue: no IE 6/7 normalization.
+ */
+
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 6/7/8/9.
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+p,
+pre {
+    margin: 1em 0;
+}
+
+/**
+ * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.
+ */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/**
+ * Improve readability of pre-formatted text in all browsers.
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/**
+ * Address CSS quotes not supported in IE 6/7.
+ */
+
+q {
+    quotes: none;
+}
+
+/**
+ * Address `quotes` property not supported in Safari 4.
+ */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+
+small {
+    font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+dl,
+menu,
+ol,
+ul {
+    margin: 1em 0;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+/**
+ * Address paddings set differently in IE 6/7.
+ */
+
+menu,
+ol,
+ul {
+    padding: 0 0 0 40px;
+}
+
+/**
+ * Correct list images handled incorrectly in IE 7.
+ */
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+/* ==========================================================================
+   Embedded content
+   ========================================================================== */
+
+/**
+ * 1. Remove border when inside `a` element in IE 6/7/8/9 and Firefox 3.
+ * 2. Improve image quality when scaled in IE 7.
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/**
+ * Correct overflow displayed oddly in IE 9.
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+/**
+ * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.
+ */
+
+figure {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+/**
+ * Correct margin displayed oddly in IE 6/7.
+ */
+
+form {
+    margin: 0;
+}
+
+/**
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/**
+ * 1. Correct color not being inherited in IE 6/7/8/9.
+ * 2. Correct text not wrapping in Firefox 3.
+ * 3. Correct alignment displayed oddly in IE 6/7.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0;
+    white-space: normal; /* 2 */
+    *margin-left: -7px; /* 3 */
+}
+
+/**
+ * 1. Correct font size not being inherited in all browsers.
+ * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,
+ *    and Chrome.
+ * 3. Improve appearance and consistency in all browsers.
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+}
+
+/**
+ * Address Firefox 3+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct `select` style inheritance in Firefox 4+ and Opera.
+ */
+
+button,
+select {
+    text-transform: none;
+}
+
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ * 4. Remove inner spacing in IE 7 without affecting normal text inputs.
+ *    Known issue: inner spacing remains in IE 6.
+ */
+
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+    -webkit-appearance: button; /* 2 */
+    cursor: pointer; /* 3 */
+    *overflow: visible;  /* 4 */
+}
+
+/**
+ * Re-set default cursor for disabled elements.
+ */
+
+button[disabled],
+html input[disabled] {
+    cursor: default;
+}
+
+/**
+ * 1. Address box sizing set to content-box in IE 8/9.
+ * 2. Remove excess padding in IE 8/9.
+ * 3. Remove excess padding in IE 7.
+ *    Known issue: excess padding remains in IE 6.
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+    *height: 13px; /* 3 */
+    *width: 13px; /* 3 */
+}
+
+/**
+ * 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome.
+ * 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome
+ *    (include `-moz` to future-proof).
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/**
+ * Remove inner padding and search cancel button in Safari 5 and Chrome
+ * on OS X.
+ */
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/**
+ * Remove inner padding and border in Firefox 3+.
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/**
+ * 1. Remove default vertical scrollbar in IE 6/7/8/9.
+ * 2. Improve readability and alignment in all browsers.
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+/**
+ * Remove most spacing between table cells.
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+  </style>
+
+  <style type="text/css">
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #ddd;
+    height: 100%;
+  }
+
+  #container {
+    width: 840px;
+    background-color: #fdfdfd;
+    color: #111;
+    margin: 0 auto;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    padding: 10px 25px;
+    min-height: 100%;
+  }
+
+  #nav {
+    font-size: 130%;
+    margin: 0 0 15px 0;
+  }
+
+  #top {
+    display: block;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    font-size: 140%;
+  }
+
+  h1 {
+    margin: 0 0 10px 0;
+  }
+
+  h2 {
+    margin: 25px 0 10px 0;
+  }
+
+  h3 {
+    margin: 25px 0 10px 0;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 105%;
+  }
+
+  a {
+    color: #058;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #e08524;
+  }
+
+  p {
+    line-height: 1.35em;
+  }
+
+  pre, code, .mono, .name {
+    font-family: "Ubuntu Mono", "Cousine", "DejaVu Sans Mono", monospace;
+  }
+
+  .ident {
+    color: #900;
+  }
+
+  code {
+    background: #e8e8e8;
+  } 
+
+  pre {
+    background: #e8e8e8;
+    padding: 6px;
+    margin: 0 30px;
+  }
+
+  .codehilite {
+    margin: 0 30px 10px 30px;
+  }
+
+    .codehilite pre {
+      margin: 0;
+    }
+
+  table#module-list {
+    font-size: 110%;
+  }
+
+    table#module-list tr td:first-child {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    table#module-list td {
+      vertical-align: top;
+      padding-bottom: 8px;
+    }
+
+      table#module-list td p {
+        margin: 0 0 7px 0;
+      }
+
+  .def {
+    display: table;
+  }
+
+    .def p {
+      display: table-cell;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .def p:first-child {
+      white-space: nowrap;
+    }
+
+    .def p:last-child {
+      width: 100%;
+    }
+
+  ul#index {
+    padding: 0;
+    margin: 0;
+  }
+
+    ul#index .class_name {
+      /* font-size: 110%; */
+      font-weight: bold;
+    }
+
+    ul#index li {
+      margin-bottom: 18px;
+    }
+
+      ul#index ul li {
+        margin-bottom: 8px;
+      }
+
+    ul#index, ul#index ul {
+      list-style-type: none;
+    }
+
+    ul#index ul {
+      margin: 0 0 10px 20px;
+      padding: 0;
+    }
+
+  .column_list {
+    width: 100%;
+    display: inline-block;
+    margin-left: 20px;
+  }
+
+  .column_list:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    height: 0;
+    content: " ";
+    clear: both;
+  }
+
+    .column_list ul {
+      float: left;
+      text-align: left;
+      width: 32%;
+      margin: 0 !important;
+    }
+
+  .item {
+    margin: 0 0 25px 0;
+  }
+
+    .item .class {
+      margin: 0 0 25px 30px;
+    }
+
+      .item .class ul.class_list {
+        margin: 0 0 20px 0;
+      }
+
+    .item .name {
+      background: #e8e8e8;
+      padding: 4px;
+      margin: 0 0 8px 0;
+      font-size: 110%;
+      font-weight: bold;
+    }
+
+    .item .empty_desc {
+      margin: 0 0 5px 0;
+      padding: 0;
+    }
+
+    .item .inheritance {
+      margin: 3px 0 10px 0;
+      padding: 0 8px;
+    }
+
+    .item .inherited {
+      color: #666;
+    }
+
+    .item .desc {
+      padding: 0 8px;
+      margin: 0;
+    }
+
+      .item .desc p {
+        margin: 0 0 10px 0;
+      }
+
+    .source_cont {
+      margin: 10px 8px 0 8px;
+      padding: 0;
+    }
+
+    .source_link {
+      font-weight: bold;
+    }
+
+    .source {
+      display: none;
+      max-height: 600px;
+      overflow-y: scroll;
+      margin-bottom: 15px;
+    }
+
+      .source .codehilite {
+        margin: 0;
+      }
+
+  .desc h1, .desc h2, .desc h3 {
+    font-size: 100% !important;
+  }
+
+  /*****************************/
+
+  </style>
+
+    <style type="text/css">
+    .codehilite .hll { background-color: #ffffcc }
+.codehilite  { background: #f8f8f8; }
+.codehilite .c { color: #408080; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #FF0000 } /* Error */
+.codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666666 } /* Operator */
+.codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
+.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .gr { color: #FF0000 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888888 } /* Generic.Output */
+.codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #0044DD } /* Generic.Traceback */
+.codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+.codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #B00040 } /* Keyword.Type */
+.codehilite .m { color: #666666 } /* Literal.Number */
+.codehilite .s { color: #BA2121 } /* Literal.String */
+.codehilite .na { color: #7D9029 } /* Name.Attribute */
+.codehilite .nb { color: #008000 } /* Name.Builtin */
+.codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #880000 } /* Name.Constant */
+.codehilite .nd { color: #AA22FF } /* Name.Decorator */
+.codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #0000FF } /* Name.Function */
+.codehilite .nl { color: #A0A000 } /* Name.Label */
+.codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #19177C } /* Name.Variable */
+.codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+.codehilite .mf { color: #666666 } /* Literal.Number.Float */
+.codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+.codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+.codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+.codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+.codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+.codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+.codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.codehilite .sx { color: #008000 } /* Literal.String.Other */
+.codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
+.codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+.codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+.codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.codehilite .vc { color: #19177C } /* Name.Variable.Class */
+.codehilite .vg { color: #19177C } /* Name.Variable.Global */
+.codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+.codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+    </style>
+
+  <style type="text/css">
+  
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
+
+  </style>
+
+  <script type="text/javascript">
+    function toggle(id, $link) {
+      $node = document.getElementById(id);
+      if (!$node)
+        return;
+      if (!$node.style.display || $node.style.display == 'none') {
+        $node.style.display = 'block';
+        $link.innerHTML = 'Hide source.';
+      } else {
+        $node.style.display = 'none';
+        $link.innerHTML = 'Show source.';
+      }
+    }
+  </script>
+</head>
+<body>
+
+<div id="container">
+
+    
+  
+
+  
+
+
+  <h1>Module runner</h1>
+  <p>This module is the main driver for calls to plugins from the CLI interface. 
+It also has all of the scaffolding and wrapper functions required to generically invoke 
+and run any of the supported plugin methods in the plugin interface for any plugin 
+using just the plugin name, plugin group and call args.</p>
+  
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner', this);">Show source.</a></p>
+    <div id="source-runner" class="source">
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module is the main driver for calls to plugins from the CLI interface. </span>
+<span class="sd">It also has all of the scaffolding and wrapper functions required to generically invoke </span>
+<span class="sd">and run any of the supported plugin methods in the plugin interface for any plugin </span>
+<span class="sd">using just the plugin name, plugin group and call args.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+<span class="kn">import</span> <span class="nn">sofine.lib.utils.conf</span> <span class="kn">as</span> <span class="nn">conf</span>
+<span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+
+<span class="c"># TODO Real packaging so can install into Python</span>
+<span class="c"># NOTE THAT user plugins directory will be broken until this is done</span>
+<span class="c">#  because plugins now depend on importing sofine.plugins.plugin_base</span>
+<span class="c"># TODO Present at a Python projects meetup to get feedback</span>
+
+
+<span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
+<span class="sd">and values for existing keys into the dict associated with that key. Also, if this call is invoked from a </span>
+<span class="sd">piped command line call piping to sofine, that will be detected and `data` will be read from `stdin`, </span>
+<span class="sd">overriding whatever value is passed in for this arg.</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements </span>
+<span class="sd">referring to argument names and argument values.</span>
+
+<span class="sd">Main driver function for retrieving data from a plugin. Calls a plugin&#39;s _required_ `get_data` method. </span>
+<span class="sd">Takes a list of data_sources and a list of argument lists to call when calling each data_source. </span>
+<span class="sd">Can be called directly or from `main` if this module was instantiated from the command line.</span>
+
+<span class="sd">This method operates based on the core data aggregation semantics of the library:</span>
+
+<span class="sd">* If this is the first call in the chain, data is empty, so just fill it with the return of this call</span>
+<span class="sd">* If there is already data, add any new keys retrieved and add attribute key/value pairs associated </span>
+<span class="sd">with any new or existing keys </span>
+<span class="sd">* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and</span>
+<span class="sd">do not overwrite other attributes with the same name from other plugins  </span>
+<span class="sd">* So, the set of keys on each call is the union of all previously collected keys</span>
+<span class="sd">* So, the set of attributes associated with each key is the union of all previously collected attribute/value</span>
+<span class="sd"> pairs collected for that key</span>
+
+<span class="sd">The final output looks like this:</span>
+<span class="sd">    </span>
+<span class="sd">    {&quot;key_1&quot; : {&quot;plugin_1::attr_name_1&quot; : value, &quot;plugin_1::attr_name_2&quot; : value, &quot;plugin_2::attr_name_1, value},</span>
+<span class="sd">    &quot;key_2&quot; : ...</span>
+<span class="sd">    }</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
+    
+    <span class="n">new_data</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">parsed_args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c"># Namespace the key of the attribute with a prefix of the name of the current plugin</span>
+            <span class="n">namespaced_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="p">:</span> <span class="n">val</span> 
+                                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span>            
+            
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">namespaced_attrs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">namespaced_attrs</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
+<span class="sd">and values for existing keys into the dict associated with that key. </span>
+<span class="sd">* `data_source` - `list`. A list of names of plugins being called.</span>
+<span class="sd">* `data_source_group` - `list`.  A list of names of plugin groups for the plugins being called.</span>
+<span class="sd">* `data_source_args` - `list of list`. A list of lists of args for the plugin calls, in argv format with alternating elements </span>
+<span class="sd">referring to argument names and argument values.</span>
+<span class="sd">    </span>
+<span class="sd">Convenience wrapper for users of sofine as a Python library. This function lets a user pass in </span>
+<span class="sd">a list of data sources, a list of plugin groups and a list of lists of arguments for each plugin call. </span>
+<span class="sd">Note that the elements must be in order in each argument: data source name in position 0 must match </span>
+<span class="sd">data source group in position 0 and the list of args for that call in `data_source_args[0]`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;&quot;&quot;Call to runner.batch_run() had different lengths for </span>
+<span class="s">data_sources (len == {0}), </span>
+<span class="s">data source_groups (len == {1}) and </span>
+<span class="s">data_source_args (len == {2)}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)))</span>
+    
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_groups</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_args</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">* `args` - `any`. This is a bit of a hack, but basically there are use cases that could require args in </span>
+<span class="sd">order to figure out the schema of available fields. Maybe a plugin wraps access to a data store that allows </span>
+<span class="sd">arbitary or varying schemas per document retrieved. Or maybe, like the included `standard.file_source` </span>
+<span class="sd">plugin, it wraps access to a config that can provide an arbitrary list of fields.</span>
+
+<span class="sd">This returns the value for a plugin&#39;s _optional_ (but highly recommended) `self.schema` attribute. </span>
+<span class="sd">This method lets plugin users introspect the plugin to ask what schema fields it provides, that is, what </span>
+<span class="sd">set of attribute keys can it to the attributes dict for each key in data.</span>
+
+<span class="sd">Note that the default implementation is provided by `PluginBase` and it returns a properly namespaced list </span>
+<span class="sd">of attribute keys. All the plugin creator has to do is set the `self.schema` attribute of their plugin to a </span>
+<span class="sd">list of strings of the attribute keys it can return.</span>
+
+<span class="sd">Not all data sources gurarantee they will return all attribute keys for each key in data, and not </span>
+<span class="sd">all data sources guarantee they will return the same set of attribute keys for each key in data in </span>
+<span class="sd">one returned data set.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">)</span>
+   
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;schema&quot;</span> <span class="p">:</span> <span class="n">schema</span><span class="p">}</span> 
+
+
+<span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements </span>
+<span class="sd">referring to argument names and argument values.</span>
+
+<span class="sd">A wrapper which calls a plugin&#39;s _required_ `parse_args` method. This method must parse arguments the plugin&#39;s `get_data` </span>
+<span class="sd">call requires, with the arguments in argv format with alternating elements referring to argument </span>
+<span class="sd">names and argument values.</span>
+
+<span class="sd">The method is also responsible for validating arguments and returning a boolean `is_valid` as well as the </span>
+<span class="sd">parsed (and possibly modified) args.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;is_valid&quot;</span> <span class="p">:</span> <span class="n">is_valid</span><span class="p">,</span> <span class="s">&quot;parsed_args&quot;</span> <span class="p">:</span> <span class="n">parsed_args</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">adds_keys</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+
+<span class="sd">A wrapper which calls a plugin&#39;s _optional_ (but recommended) `adds_keys` method. This introspection method </span>
+<span class="sd">lets plugin users ask whether a plugin adds its own keys to the `data` output or simply adds key/value </span>
+<span class="sd">attributes to the dicts being built by sofine for each key in `data`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">adds_keys</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">adds_keys</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;adds_keys&quot;</span> <span class="p">:</span> <span class="n">adds_keys</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">get_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">    </span>
+<span class="sd">Convenience function for clients to get an instance of a plugin module. </span>
+<span class="sd">This lets plugin implementers expose free functions in the module and have client </span>
+<span class="sd">code be able to access them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+
+<span class="sd">Convenience function for clients to get an instance of a plugin. </span>
+<span class="sd">This lets plugin implementers expose free functions in the module and have client </span>
+<span class="sd">code be able to access them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_runner_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">data_source</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">data_source_group</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">arg_flags</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
+            
+        <span class="k">def</span> <span class="nf">try_arg_flag</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">):</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;Required argument {0} not found in command line argument list passed to runner.main()&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;Value for required argument {0} not found in command line argument list passed to runner.main()&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span>
+
+        <span class="c"># Try twice if necessary, for each of the two forms of the arg flag</span>
+        <span class="n">err</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">try_arg_flag</span><span class="p">(</span><span class="n">arg_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">err</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">try_arg_flag</span><span class="p">(</span><span class="n">arg_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="c"># Flag was found, value for it parsed, and flag and value removed from args</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">err</span><span class="p">:</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="k">del</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">err</span><span class="p">,</span> <span class="n">ret</span>
+      
+    <span class="c"># Parse for both versions of required flags and raise error if not found</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">data_source</span> <span class="o">=</span> <span class="n">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-s&#39;</span><span class="p">,</span> <span class="s">&#39;--SF-data-source&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">data_source_group</span> <span class="o">=</span> <span class="n">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-g&#39;</span><span class="p">,</span><span class="s">&#39;--SF-data-source-group&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="c"># For optional argument, don&#39;t throw if not found, just set default value</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="n">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-a&#39;</span><span class="p">,</span> <span class="s">&#39;--SF-action&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="s">&#39;get_data&#39;</span>
+
+    <span class="k">return</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span>
+
+
+<span class="k">def</span> <span class="nf">_run_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;get_data&#39;</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+    <span class="c"># Only get_data() supports chaining, so just break after one of other actions</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;get_schema&#39;</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;adds_keys&#39;</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">adds_keys</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;parse_args&#39;</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Entry point if called from the command line. Parses CLI args, validates them and calls run(). </span>
+<span class="sd">The arguments dedicated to this framework are expected to precede the remaining args </span>
+<span class="sd">(for clarity of reading the entire command) but don&#39;t need to. In order to clearly</span>
+<span class="sd">separate from the args required for the call being run, they are preceded by `--SF_*`.</span>
+
+<span class="sd">There is a short form and long form of each command:</span>
+<span class="sd">    </span>
+<span class="sd">* `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the</span>
+<span class="sd">name of the plugin module being called. Required.</span>
+<span class="sd">* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is </span>
+<span class="sd">the plugins subdirectory where the plugin module is deployed. Required.</span>
+<span class="sd">`[--SF-a|--SF-action]` - The plugin action being called. One of four supported actions that must be part of every plugin:</span>
+<span class="sd">`get_data`: </span>
+
+<span class="sd">- retrieves available data for the keys passed to it</span>
+<span class="sd">- `adds_keys` - returns a JSON object with the attribute `adds_keys` and a </span>
+<span class="sd">boolean indicating whether the data source adds keys or just gets data for the keys passed to it</span>
+<span class="sd">- `get_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which </span>
+<span class="sd">this data source may add for each key</span>
+<span class="sd">- `parse_args` - returns the values parsed for the arguments passed to the call being </span>
+<span class="sd">made as a JSON object with an attribute `args` and an array of parsed args,</span>
+<span class="sd">and an attribute `is_valid` with a boolean indicating whether parsing succeeded.</span>
+
+<span class="sd">The `[--SF-a|--SF-action]` argument is Optional. If you don&#39;t pass it, `get_data` is assumed.  </span>
+
+<span class="sd">Calls to `get_data` can be piped together. All the calls must be enclosed in quotes as shown </span>
+<span class="sd">in the examples below.  Calls to `adds_keys` and `get_schema` and `parse_args` cannot </span>
+<span class="sd">be piped. Only the first data-source and data-source group passed to the call with this </span>
+<span class="sd">action will be used to perform that action and return the result.</span>
+
+<span class="sd">The complete interface for a call piping two get_data calls together:</span>
+<span class="sd">    </span>
+<span class="sd">    PATH/runner.py \&#39;[--SF-s|--SF-data-source] DATA_SOURCE_1 \\</span>
+<span class="sd">    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_1 \\</span>
+<span class="sd">    ARGS | \\ </span>
+<span class="sd">    [--SF-s|--SF-data-source] DATA_SOURCE_2 \\</span>
+<span class="sd">    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_2 \\</span>
+<span class="sd">    ARGS\&#39;</span>
+
+<span class="sd">An example call piping two get_data calls together:</span>
+<span class="sd">    </span>
+<span class="sd">    PATH/runner.py \&#39;--SF-s fidelity --SF-g examples \\</span>
+<span class="sd">    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL | \\</span>
+<span class="sd">    --SF-s ystockquotelib --SF-g examples\&#39;</span>
+
+<span class="sd">An example get_schema call:</span>
+<span class="sd">    </span>
+<span class="sd">    PATH/runner.py \&#39;--SF-s fidelity --SF-g examples --SF-a get_schema \\</span>
+<span class="sd">    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL\&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+   
+    <span class="c"># If input passed from stdin, set initial data in chain of calls to that.</span>
+    <span class="c"># Thus supports composing sofine piped chains with preceding outer piped</span>
+    <span class="c">#  command line statements that include sofine pipes within them</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">has_stdin</span><span class="p">():</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+    <span class="c"># Get each piped data source and set of args to call it from the CLI</span>
+    <span class="c"># CLI syntax is split on pipes</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">:</span>
+        <span class="n">call</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data_source_args</span> <span class="o">=</span> \
+                <span class="n">_parse_runner_args</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="c"># Client passes in a statement of one or more piped calls to</span>
+    <span class="c">#  data sources enclosed in quotes. Convert to list here because</span>
+    <span class="c">#  code in main() and run() expects an argument list</span>
+    <span class="n">argv</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">argv</span> <span class="o">=</span> <span class="n">argv</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+
+  <hr>
+
+
+
+
+
+
+
+  <h2 id="header-functions">Functions</h2>
+      
+    <div class="item">
+      <div class="name def" id="runner.adds_keys">
+        <p>def <span class="ident">adds_keys</span>(</p><p>data_source, data_source_group)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><ul>
+<li><code>data_source</code> - <code>string</code>. The name of the plugin being called.</li>
+<li><code>data_source_group</code> - <code>string</code>.  The name of the plugin group for the plugin being called.</li>
+</ul>
+<p>A wrapper which calls a plugin's <em>optional</em> (but recommended) <code>adds_keys</code> method. This introspection method 
+lets plugin users ask whether a plugin adds its own keys to the <code>data</code> output or simply adds key/value 
+attributes to the dicts being built by sofine for each key in <code>data</code>.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.adds_keys', this);">Show source.</a></p>
+    <div id="source-runner.adds_keys" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">adds_keys</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+
+<span class="sd">A wrapper which calls a plugin&#39;s _optional_ (but recommended) `adds_keys` method. This introspection method </span>
+<span class="sd">lets plugin users ask whether a plugin adds its own keys to the `data` output or simply adds key/value </span>
+<span class="sd">attributes to the dicts being built by sofine for each key in `data`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">adds_keys</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">adds_keys</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;adds_keys&quot;</span> <span class="p">:</span> <span class="n">adds_keys</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_data">
+        <p>def <span class="ident">get_data</span>(</p><p>data, data_source, data_source_group, data_source_args)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><ul>
+<li><code>data</code> - <code>dict</code>. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+Any data collected by this call with append new keys and values to <code>data</code>, and append new attribute keys 
+and values for existing keys into the dict associated with that key. Also, if this call is invoked from a 
+piped command line call piping to sofine, that will be detected and <code>data</code> will be read from <code>stdin</code>, 
+overriding whatever value is passed in for this arg.</li>
+<li><code>data_source</code> - <code>string</code>. The name of the plugin being called.</li>
+<li><code>data_source_group</code> - <code>string</code>.  The name of the plugin group for the plugin being called.</li>
+<li><code>data_source_args</code> - <code>list</code>. The args for the plugin call, in <code>argv</code> format with alternating elements 
+referring to argument names and argument values.</li>
+</ul>
+<p>Main driver function for retrieving data from a plugin. Calls a plugin's <em>required</em> <code>get_data</code> method. 
+Takes a list of data_sources and a list of argument lists to call when calling each data_source. 
+Can be called directly or from <code>main</code> if this module was instantiated from the command line.</p>
+<p>This method operates based on the core data aggregation semantics of the library:</p>
+<ul>
+<li>If this is the first call in the chain, data is empty, so just fill it with the return of this call</li>
+<li>If there is already data, add any new keys retrieved and add attribute key/value pairs associated 
+with any new or existing keys </li>
+<li>Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and
+do not overwrite other attributes with the same name from other plugins  </li>
+<li>So, the set of keys on each call is the union of all previously collected keys</li>
+<li>So, the set of attributes associated with each key is the union of all previously collected attribute/value
+ pairs collected for that key</li>
+</ul>
+<p>The final output looks like this:</p>
+<div class="codehilite"><pre><span class="p">{</span><span class="s">&quot;key_1&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_1::attr_name_2&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_2::attr_name_1, value},</span>
+<span class="s">&quot;key_2&quot;</span> <span class="o">:</span> <span class="p">...</span>
+<span class="p">}</span>
+</pre></div></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_data', this);">Show source.</a></p>
+    <div id="source-runner.get_data" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
+<span class="sd">and values for existing keys into the dict associated with that key. Also, if this call is invoked from a </span>
+<span class="sd">piped command line call piping to sofine, that will be detected and `data` will be read from `stdin`, </span>
+<span class="sd">overriding whatever value is passed in for this arg.</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements </span>
+<span class="sd">referring to argument names and argument values.</span>
+
+<span class="sd">Main driver function for retrieving data from a plugin. Calls a plugin&#39;s _required_ `get_data` method. </span>
+<span class="sd">Takes a list of data_sources and a list of argument lists to call when calling each data_source. </span>
+<span class="sd">Can be called directly or from `main` if this module was instantiated from the command line.</span>
+
+<span class="sd">This method operates based on the core data aggregation semantics of the library:</span>
+
+<span class="sd">* If this is the first call in the chain, data is empty, so just fill it with the return of this call</span>
+<span class="sd">* If there is already data, add any new keys retrieved and add attribute key/value pairs associated </span>
+<span class="sd">with any new or existing keys </span>
+<span class="sd">* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and</span>
+<span class="sd">do not overwrite other attributes with the same name from other plugins  </span>
+<span class="sd">* So, the set of keys on each call is the union of all previously collected keys</span>
+<span class="sd">* So, the set of attributes associated with each key is the union of all previously collected attribute/value</span>
+<span class="sd"> pairs collected for that key</span>
+
+<span class="sd">The final output looks like this:</span>
+<span class="sd">    </span>
+<span class="sd">    {&quot;key_1&quot; : {&quot;plugin_1::attr_name_1&quot; : value, &quot;plugin_1::attr_name_2&quot; : value, &quot;plugin_2::attr_name_1, value},</span>
+<span class="sd">    &quot;key_2&quot; : ...</span>
+<span class="sd">    }</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
+    
+    <span class="n">new_data</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">parsed_args</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c"># Namespace the key of the attribute with a prefix of the name of the current plugin</span>
+            <span class="n">namespaced_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="p">:</span> <span class="n">val</span> 
+                                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span>            
+            
+            <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">namespaced_attrs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">namespaced_attrs</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_data_batch">
+        <p>def <span class="ident">get_data_batch</span>(</p><p>data, data_sources, data_source_groups, data_source_args)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><ul>
+<li><code>data</code> - <code>dict</code>. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+Any data collected by this call with append new keys and values to <code>data</code>, and append new attribute keys 
+and values for existing keys into the dict associated with that key. </li>
+<li><code>data_source</code> - <code>list</code>. A list of names of plugins being called.</li>
+<li><code>data_source_group</code> - <code>list</code>.  A list of names of plugin groups for the plugins being called.</li>
+<li><code>data_source_args</code> - <code>list of list</code>. A list of lists of args for the plugin calls, in argv format with alternating elements 
+referring to argument names and argument values.</li>
+</ul>
+<p>Convenience wrapper for users of sofine as a Python library. This function lets a user pass in 
+a list of data sources, a list of plugin groups and a list of lists of arguments for each plugin call. 
+Note that the elements must be in order in each argument: data source name in position 0 must match 
+data source group in position 0 and the list of args for that call in <code>data_source_args[0]</code>.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_data_batch', this);">Show source.</a></p>
+    <div id="source-runner.get_data_batch" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
+<span class="sd">and values for existing keys into the dict associated with that key. </span>
+<span class="sd">* `data_source` - `list`. A list of names of plugins being called.</span>
+<span class="sd">* `data_source_group` - `list`.  A list of names of plugin groups for the plugins being called.</span>
+<span class="sd">* `data_source_args` - `list of list`. A list of lists of args for the plugin calls, in argv format with alternating elements </span>
+<span class="sd">referring to argument names and argument values.</span>
+<span class="sd">    </span>
+<span class="sd">Convenience wrapper for users of sofine as a Python library. This function lets a user pass in </span>
+<span class="sd">a list of data sources, a list of plugin groups and a list of lists of arguments for each plugin call. </span>
+<span class="sd">Note that the elements must be in order in each argument: data source name in position 0 must match </span>
+<span class="sd">data source group in position 0 and the list of args for that call in `data_source_args[0]`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;&quot;&quot;Call to runner.batch_run() had different lengths for </span>
+<span class="s">data_sources (len == {0}), </span>
+<span class="s">data source_groups (len == {1}) and </span>
+<span class="s">data_source_args (len == {2)}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)))</span>
+    
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_groups</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_args</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_plugin">
+        <p>def <span class="ident">get_plugin</span>(</p><p>data_source, data_source_group)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><ul>
+<li><code>data_source</code> - <code>string</code>. The name of the plugin being called.</li>
+<li><code>data_source_group</code> - <code>string</code>.  The name of the plugin group for the plugin being called.</li>
+</ul>
+<p>Convenience function for clients to get an instance of a plugin. 
+This lets plugin implementers expose free functions in the module and have client 
+code be able to access them.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_plugin', this);">Show source.</a></p>
+    <div id="source-runner.get_plugin" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+
+<span class="sd">Convenience function for clients to get an instance of a plugin. </span>
+<span class="sd">This lets plugin implementers expose free functions in the module and have client </span>
+<span class="sd">code be able to access them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_plugin_module">
+        <p>def <span class="ident">get_plugin_module</span>(</p><p>data_source, data_source_group)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><ul>
+<li><code>data_source</code> - <code>string</code>. The name of the plugin being called.</li>
+<li><code>data_source_group</code> - <code>string</code>.  The name of the plugin group for the plugin being called.</li>
+</ul>
+<p>Convenience function for clients to get an instance of a plugin module. 
+This lets plugin implementers expose free functions in the module and have client 
+code be able to access them.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_plugin_module', this);">Show source.</a></p>
+    <div id="source-runner.get_plugin_module" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">    </span>
+<span class="sd">Convenience function for clients to get an instance of a plugin module. </span>
+<span class="sd">This lets plugin implementers expose free functions in the module and have client </span>
+<span class="sd">code be able to access them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_schema">
+        <p>def <span class="ident">get_schema</span>(</p><p>data_source, data_source_group, args=None)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><ul>
+<li><code>data_source</code> - <code>string</code>. The name of the plugin being called.</li>
+<li><code>data_source_group</code> - <code>string</code>.  The name of the plugin group for the plugin being called.</li>
+<li><code>args</code> - <code>any</code>. This is a bit of a hack, but basically there are use cases that could require args in 
+order to figure out the schema of available fields. Maybe a plugin wraps access to a data store that allows 
+arbitary or varying schemas per document retrieved. Or maybe, like the included <code>standard.file_source</code> 
+plugin, it wraps access to a config that can provide an arbitrary list of fields.</li>
+</ul>
+<p>This returns the value for a plugin's <em>optional</em> (but highly recommended) <code>self.schema</code> attribute. 
+This method lets plugin users introspect the plugin to ask what schema fields it provides, that is, what 
+set of attribute keys can it to the attributes dict for each key in data.</p>
+<p>Note that the default implementation is provided by <code>PluginBase</code> and it returns a properly namespaced list 
+of attribute keys. All the plugin creator has to do is set the <code>self.schema</code> attribute of their plugin to a 
+list of strings of the attribute keys it can return.</p>
+<p>Not all data sources gurarantee they will return all attribute keys for each key in data, and not 
+all data sources guarantee they will return the same set of attribute keys for each key in data in 
+one returned data set.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_schema', this);">Show source.</a></p>
+    <div id="source-runner.get_schema" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">* `args` - `any`. This is a bit of a hack, but basically there are use cases that could require args in </span>
+<span class="sd">order to figure out the schema of available fields. Maybe a plugin wraps access to a data store that allows </span>
+<span class="sd">arbitary or varying schemas per document retrieved. Or maybe, like the included `standard.file_source` </span>
+<span class="sd">plugin, it wraps access to a config that can provide an arbitrary list of fields.</span>
+
+<span class="sd">This returns the value for a plugin&#39;s _optional_ (but highly recommended) `self.schema` attribute. </span>
+<span class="sd">This method lets plugin users introspect the plugin to ask what schema fields it provides, that is, what </span>
+<span class="sd">set of attribute keys can it to the attributes dict for each key in data.</span>
+
+<span class="sd">Note that the default implementation is provided by `PluginBase` and it returns a properly namespaced list </span>
+<span class="sd">of attribute keys. All the plugin creator has to do is set the `self.schema` attribute of their plugin to a </span>
+<span class="sd">list of strings of the attribute keys it can return.</span>
+
+<span class="sd">Not all data sources gurarantee they will return all attribute keys for each key in data, and not </span>
+<span class="sd">all data sources guarantee they will return the same set of attribute keys for each key in data in </span>
+<span class="sd">one returned data set.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">schema</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">)</span>
+   
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;schema&quot;</span> <span class="p">:</span> <span class="n">schema</span><span class="p">}</span> 
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.main">
+        <p>def <span class="ident">main</span>(</p><p>argv)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>Entry point if called from the command line. Parses CLI args, validates them and calls run(). 
+The arguments dedicated to this framework are expected to precede the remaining args 
+(for clarity of reading the entire command) but don't need to. In order to clearly
+separate from the args required for the call being run, they are preceded by <code>--SF_*</code>.</p>
+<p>There is a short form and long form of each command:</p>
+<ul>
+<li><code>[--SF-s|--SF-data-source]</code> - The name of the data source being called. This is the
+name of the plugin module being called. Required.</li>
+<li>
+<p><code>[--SF-g|--SF-data-source-group</code>] - The plugin group where the plugin lives. This is 
+the plugins subdirectory where the plugin module is deployed. Required.
+<code>[--SF-a|--SF-action]</code> - The plugin action being called. One of four supported actions that must be part of every plugin:
+<code>get_data</code>: </p>
+</li>
+<li>
+<p>retrieves available data for the keys passed to it</p>
+</li>
+<li><code>adds_keys</code> - returns a JSON object with the attribute <code>adds_keys</code> and a 
+boolean indicating whether the data source adds keys or just gets data for the keys passed to it</li>
+<li><code>get_schema</code> - returns a JSON object with the attribute <code>schema</code> and the schema of attributes which 
+this data source may add for each key</li>
+<li><code>parse_args</code> - returns the values parsed for the arguments passed to the call being 
+made as a JSON object with an attribute <code>args</code> and an array of parsed args,
+and an attribute <code>is_valid</code> with a boolean indicating whether parsing succeeded.</li>
+</ul>
+<p>The <code>[--SF-a|--SF-action]</code> argument is Optional. If you don't pass it, <code>get_data</code> is assumed.  </p>
+<p>Calls to <code>get_data</code> can be piped together. All the calls must be enclosed in quotes as shown 
+in the examples below.  Calls to <code>adds_keys</code> and <code>get_schema</code> and <code>parse_args</code> cannot 
+be piped. Only the first data-source and data-source group passed to the call with this 
+action will be used to perform that action and return the result.</p>
+<p>The complete interface for a call piping two get_data calls together:</p>
+<div class="codehilite"><pre><span class="n">PATH</span><span class="o">/</span><span class="n">runner</span><span class="p">.</span><span class="n">py</span> <span class="err">&#39;</span><span class="p">[</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span><span class="o">|--</span><span class="n">SF</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">source</span><span class="p">]</span> <span class="n">DATA_SOURCE_1</span> \
+<span class="p">[</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span><span class="o">|--</span><span class="n">SF</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">group</span><span class="p">]</span> <span class="n">DATA_SOURCE_GROUP_1</span> \
+<span class="n">ARGS</span> <span class="o">|</span> <span class="err">\</span> 
+<span class="p">[</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span><span class="o">|--</span><span class="n">SF</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">source</span><span class="p">]</span> <span class="n">DATA_SOURCE_2</span> \
+<span class="p">[</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span><span class="o">|--</span><span class="n">SF</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">group</span><span class="p">]</span> <span class="n">DATA_SOURCE_GROUP_2</span> \
+<span class="n">ARGS</span><span class="err">&#39;</span>
+</pre></div>
+
+
+<p>An example call piping two get_data calls together:</p>
+<div class="codehilite"><pre><span class="n">PATH</span><span class="o">/</span><span class="n">runner</span><span class="p">.</span><span class="n">py</span> <span class="err">&#39;</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span> <span class="n">fidelity</span> <span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span> <span class="n">examples</span> \
+<span class="o">-</span><span class="n">c</span> <span class="n">CUSTOMER_ID</span> <span class="o">-</span><span class="n">p</span> <span class="n">PASSWORD</span> <span class="o">-</span><span class="n">a</span> <span class="n">ACCOUNT_ID</span> <span class="o">-</span><span class="n">e</span> <span class="n">EMAIL</span> <span class="o">|</span> \
+<span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span> <span class="n">ystockquotelib</span> <span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span> <span class="n">examples</span><span class="err">&#39;</span>
+</pre></div>
+
+
+<p>An example get_schema call:</p>
+<div class="codehilite"><pre><span class="n">PATH</span><span class="o">/</span><span class="n">runner</span><span class="p">.</span><span class="n">py</span> <span class="err">&#39;</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span> <span class="n">fidelity</span> <span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span> <span class="n">examples</span> <span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">a</span> <span class="n">get_schema</span> \
+<span class="o">-</span><span class="n">c</span> <span class="n">CUSTOMER_ID</span> <span class="o">-</span><span class="n">p</span> <span class="n">PASSWORD</span> <span class="o">-</span><span class="n">a</span> <span class="n">ACCOUNT_ID</span> <span class="o">-</span><span class="n">e</span> <span class="n">EMAIL</span><span class="err">&#39;</span>
+</pre></div></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.main', this);">Show source.</a></p>
+    <div id="source-runner.main" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Entry point if called from the command line. Parses CLI args, validates them and calls run(). </span>
+<span class="sd">The arguments dedicated to this framework are expected to precede the remaining args </span>
+<span class="sd">(for clarity of reading the entire command) but don&#39;t need to. In order to clearly</span>
+<span class="sd">separate from the args required for the call being run, they are preceded by `--SF_*`.</span>
+
+<span class="sd">There is a short form and long form of each command:</span>
+<span class="sd">    </span>
+<span class="sd">* `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the</span>
+<span class="sd">name of the plugin module being called. Required.</span>
+<span class="sd">* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is </span>
+<span class="sd">the plugins subdirectory where the plugin module is deployed. Required.</span>
+<span class="sd">`[--SF-a|--SF-action]` - The plugin action being called. One of four supported actions that must be part of every plugin:</span>
+<span class="sd">`get_data`: </span>
+
+<span class="sd">- retrieves available data for the keys passed to it</span>
+<span class="sd">- `adds_keys` - returns a JSON object with the attribute `adds_keys` and a </span>
+<span class="sd">boolean indicating whether the data source adds keys or just gets data for the keys passed to it</span>
+<span class="sd">- `get_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which </span>
+<span class="sd">this data source may add for each key</span>
+<span class="sd">- `parse_args` - returns the values parsed for the arguments passed to the call being </span>
+<span class="sd">made as a JSON object with an attribute `args` and an array of parsed args,</span>
+<span class="sd">and an attribute `is_valid` with a boolean indicating whether parsing succeeded.</span>
+
+<span class="sd">The `[--SF-a|--SF-action]` argument is Optional. If you don&#39;t pass it, `get_data` is assumed.  </span>
+
+<span class="sd">Calls to `get_data` can be piped together. All the calls must be enclosed in quotes as shown </span>
+<span class="sd">in the examples below.  Calls to `adds_keys` and `get_schema` and `parse_args` cannot </span>
+<span class="sd">be piped. Only the first data-source and data-source group passed to the call with this </span>
+<span class="sd">action will be used to perform that action and return the result.</span>
+
+<span class="sd">The complete interface for a call piping two get_data calls together:</span>
+<span class="sd">    </span>
+<span class="sd">    PATH/runner.py \&#39;[--SF-s|--SF-data-source] DATA_SOURCE_1 \\</span>
+<span class="sd">    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_1 \\</span>
+<span class="sd">    ARGS | \\ </span>
+<span class="sd">    [--SF-s|--SF-data-source] DATA_SOURCE_2 \\</span>
+<span class="sd">    [--SF-g|--SF-data-source-group] DATA_SOURCE_GROUP_2 \\</span>
+<span class="sd">    ARGS\&#39;</span>
+
+<span class="sd">An example call piping two get_data calls together:</span>
+<span class="sd">    </span>
+<span class="sd">    PATH/runner.py \&#39;--SF-s fidelity --SF-g examples \\</span>
+<span class="sd">    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL | \\</span>
+<span class="sd">    --SF-s ystockquotelib --SF-g examples\&#39;</span>
+
+<span class="sd">An example get_schema call:</span>
+<span class="sd">    </span>
+<span class="sd">    PATH/runner.py \&#39;--SF-s fidelity --SF-g examples --SF-a get_schema \\</span>
+<span class="sd">    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL\&#39;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+   
+    <span class="c"># If input passed from stdin, set initial data in chain of calls to that.</span>
+    <span class="c"># Thus supports composing sofine piped chains with preceding outer piped</span>
+    <span class="c">#  command line statements that include sofine pipes within them</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">has_stdin</span><span class="p">():</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+    <span class="c"># Get each piped data source and set of args to call it from the CLI</span>
+    <span class="c"># CLI syntax is split on pipes</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">:</span>
+        <span class="n">call</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data_source_args</span> <span class="o">=</span> \
+                <span class="n">_parse_runner_args</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+
+    <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.parse_args">
+        <p>def <span class="ident">parse_args</span>(</p><p>data_source, data_source_group, data_source_args)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><ul>
+<li><code>data_source</code> - <code>string</code>. The name of the plugin being called.</li>
+<li><code>data_source_group</code> - <code>string</code>.  The name of the plugin group for the plugin being called.</li>
+<li><code>data_source_args</code> - <code>list</code>. The args for the plugin call, in <code>argv</code> format with alternating elements 
+referring to argument names and argument values.</li>
+</ul>
+<p>A wrapper which calls a plugin's <em>required</em> <code>parse_args</code> method. This method must parse arguments the plugin's <code>get_data</code> 
+call requires, with the arguments in argv format with alternating elements referring to argument 
+names and argument values.</p>
+<p>The method is also responsible for validating arguments and returning a boolean <code>is_valid</code> as well as the 
+parsed (and possibly modified) args.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.parse_args', this);">Show source.</a></p>
+    <div id="source-runner.parse_args" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
+<span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
+<span class="sd">* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements </span>
+<span class="sd">referring to argument names and argument values.</span>
+
+<span class="sd">A wrapper which calls a plugin&#39;s _required_ `parse_args` method. This method must parse arguments the plugin&#39;s `get_data` </span>
+<span class="sd">call requires, with the arguments in argv format with alternating elements referring to argument </span>
+<span class="sd">names and argument values.</span>
+
+<span class="sd">The method is also responsible for validating arguments and returning a boolean `is_valid` as well as the </span>
+<span class="sd">parsed (and possibly modified) args.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;is_valid&quot;</span> <span class="p">:</span> <span class="n">is_valid</span><span class="p">,</span> <span class="s">&quot;parsed_args&quot;</span> <span class="p">:</span> <span class="n">parsed_args</span><span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+
+
+
+
+<hr>
+<p style="text-align: right;">
+  Documentation generated by
+  <code><a href="https://github.com/BurntSushi/pdoc">pdoc</a></code>
+  0.2.4.
+
+  pdoc is in the public domain with the
+  <a href="http://unlicense.org">UNLICENSE</a>.
+</p>
+</div>
+</body>
+</html>
