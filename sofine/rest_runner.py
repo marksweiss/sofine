@@ -1,5 +1,5 @@
-import runner
-import lib.utils.conf as conf
+import sofine.runner as runner
+import sofine.lib.utils.conf as conf
 from cgi import parse_qs, escape
 from sys import exc_info
 from traceback import format_tb

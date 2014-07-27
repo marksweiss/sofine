@@ -5,4 +5,6 @@ test:
 
 test_examples:
 	python ./sofine/tests/test_runner_from_py_examples.py
-	
+
+docs:
+	./make_docs

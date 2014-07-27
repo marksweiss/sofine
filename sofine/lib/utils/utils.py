@@ -1,7 +1,7 @@
 import sys
 import os
 import imp
-import conf
+import sofine.lib.utils.conf as conf
 
 
 def load_plugin(module_name, plugin_group):

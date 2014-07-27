@@ -1,0 +1,35 @@
+#!/bin/bash
+
+echo "Cleaning previous docs"
+rm -rf docs
+mkdir docs
+mkdir docs/sofine
+mkdir docs/sofine/tests
+mkdir docs/sofine/plugins
+mkdir docs/sofine/plugins/example
+mkdir docs/sofine/plugins/mock
+mkdir docs/sofine/plugins/standard
+mkdir docs/sofine/lib
+
+# TODO FORK PDOCS, MAKE SUBMODULE AND AVOID RELATIVE PATHS
+# TODO Make dynamic by reading files from app irs and then writing to target doc dirs
+
+echo "Building documentation"
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine --overwrite ./sofine/runner.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine --overwrite ./sofine/rest_runner.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_cli.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_cli_examples.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_py.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_py_examples.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_rest.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/lib --overwrite ./sofine/lib/utils/utils.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/lib --overwrite ./sofine/lib/utils/conf.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins --overwrite ./sofine/plugins/plugin_base.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/archive_dot_org_search_results.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/fidelity.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/google_search_results.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/ystockquotelib.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/mock --overwrite ./sofine/plugins/mock/ystockquotelib_mock.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/standard --overwrite ./sofine/plugins/standard/file_source.py
+
+echo "Documentation rebuilt successfully"
