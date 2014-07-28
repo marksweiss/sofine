@@ -27,7 +27,7 @@ class type is returned.
     #  Also, plugins must only have a no-arg constructor.  Thus
     #  this call constructs and returns an instance of the plugin at this
     #  module_name and plugin_group.
-    return load_plugin_module(module_name, plugin_group).plugin()
+    return load_plugin_module(plugin_name, plugin_group).plugin()
 
 
 def load_plugin_module(module_name, plugin_group):
