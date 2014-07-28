@@ -8,3 +8,7 @@ test_examples:
 
 docs:
 	./make_docs
+	cp -r docs /tmp
+
+docs_static:
+	cp -rf /tmp/docs . 
