@@ -7,7 +7,7 @@
 	<meta charset="utf-8">
 
       <title>utils API documentation</title>
-      <meta name="description" content="">
+      <meta name="description" content="Provides utility functions used by sofine.">
 
   
   <style type="text/css">
@@ -977,21 +977,58 @@ table {
 
 
   <h1>Module utils</h1>
-  
+  <p>Provides utility functions used by sofine.</p>
   
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-utils', this);">Show source.</a></p>
     <div id="source-utils" class="source">
-      <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">sys</span>
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;Provides utility functions used by sofine.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">imp</span>
 <span class="kn">import</span> <span class="nn">sofine.lib.utils.conf</span> <span class="kn">as</span> <span class="nn">conf</span>
 
 
-<span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `plugin_name` - `string`. The name of the plugin to load</span>
+<span class="sd">* `plugin_group` - `string`. The name of the plugin directory of the plugin to load </span>
+
+<span class="sd">Loads a plugin from either the sofine default plugin directory or the plugin directory </span>
+<span class="sd">configured by the user in the `plugin_path` key of the `sofine.conf` file in the </span>
+<span class="sd">sofine project root. Loading first looks in the `plugin_path` and then in the sofine </span>
+<span class="sd">default plugin directory.</span>
+
+<span class="sd">A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. </span>
+<span class="sd">Note that here &quot;loaded&quot; means a reference to a new instance of an object of the plugin </span>
+<span class="sd">class type is returned.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="c"># Each module is responsible for setting a variable named &#39;plugin&#39; at</span>
+    <span class="c">#  module scope, set to the name of the module&#39;s plugin class.</span>
+    <span class="c">#  Also, plugins must only have a no-arg constructor.  Thus</span>
+    <span class="c">#  this call constructs and returns an instance of the plugin at this</span>
+    <span class="c">#  module_name and plugin_group.</span>
     <span class="k">return</span> <span class="n">load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">)</span><span class="o">.</span><span class="n">plugin</span><span class="p">()</span>
 
 
 <span class="k">def</span> <span class="nf">load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `module_name` - `string`. The name of the plugin to load</span>
+<span class="sd">* `plugin_group` - `string`. The name of the plugin directory of the plugin to load </span>
+<span class="sd">   </span>
+<span class="sd">Loads a plugin from either the sofine default plugin directory or the plugin directory </span>
+<span class="sd">configured by the user in the `plugin_path` key of the `sofine.conf` file in the </span>
+<span class="sd">sofine project root. Loading first looks in the `plugin_path` and then in the sofine </span>
+<span class="sd">default plugin directory.</span>
+
+<span class="sd">A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. </span>
+
+<span class="sd">Returns an instance of the plugin module, not the plugin itself. This allows clients </span>
+<span class="sd">to declare module scope variables in plugins and use this method (wrapped in </span>
+<span class="sd">`runner`) to get an instance of the module to access the variables.</span>
+<span class="sd">&quot;&quot;&quot;</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
@@ -1005,11 +1042,6 @@ table {
         <span class="k">if</span> <span class="n">module_file</span><span class="p">:</span>
             <span class="n">module_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="c"># Each module is responsible for setting a variable named &#39;plugin&#39; at</span>
-    <span class="c">#  module scope, set to the name of the module&#39;s plugin class.</span>
-    <span class="c">#  Also, plugins must only have a no-arg constructor.  Thus</span>
-    <span class="c">#  this call constructs and returns an instance of the plugin at this</span>
-    <span class="c">#  module_name and plugin_group.</span>
     <span class="k">return</span> <span class="n">module</span>
 
 
@@ -1018,6 +1050,14 @@ table {
 
 
 <span class="k">def</span> <span class="nf">namespacer</span><span class="p">(</span><span class="n">plugin_group</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `plugin_group` - `string`. The name of the plugin directory</span>
+<span class="sd">* `plugin` - `string`. The name of the plugin</span>
+<span class="sd">* `name` - `string`. An attribute key name</span>
+
+<span class="sd">A helper to enforce DRY. Used in the two places that namespace attribute keys which are </span>
+<span class="sd">appended to the attributes associated with the keys in the data set built by a sofine call. </span>
+<span class="sd">&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">plugin_group</span> <span class="o">+</span> <span class="s">&#39;::&#39;</span> <span class="o">+</span> <span class="n">plugin</span> <span class="o">+</span> <span class="s">&#39;::&#39;</span> <span class="o">+</span> <span class="n">name</span>
 </pre></div>
 
@@ -1056,16 +1096,45 @@ table {
       
     <div class="item">
       <div class="name def" id="utils.load_plugin">
-        <p>def <span class="ident">load_plugin</span>(</p><p>module_name, plugin_group)</p>
+        <p>def <span class="ident">load_plugin</span>(</p><p>plugin_name, plugin_group)</p>
       </div>
       
 
       
   
+      <div class="desc"><ul>
+<li><code>plugin_name</code> - <code>string</code>. The name of the plugin to load</li>
+<li><code>plugin_group</code> - <code>string</code>. The name of the plugin directory of the plugin to load </li>
+</ul>
+<p>Loads a plugin from either the sofine default plugin directory or the plugin directory 
+configured by the user in the <code>plugin_path</code> key of the <code>sofine.conf</code> file in the 
+sofine project root. Loading first looks in the <code>plugin_path</code> and then in the sofine 
+default plugin directory.</p>
+<p>A plugin named <code>plugin_name</code> found in the plugin directory <code>plugin_group</code> is loaded. 
+Note that here "loaded" means a reference to a new instance of an object of the plugin 
+class type is returned.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-utils.load_plugin', this);">Show source.</a></p>
     <div id="source-utils.load_plugin" class="source">
-      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `plugin_name` - `string`. The name of the plugin to load</span>
+<span class="sd">* `plugin_group` - `string`. The name of the plugin directory of the plugin to load </span>
+
+<span class="sd">Loads a plugin from either the sofine default plugin directory or the plugin directory </span>
+<span class="sd">configured by the user in the `plugin_path` key of the `sofine.conf` file in the </span>
+<span class="sd">sofine project root. Loading first looks in the `plugin_path` and then in the sofine </span>
+<span class="sd">default plugin directory.</span>
+
+<span class="sd">A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. </span>
+<span class="sd">Note that here &quot;loaded&quot; means a reference to a new instance of an object of the plugin </span>
+<span class="sd">class type is returned.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="c"># Each module is responsible for setting a variable named &#39;plugin&#39; at</span>
+    <span class="c">#  module scope, set to the name of the module&#39;s plugin class.</span>
+    <span class="c">#  Also, plugins must only have a no-arg constructor.  Thus</span>
+    <span class="c">#  this call constructs and returns an instance of the plugin at this</span>
+    <span class="c">#  module_name and plugin_group.</span>
     <span class="k">return</span> <span class="n">load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">)</span><span class="o">.</span><span class="n">plugin</span><span class="p">()</span>
 </pre></div>
 
@@ -1083,10 +1152,37 @@ table {
 
       
   
+      <div class="desc"><ul>
+<li><code>module_name</code> - <code>string</code>. The name of the plugin to load</li>
+<li><code>plugin_group</code> - <code>string</code>. The name of the plugin directory of the plugin to load </li>
+</ul>
+<p>Loads a plugin from either the sofine default plugin directory or the plugin directory 
+configured by the user in the <code>plugin_path</code> key of the <code>sofine.conf</code> file in the 
+sofine project root. Loading first looks in the <code>plugin_path</code> and then in the sofine 
+default plugin directory.</p>
+<p>A plugin named <code>plugin_name</code> found in the plugin directory <code>plugin_group</code> is loaded. </p>
+<p>Returns an instance of the plugin module, not the plugin itself. This allows clients 
+to declare module scope variables in plugins and use this method (wrapped in 
+<code>runner</code>) to get an instance of the module to access the variables.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-utils.load_plugin_module', this);">Show source.</a></p>
     <div id="source-utils.load_plugin_module" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `module_name` - `string`. The name of the plugin to load</span>
+<span class="sd">* `plugin_group` - `string`. The name of the plugin directory of the plugin to load </span>
+<span class="sd">   </span>
+<span class="sd">Loads a plugin from either the sofine default plugin directory or the plugin directory </span>
+<span class="sd">configured by the user in the `plugin_path` key of the `sofine.conf` file in the </span>
+<span class="sd">sofine project root. Loading first looks in the `plugin_path` and then in the sofine </span>
+<span class="sd">default plugin directory.</span>
+
+<span class="sd">A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. </span>
+
+<span class="sd">Returns an instance of the plugin module, not the plugin itself. This allows clients </span>
+<span class="sd">to declare module scope variables in plugins and use this method (wrapped in </span>
+<span class="sd">`runner`) to get an instance of the module to access the variables.</span>
+<span class="sd">&quot;&quot;&quot;</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
@@ -1100,11 +1196,6 @@ table {
         <span class="k">if</span> <span class="n">module_file</span><span class="p">:</span>
             <span class="n">module_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="c"># Each module is responsible for setting a variable named &#39;plugin&#39; at</span>
-    <span class="c">#  module scope, set to the name of the module&#39;s plugin class.</span>
-    <span class="c">#  Also, plugins must only have a no-arg constructor.  Thus</span>
-    <span class="c">#  this call constructs and returns an instance of the plugin at this</span>
-    <span class="c">#  module_name and plugin_group.</span>
     <span class="k">return</span> <span class="n">module</span>
 </pre></div>
 
@@ -1122,10 +1213,25 @@ table {
 
       
   
+      <div class="desc"><ul>
+<li><code>plugin_group</code> - <code>string</code>. The name of the plugin directory</li>
+<li><code>plugin</code> - <code>string</code>. The name of the plugin</li>
+<li><code>name</code> - <code>string</code>. An attribute key name</li>
+</ul>
+<p>A helper to enforce DRY. Used in the two places that namespace attribute keys which are 
+appended to the attributes associated with the keys in the data set built by a sofine call.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-utils.namespacer', this);">Show source.</a></p>
     <div id="source-utils.namespacer" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">namespacer</span><span class="p">(</span><span class="n">plugin_group</span><span class="p">,</span> <span class="n">plugin</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `plugin_group` - `string`. The name of the plugin directory</span>
+<span class="sd">* `plugin` - `string`. The name of the plugin</span>
+<span class="sd">* `name` - `string`. An attribute key name</span>
+
+<span class="sd">A helper to enforce DRY. Used in the two places that namespace attribute keys which are </span>
+<span class="sd">appended to the attributes associated with the keys in the data set built by a sofine call. </span>
+<span class="sd">&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">plugin_group</span> <span class="o">+</span> <span class="s">&#39;::&#39;</span> <span class="o">+</span> <span class="n">plugin</span> <span class="o">+</span> <span class="s">&#39;::&#39;</span> <span class="o">+</span> <span class="n">name</span>
 </pre></div>
 

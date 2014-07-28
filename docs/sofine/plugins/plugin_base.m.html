@@ -7,7 +7,8 @@
 	<meta charset="utf-8">
 
       <title>plugin_base API documentation</title>
-      <meta name="description" content="">
+      <meta name="description" content="Provides the default implementation of a plugin. All user plugins must derive from this
+base class. ...">
 
   
   <style type="text/css">
@@ -977,20 +978,46 @@ table {
 
 
   <h1>Module plugin_base</h1>
-  
+  <p>Provides the default implementation of a plugin. All user plugins must derive from this
+base class. For example implementations, see any of the plugins under <code>sofine/plugins/mock</code>, 
+<code>sofine/plugins/example</code> or <code>sofine/plugins/default</code>.</p>
   
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-plugin_base', this);">Show source.</a></p>
     <div id="source-plugin_base" class="source">
-      <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;Provides the default implementation of a plugin. All user plugins must derive from this</span>
+<span class="sd">base class. For example implementations, see any of the plugins under `sofine/plugins/mock`, </span>
+<span class="sd">`sofine/plugins/example` or `sofine/plugins/default`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 
 
 <span class="k">class</span> <span class="nc">PluginBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The default implementation just returns the default value for the attribute. </span>
-<span class="sd">This is the correct behavior for a simple plugin that doesn&#39;t add keys but simply adds </span>
-<span class="sd">name/value attribute data to the keys it receives. A plugin that does add keys should simply </span>
-<span class="sd">override the default value for &#39;self.adds_keys&#39; in &#39;__init__()&#39;.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = None` </span>
+<span class="sd">* `self.group = None` </span>
+<span class="sd">* `self.schema = []`</span>
+<span class="sd">* `self.adds_keys = False`</span>
+
+<span class="sd">Creates the default attributes that all plugins must define. All plugins must derive from </span>
+<span class="sd">this base class.</span>
+
+<span class="sd">They must set `self.name` and `self.group` and these must point to the name of the </span>
+<span class="sd">plugin module and the subdirectory in the plugin directory where the plugin can be found.</span>
+
+<span class="sd">`self.schema` lists the attribute names that this plugin can associate with the keys it is passed </span>
+<span class="sd">in `get_data`. So the plugin can add namespaced versions of these attribute keys and values for </span>
+<span class="sd">each key to the attribute JSON object associated with each key in the data set built by the call </span>
+<span class="sd">sofine. This variable does not need to be set because it only exists to let clients of a plugin </span>
+<span class="sd">introspect the plugin by calling `get_schema` to see the attributes it can add. However, it is </span>
+<span class="sd">recommended that users creating plugins do define this.</span>
+
+<span class="sd">`self.adds_keys` is also optional and also allows plugin clients to introspect the plugin, asking </span>
+<span class="sd">if it adds keys to data or just adds attributes to existing keys.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
@@ -998,26 +1025,27 @@ table {
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The default implementation for a simplep plugin that takes no arguments&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Provides the default implementation for a simple plugin that takes no arguments.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">argv</span>
 
 
     <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The default implementation is to just call the helper to namespace the </span>
-<span class="sd">list of attribute names in self.schema. Dynamic plugins, like &#39;file_source&#39; in the </span>
-<span class="sd">&#39;standard&#39; group, need to overload get_schema() to set their schema property as </span>
-<span class="sd">needed and then themselves call get_namespaced_schema().&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Provides the default implementation which calls the helper to namespace the </span>
+<span class="sd">list of attribute names in `self.schema.`</span>
+
+<span class="sd">This should suffice for any plugin that knows its schema. Dynamic plugins, like `file_source` </span>
+<span class="sd">in the `standard` group, need to overload this method to set their schema property based </span>
+<span class="sd">on the data they retrieve.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_namespaced_schema</span><span class="p">()</span>
 
 
     <span class="k">def</span> <span class="nf">get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Assumes that it is receiving the output of __file__ from a plugin as the value </span>
-<span class="sd">for the &#39;plugin&#39; arg, and thus strips the file extension from that to prefix each schema </span>
-<span class="sd">value with it&#39;s plugin. This namespaces the attribute names returned by each plugin&#39;s </span>
-<span class="sd">get_schema() call to match the actual key names for attributes in the data returned. </span>
-<span class="sd">This is a bit cumbersome, but it makes the get_schema() output truly useful, to, for </span>
-<span class="sd">example, find all the attributes in a pipelined data set that came from a certain plugin.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns the list of attribute keys in `self.schema` prepended with `self.group` </span>
+<span class="sd">and `self.name`, guaranteeing that each attribute key is uniquely namespaced.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">]</span>
 </pre></div>
 
@@ -1044,10 +1072,28 @@ table {
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">PluginBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The default implementation just returns the default value for the attribute. </span>
-<span class="sd">This is the correct behavior for a simple plugin that doesn&#39;t add keys but simply adds </span>
-<span class="sd">name/value attribute data to the keys it receives. A plugin that does add keys should simply </span>
-<span class="sd">override the default value for &#39;self.adds_keys&#39; in &#39;__init__()&#39;.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = None` </span>
+<span class="sd">* `self.group = None` </span>
+<span class="sd">* `self.schema = []`</span>
+<span class="sd">* `self.adds_keys = False`</span>
+
+<span class="sd">Creates the default attributes that all plugins must define. All plugins must derive from </span>
+<span class="sd">this base class.</span>
+
+<span class="sd">They must set `self.name` and `self.group` and these must point to the name of the </span>
+<span class="sd">plugin module and the subdirectory in the plugin directory where the plugin can be found.</span>
+
+<span class="sd">`self.schema` lists the attribute names that this plugin can associate with the keys it is passed </span>
+<span class="sd">in `get_data`. So the plugin can add namespaced versions of these attribute keys and values for </span>
+<span class="sd">each key to the attribute JSON object associated with each key in the data set built by the call </span>
+<span class="sd">sofine. This variable does not need to be set because it only exists to let clients of a plugin </span>
+<span class="sd">introspect the plugin by calling `get_schema` to see the attributes it can add. However, it is </span>
+<span class="sd">recommended that users creating plugins do define this.</span>
+
+<span class="sd">`self.adds_keys` is also optional and also allows plugin clients to introspect the plugin, asking </span>
+<span class="sd">if it adds keys to data or just adds attributes to existing keys.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1055,26 +1101,27 @@ table {
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The default implementation for a simplep plugin that takes no arguments&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Provides the default implementation for a simple plugin that takes no arguments.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">argv</span>
 
 
     <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;The default implementation is to just call the helper to namespace the </span>
-<span class="sd">list of attribute names in self.schema. Dynamic plugins, like &#39;file_source&#39; in the </span>
-<span class="sd">&#39;standard&#39; group, need to overload get_schema() to set their schema property as </span>
-<span class="sd">needed and then themselves call get_namespaced_schema().&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Provides the default implementation which calls the helper to namespace the </span>
+<span class="sd">list of attribute names in `self.schema.`</span>
+
+<span class="sd">This should suffice for any plugin that knows its schema. Dynamic plugins, like `file_source` </span>
+<span class="sd">in the `standard` group, need to overload this method to set their schema property based </span>
+<span class="sd">on the data they retrieve.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_namespaced_schema</span><span class="p">()</span>
 
 
     <span class="k">def</span> <span class="nf">get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Assumes that it is receiving the output of __file__ from a plugin as the value </span>
-<span class="sd">for the &#39;plugin&#39; arg, and thus strips the file extension from that to prefix each schema </span>
-<span class="sd">value with it&#39;s plugin. This namespaces the attribute names returned by each plugin&#39;s </span>
-<span class="sd">get_schema() call to match the actual key names for attributes in the data returned. </span>
-<span class="sd">This is a bit cumbersome, but it makes the get_schema() output truly useful, to, for </span>
-<span class="sd">example, find all the attributes in a pipelined data set that came from a certain plugin.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Returns the list of attribute keys in `self.schema` prepended with `self.group` </span>
+<span class="sd">and `self.name`, guaranteeing that each attribute key is uniquely namespaced.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">]</span>
 </pre></div>
 
@@ -1134,22 +1181,49 @@ table {
 
       
   
-      <div class="desc"><p>The default implementation just returns the default value for the attribute. 
-This is the correct behavior for a simple plugin that doesn't add keys but simply adds 
-name/value attribute data to the keys it receives. A plugin that does add keys should simply 
-override the default value for 'self.adds_keys' in '<strong>init</strong>()'.</p></div>
+      <div class="desc"><ul>
+<li><code>self.name = None</code> </li>
+<li><code>self.group = None</code> </li>
+<li><code>self.schema = []</code></li>
+<li><code>self.adds_keys = False</code></li>
+</ul>
+<p>Creates the default attributes that all plugins must define. All plugins must derive from 
+this base class.</p>
+<p>They must set <code>self.name</code> and <code>self.group</code> and these must point to the name of the 
+plugin module and the subdirectory in the plugin directory where the plugin can be found.</p>
+<p><code>self.schema</code> lists the attribute names that this plugin can associate with the keys it is passed 
+in <code>get_data</code>. So the plugin can add namespaced versions of these attribute keys and values for 
+each key to the attribute JSON object associated with each key in the data set built by the call 
+sofine. This variable does not need to be set because it only exists to let clients of a plugin 
+introspect the plugin by calling <code>get_schema</code> to see the attributes it can add. However, it is 
+recommended that users creating plugins do define this.</p>
+<p><code>self.adds_keys</code> is also optional and also allows plugin clients to introspect the plugin, asking 
+if it adds keys to data or just adds attributes to existing keys.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-plugin_base.PluginBase.__init__', this);">Show source.</a></p>
     <div id="source-plugin_base.PluginBase.__init__" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The default implementation just returns the default value for the attribute. </span>
-<span class="sd"> is the correct behavior for a simple plugin that doesn&#39;t add keys but simply adds </span>
-<span class="sd">/value attribute data to the keys it receives. A plugin that does add keys should simply </span>
-<span class="sd">ride the default value for &#39;self.adds_keys&#39; in &#39;__init__()&#39;.&quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">elf.name = None` </span>
+<span class="s">elf.group = None` </span>
+<span class="s">elf.schema = []`</span>
+<span class="s">elf.adds_keys = False`</span>
+<span class="s">tes the default attributes that all plugins must define. All plugins must derive from </span>
+<span class="s"> base class.</span>
+<span class="s"> must set `self.name` and `self.group` and these must point to the name of the </span>
+<span class="s">in module and the subdirectory in the plugin directory where the plugin can be found.</span>
+<span class="s">f.schema` lists the attribute names that this plugin can associate with the keys it is passed </span>
+<span class="s">get_data`. So the plugin can add namespaced versions of these attribute keys and values for </span>
+<span class="s"> key to the attribute JSON object associated with each key in the data set built by the call </span>
+<span class="s">ne. This variable does not need to be set because it only exists to let clients of a plugin </span>
+<span class="s">ospect the plugin by calling `get_schema` to see the attributes it can add. However, it is </span>
+<span class="s">mmended that users creating plugins do define this.</span>
+<span class="s">f.adds_keys` is also optional and also allows plugin clients to introspect the plugin, asking </span>
+<span class="s">t adds keys to data or just adds attributes to existing keys.</span>
+<span class="s">    self.name = None</span>
+<span class="s">    self.group = None</span>
+<span class="s">    self.schema = []</span>
+<span class="s">    self.adds_keys = False</span>
 </pre></div>
 
     </div>
@@ -1166,23 +1240,15 @@ override the default value for 'self.adds_keys' in '<strong>init</strong>()'.</p
 
       
   
-      <div class="desc"><p>Assumes that it is receiving the output of <strong>file</strong> from a plugin as the value 
-for the 'plugin' arg, and thus strips the file extension from that to prefix each schema 
-value with it's plugin. This namespaces the attribute names returned by each plugin's 
-get_schema() call to match the actual key names for attributes in the data returned. 
-This is a bit cumbersome, but it makes the get_schema() output truly useful, to, for 
-example, find all the attributes in a pipelined data set that came from a certain plugin.</p></div>
+      <div class="desc"><p>Returns the list of attribute keys in <code>self.schema</code> prepended with <code>self.group</code> 
+and <code>self.name</code>, guaranteeing that each attribute key is uniquely namespaced.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-plugin_base.PluginBase.get_namespaced_schema', this);">Show source.</a></p>
     <div id="source-plugin_base.PluginBase.get_namespaced_schema" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Assumes that it is receiving the output of __file__ from a plugin as the value </span>
-<span class="sd">the &#39;plugin&#39; arg, and thus strips the file extension from that to prefix each schema </span>
-<span class="sd">e with it&#39;s plugin. This namespaces the attribute names returned by each plugin&#39;s </span>
-<span class="sd">schema() call to match the actual key names for attributes in the data returned. </span>
-<span class="sd"> is a bit cumbersome, but it makes the get_schema() output truly useful, to, for </span>
-<span class="sd">ple, find all the attributes in a pipelined data set that came from a certain plugin.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">]</span>
+    <span class="s">&quot;&quot;&quot;Returns the list of attribute keys in `self.schema` prepended with `self.group` </span>
+<span class="s">`self.name`, guaranteeing that each attribute key is uniquely namespaced.</span>
+<span class="s">    return [utils.namespacer(self.group, self.name, attr) for attr in self.schema]</span>
 </pre></div>
 
     </div>
@@ -1199,19 +1265,21 @@ example, find all the attributes in a pipelined data set that came from a certai
 
       
   
-      <div class="desc"><p>The default implementation is to just call the helper to namespace the 
-list of attribute names in self.schema. Dynamic plugins, like 'file_source' in the 
-'standard' group, need to overload get_schema() to set their schema property as 
-needed and then themselves call get_namespaced_schema().</p></div>
+      <div class="desc"><p>Provides the default implementation which calls the helper to namespace the 
+list of attribute names in <code>self.schema.</code></p>
+<p>This should suffice for any plugin that knows its schema. Dynamic plugins, like <code>file_source</code> 
+in the <code>standard</code> group, need to overload this method to set their schema property based 
+on the data they retrieve.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-plugin_base.PluginBase.get_schema', this);">Show source.</a></p>
     <div id="source-plugin_base.PluginBase.get_schema" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The default implementation is to just call the helper to namespace the </span>
-<span class="sd"> of attribute names in self.schema. Dynamic plugins, like &#39;file_source&#39; in the </span>
-<span class="sd">ndard&#39; group, need to overload get_schema() to set their schema property as </span>
-<span class="sd">ed and then themselves call get_namespaced_schema().&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_namespaced_schema</span><span class="p">()</span>
+    <span class="s">&quot;&quot;&quot;Provides the default implementation which calls the helper to namespace the </span>
+<span class="s"> of attribute names in `self.schema.`</span>
+<span class="s"> should suffice for any plugin that knows its schema. Dynamic plugins, like `file_source` </span>
+<span class="s">he `standard` group, need to overload this method to set their schema property based </span>
+<span class="s">he data they retrieve.</span>
+<span class="s">    return self.get_namespaced_schema()</span>
 </pre></div>
 
     </div>
@@ -1228,14 +1296,14 @@ needed and then themselves call get_namespaced_schema().</p></div>
 
       
   
-      <div class="desc"><p>The default implementation for a simplep plugin that takes no arguments</p></div>
+      <div class="desc"><p>Provides the default implementation for a simple plugin that takes no arguments.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-plugin_base.PluginBase.parse_args', this);">Show source.</a></p>
     <div id="source-plugin_base.PluginBase.parse_args" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The default implementation for a simplep plugin that takes no arguments&quot;&quot;&quot;</span>
-    <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
-    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="n">argv</span>
+    <span class="s">&quot;&quot;&quot;Provides the default implementation for a simple plugin that takes no arguments.</span>
+<span class="s">    is_valid = True</span>
+<span class="s">    return is_valid, argv</span>
 </pre></div>
 
     </div>

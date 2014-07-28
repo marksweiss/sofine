@@ -1,3 +1,19 @@
+"""WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.
+
+A plugin that wraps logging into Fidelity.com and retrieving porfolio keys and attributes by
+by scraping the page displaying a portfolio for an account.
+
+Based on a project with the license and credited contributors listed in the comment to this
+module, which is immediately after this.
+"""
+
+
 # www.fidelity.com account positions scraper
 
 # Copyright (c) 2009 Matthew J Ernisse <mernisse@ub3rgeek.net>
@@ -52,8 +68,6 @@ ACCOUNT_PAGE = 'https://oltx.fidelity.com/ftgw/fbc/ofpositions/brokerageAccountP
 
 
 def _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email):
-    """Login in to fidelity.com."""
-    
     # By default, store the RRD file in the same directory as this script.
     # RRD = '%s/fidelity-balance.rrd' % os.path.dirname(sys.argv[0])
     # Keep this many years of data in the RRD.
@@ -117,8 +131,6 @@ def _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, custom
 
 
 def _get_fidelity_position_data(br, account_id):
-    """Retrieve the data from the Fidelity Account Positions page."""
-    
     r = br.open(ACCOUNT_PAGE % account_id)
     strip_script = re.compile(r'<script\s+.*?</script>', re.I + re.S)
     soup = BeautifulSoup(strip_script.sub('', r.get_data()), "lxml")
@@ -192,21 +204,27 @@ def _get_fidelity_position_data(br, account_id):
 class FidelityPortfolioScraper(plugin_base.PluginBase):
 
     def __init__(self):
+        """
+* `self.name = 'fidelity'`
+* `self.group = 'example'`
+* `self.schema = ['change_since_purchase', 'description', 
+                  'change_since_purchase_pct', 'quantity']`
+* `self.adds_keys = True`
+"""
         self.name = 'fidelity'
         self.group = 'example'
         self.schema = ['change_since_purchase', 'description', 
                        'change_since_purchase_pct', 'quantity']
-        # This data source must be the first call in a chain of calls. It will ignore 
-        #  any data passed to it, and it will return data with a set of keys and 
-        #  attributes matching those found in the account for the user and 
-        #  password and account passed in
         self.adds_keys = True
 
 
     def get_data(self, keys, args):
-        """Retrieves data for the portfolio identified by the args passed in. Does not look
-at the value in keys argument, since this is a pure source that simply retrieves data
-from an outside resource for the args it recieves.
+        """
+* `keys` - `list`. The list of keys to process.
+* `args` - `'list`. Must include, in order the users `customer_id`, `pin`, 
+`account_id`, `customer_email`.
+
+Retrieves data for the portfolio identified by the args passed in. 
 """
         customer_id, pin, account_id, customer_email = args
         br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)
@@ -215,6 +233,21 @@ from an outside resource for the args it recieves.
 
 
     def parse_args(self, argv):
+        """
+WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.
+
+* `[-c|--customer-id]` - Customer Id. Required.
+* `[-p|--pin]` - Customer PIN number or password. Required.
+* `[-a|--account-id]` - Customer account from which to retrieve position information. Required.
+* `[-e|--customer-email]` - Customer email. Required.
+"""
+
         usage = """
 WARNING: This script requires that you pass your username, password 
 and accountId. This script calls cleartext only to the login form. 

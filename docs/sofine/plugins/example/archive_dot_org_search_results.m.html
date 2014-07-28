@@ -7,7 +7,7 @@
 	<meta charset="utf-8">
 
       <title>archive_dot_org_search_results API documentation</title>
-      <meta name="description" content="">
+      <meta name="description" content="Plugin that wraps querying www.archive.org.">
 
   
   <style type="text/css">
@@ -977,60 +977,74 @@ table {
 
 
   <h1>Module archive_dot_org_search_results</h1>
-  
+  <p>Plugin that wraps querying www.archive.org.</p>
   
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-archive_dot_org_search_results', this);">Show source.</a></p>
     <div id="source-archive_dot_org_search_results" class="source">
-      <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">urllib2</span>
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;Plugin that wraps querying www.archive.org.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">urllib</span>
+<span class="kn">import</span> <span class="nn">urllib2</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">sofine.plugins</span> <span class="kn">import</span> <span class="n">plugin_base</span> <span class="k">as</span> <span class="n">plugin_base</span>
 
 
 <span class="k">def</span> <span class="nf">get_child_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An optional function to let users query this property of this plugin, which </span>
-<span class="sd">returns a nested value which is itself a JSON object with these keys.</span>
+    <span class="sd">&quot;&quot;&quot;An optional function which returns the list of child keys that are associated</span>
+<span class="sd">with the parent key `docs` defined in `self.schema`.</span>
 
 <span class="sd">This API returns an array of JSON objects, with the possible fields shown in the example.</span>
-<span class="sd">Hence the return time for this get_schema is a list of lists, because this plugin returns</span>
+<span class="sd">Hence the return type is list of lists, because this plugin returns</span>
 <span class="sd">a list of objects, each with this possible set of keys.</span>
 
-<span class="sd">Example:</span>
-<span class="sd">{</span>
-<span class="sd">    year: 1998,</span>
-<span class="sd">    title: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
-<span class="sd">    description: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
-<span class="sd">    mediatype: &quot;image&quot;,</span>
-<span class="sd">    publicdate: &quot;2009-09-17T17:14:53Z&quot;,</span>
-<span class="sd">    downloads: 5,</span>
-<span class="sd">    week: 0,</span>
-<span class="sd">    month: 0,</span>
-<span class="sd">    identifier: &quot;GRC-C-1998-853&quot;,</span>
-<span class="sd">    format: [</span>
-<span class="sd">        &quot;JPEG&quot;,</span>
-<span class="sd">        &quot;JPEG Thumb&quot;,</span>
-<span class="sd">        &quot;Metadata&quot;</span>
-<span class="sd">    ],</span>
-<span class="sd">    collection: [</span>
-<span class="sd">        &quot;nasa&quot;,</span>
-<span class="sd">        &quot;glennresearchcentercollection&quot;</span>
-<span class="sd">    ],</span>
-<span class="sd">    creator: [</span>
-<span class="sd">        &quot;NASA/Glenn Research Center&quot;</span>
-<span class="sd">    ],</span>
-<span class="sd">    score: 2.617863</span>
-<span class="sd">}</span>
+<span class="sd">Returns:i</span>
+
+<span class="sd">    [[&#39;year&#39;, &#39;title&#39;, &#39;description&#39;, &#39;mediatype&#39;, &#39;publicdate&#39;, &#39;downloads&#39;, &#39;week&#39;, </span>
+<span class="sd">    &#39;month&#39;, &#39;identifier&#39;, &#39;format&#39;, &#39;collection&#39;, &#39;creator&#39;, &#39;score&#39;]]</span>
+
+<span class="sd">Example of one of the child objects in the array associated with `docs`:</span>
+
+<span class="sd">    {</span>
+<span class="sd">        year: 1998,</span>
+<span class="sd">        title: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
+<span class="sd">        description: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
+<span class="sd">        mediatype: &quot;image&quot;,</span>
+<span class="sd">        publicdate: &quot;2009-09-17T17:14:53Z&quot;,</span>
+<span class="sd">        downloads: 5,</span>
+<span class="sd">        week: 0,</span>
+<span class="sd">        month: 0,</span>
+<span class="sd">        identifier: &quot;GRC-C-1998-853&quot;,</span>
+<span class="sd">        format: [</span>
+<span class="sd">            &quot;JPEG&quot;,</span>
+<span class="sd">            &quot;JPEG Thumb&quot;,</span>
+<span class="sd">            &quot;Metadata&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        collection: [</span>
+<span class="sd">            &quot;nasa&quot;,</span>
+<span class="sd">            &quot;glennresearchcentercollection&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        creator: [</span>
+<span class="sd">            &quot;NASA/Glenn Research Center&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        score: 2.617863</span>
+<span class="sd">    }</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[[</span><span class="s">&#39;year&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;mediatype&#39;</span><span class="p">,</span> <span class="s">&#39;publicdate&#39;</span><span class="p">,</span> <span class="s">&#39;downloads&#39;</span><span class="p">,</span> <span class="s">&#39;week&#39;</span><span class="p">,</span>
              <span class="s">&#39;month&#39;</span><span class="p">,</span> <span class="s">&#39;identifier&#39;</span><span class="p">,</span> <span class="s">&#39;format&#39;</span><span class="p">,</span> <span class="s">&#39;collection&#39;</span><span class="p">,</span> <span class="s">&#39;creator&#39;</span><span class="p">,</span> <span class="s">&#39;score&#39;</span><span class="p">]]</span>
 
 
 <span class="k">def</span> <span class="nf">query_archive_dot_org</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://archive.org/advancedsearch.php?q={0}&amp;output=json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `k` - `string`. The query term.</span>
+
+<span class="sd">Helper that calls archive.org API with a query and returns JSON results set. </span>
+<span class="sd">Returns an array of JSON objects in the `[&#39;response&#39;][&#39;docs&#39;]` value. </span>
+<span class="sd">&quot;&quot;&quot;</span>    
+    <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://archive.org/advancedsearch.php?q={0}&amp;output=json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
-    <span class="c"># Returns an array of JSON objects (&quot;docs&quot;) in the [&#39;response&#39;][&#39;docs&#39;] key</span>
-    <span class="c"># See get_schema() docstring below for more comlete documentation</span>
     <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;docs&#39;</span> <span class="p">:</span> <span class="n">ret</span><span class="p">[</span><span class="s">&#39;response&#39;</span><span class="p">][</span><span class="s">&#39;docs&#39;</span><span class="p">]}</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1042,6 +1056,12 @@ table {
 <span class="k">class</span> <span class="nc">ArchiveDotOrgSearchResults</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;archive_dot_org_search_results&#39;`</span>
+<span class="sd">* `self.group = &#39;example&#39;`</span>
+<span class="sd">* `self.schema = [&#39;docs&#39;]`</span>
+<span class="sd">* `self.adds_keys = False`</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;docs&#39;</span><span class="p">]</span>
@@ -1049,8 +1069,13 @@ table {
    
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calls archive.org using their CGI query string API to send a search query and</span>
-<span class="sd">return JSON.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process.</span>
+<span class="sd">* `args` - `&#39;list`. Empty for this plugin.</span>
+
+<span class="sd">Calls archive.org using their CGI query string API to send a search query and</span>
+<span class="sd">return JSON.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_archive_dot_org</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
@@ -1080,72 +1105,85 @@ table {
 
       
   
-      <div class="desc"><p>An optional function to let users query this property of this plugin, which 
-returns a nested value which is itself a JSON object with these keys.</p>
+      <div class="desc"><p>An optional function which returns the list of child keys that are associated
+with the parent key <code>docs</code> defined in <code>self.schema</code>.</p>
 <p>This API returns an array of JSON objects, with the possible fields shown in the example.
-Hence the return time for this get_schema is a list of lists, because this plugin returns
+Hence the return type is list of lists, because this plugin returns
 a list of objects, each with this possible set of keys.</p>
-<p>Example:
-{
-    year: 1998,
-    title: "AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL",
-    description: "AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL",
-    mediatype: "image",
-    publicdate: "2009-09-17T17:14:53Z",
-    downloads: 5,
-    week: 0,
-    month: 0,
-    identifier: "GRC-C-1998-853",
-    format: [
-        "JPEG",
-        "JPEG Thumb",
-        "Metadata"
-    ],
-    collection: [
-        "nasa",
-        "glennresearchcentercollection"
-    ],
-    creator: [
-        "NASA/Glenn Research Center"
-    ],
-    score: 2.617863
-}</p></div>
+<p>Returns:i</p>
+<div class="codehilite"><pre><span class="p">[[</span><span class="err">&#39;</span><span class="n">year</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">title</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">description</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">mediatype</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">publicdate</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">downloads</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">week</span><span class="err">&#39;</span><span class="p">,</span> 
+<span class="err">&#39;</span><span class="n">month</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">identifier</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">format</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">collection</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">creator</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">score</span><span class="err">&#39;</span><span class="p">]]</span>
+</pre></div>
+
+
+<p>Example of one of the child objects in the array associated with <code>docs</code>:</p>
+<div class="codehilite"><pre><span class="p">{</span>
+    <span class="n">year</span><span class="o">:</span> <span class="m">1998</span><span class="o">,</span>
+    <span class="n">title</span><span class="o">:</span> <span class="s2">&quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;</span><span class="o">,</span>
+    <span class="n">description</span><span class="o">:</span> <span class="s2">&quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;</span><span class="o">,</span>
+    <span class="n">mediatype</span><span class="o">:</span> <span class="s2">&quot;image&quot;</span><span class="o">,</span>
+    <span class="n">publicdate</span><span class="o">:</span> <span class="s2">&quot;2009-09-17T17:14:53Z&quot;</span><span class="o">,</span>
+    <span class="n">downloads</span><span class="o">:</span> <span class="m">5</span><span class="o">,</span>
+    <span class="n">week</span><span class="o">:</span> <span class="m">0</span><span class="o">,</span>
+    <span class="n">month</span><span class="o">:</span> <span class="m">0</span><span class="o">,</span>
+    <span class="n">identifier</span><span class="o">:</span> <span class="s2">&quot;GRC-C-1998-853&quot;</span><span class="o">,</span>
+    <span class="n">format</span><span class="o">:</span> <span class="cp">[</span>
+        <span class="s2">&quot;JPEG&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;JPEG Thumb&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Metadata&quot;</span>
+    <span class="cp">]</span><span class="o">,</span>
+    <span class="n">collection</span><span class="o">:</span> <span class="cp">[</span>
+        <span class="s2">&quot;nasa&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;glennresearchcentercollection&quot;</span>
+    <span class="cp">]</span><span class="o">,</span>
+    <span class="n">creator</span><span class="o">:</span> <span class="cp">[</span>
+        <span class="s2">&quot;NASA/Glenn Research Center&quot;</span>
+    <span class="cp">]</span><span class="o">,</span>
+    <span class="n">score</span><span class="o">:</span> <span class="m">2</span><span class="o">.</span><span class="m">617863</span>
+<span class="p">}</span>
+</pre></div></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-archive_dot_org_search_results.get_child_schema', this);">Show source.</a></p>
     <div id="source-archive_dot_org_search_results.get_child_schema" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_child_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;An optional function to let users query this property of this plugin, which </span>
-<span class="sd">returns a nested value which is itself a JSON object with these keys.</span>
+    <span class="sd">&quot;&quot;&quot;An optional function which returns the list of child keys that are associated</span>
+<span class="sd">with the parent key `docs` defined in `self.schema`.</span>
 
 <span class="sd">This API returns an array of JSON objects, with the possible fields shown in the example.</span>
-<span class="sd">Hence the return time for this get_schema is a list of lists, because this plugin returns</span>
+<span class="sd">Hence the return type is list of lists, because this plugin returns</span>
 <span class="sd">a list of objects, each with this possible set of keys.</span>
 
-<span class="sd">Example:</span>
-<span class="sd">{</span>
-<span class="sd">    year: 1998,</span>
-<span class="sd">    title: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
-<span class="sd">    description: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
-<span class="sd">    mediatype: &quot;image&quot;,</span>
-<span class="sd">    publicdate: &quot;2009-09-17T17:14:53Z&quot;,</span>
-<span class="sd">    downloads: 5,</span>
-<span class="sd">    week: 0,</span>
-<span class="sd">    month: 0,</span>
-<span class="sd">    identifier: &quot;GRC-C-1998-853&quot;,</span>
-<span class="sd">    format: [</span>
-<span class="sd">        &quot;JPEG&quot;,</span>
-<span class="sd">        &quot;JPEG Thumb&quot;,</span>
-<span class="sd">        &quot;Metadata&quot;</span>
-<span class="sd">    ],</span>
-<span class="sd">    collection: [</span>
-<span class="sd">        &quot;nasa&quot;,</span>
-<span class="sd">        &quot;glennresearchcentercollection&quot;</span>
-<span class="sd">    ],</span>
-<span class="sd">    creator: [</span>
-<span class="sd">        &quot;NASA/Glenn Research Center&quot;</span>
-<span class="sd">    ],</span>
-<span class="sd">    score: 2.617863</span>
-<span class="sd">}</span>
+<span class="sd">Returns:i</span>
+
+<span class="sd">    [[&#39;year&#39;, &#39;title&#39;, &#39;description&#39;, &#39;mediatype&#39;, &#39;publicdate&#39;, &#39;downloads&#39;, &#39;week&#39;, </span>
+<span class="sd">    &#39;month&#39;, &#39;identifier&#39;, &#39;format&#39;, &#39;collection&#39;, &#39;creator&#39;, &#39;score&#39;]]</span>
+
+<span class="sd">Example of one of the child objects in the array associated with `docs`:</span>
+
+<span class="sd">    {</span>
+<span class="sd">        year: 1998,</span>
+<span class="sd">        title: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
+<span class="sd">        description: &quot;AAPL CONTROL ROOM AERO ACOUSTIC PROPULSION LABORATORY AND CONTROL ROOM PERSONNEL&quot;,</span>
+<span class="sd">        mediatype: &quot;image&quot;,</span>
+<span class="sd">        publicdate: &quot;2009-09-17T17:14:53Z&quot;,</span>
+<span class="sd">        downloads: 5,</span>
+<span class="sd">        week: 0,</span>
+<span class="sd">        month: 0,</span>
+<span class="sd">        identifier: &quot;GRC-C-1998-853&quot;,</span>
+<span class="sd">        format: [</span>
+<span class="sd">            &quot;JPEG&quot;,</span>
+<span class="sd">            &quot;JPEG Thumb&quot;,</span>
+<span class="sd">            &quot;Metadata&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        collection: [</span>
+<span class="sd">            &quot;nasa&quot;,</span>
+<span class="sd">            &quot;glennresearchcentercollection&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        creator: [</span>
+<span class="sd">            &quot;NASA/Glenn Research Center&quot;</span>
+<span class="sd">        ],</span>
+<span class="sd">        score: 2.617863</span>
+<span class="sd">    }</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[[</span><span class="s">&#39;year&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="s">&#39;mediatype&#39;</span><span class="p">,</span> <span class="s">&#39;publicdate&#39;</span><span class="p">,</span> <span class="s">&#39;downloads&#39;</span><span class="p">,</span> <span class="s">&#39;week&#39;</span><span class="p">,</span>
              <span class="s">&#39;month&#39;</span><span class="p">,</span> <span class="s">&#39;identifier&#39;</span><span class="p">,</span> <span class="s">&#39;format&#39;</span><span class="p">,</span> <span class="s">&#39;collection&#39;</span><span class="p">,</span> <span class="s">&#39;creator&#39;</span><span class="p">,</span> <span class="s">&#39;score&#39;</span><span class="p">]]</span>
@@ -1165,16 +1203,25 @@ a list of objects, each with this possible set of keys.</p>
 
       
   
+      <div class="desc"><ul>
+<li><code>k</code> - <code>string</code>. The query term.</li>
+</ul>
+<p>Helper that calls archive.org API with a query and returns JSON results set. 
+Returns an array of JSON objects in the <code>['response']['docs']</code> value.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-archive_dot_org_search_results.query_archive_dot_org', this);">Show source.</a></p>
     <div id="source-archive_dot_org_search_results.query_archive_dot_org" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">query_archive_dot_org</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://archive.org/advancedsearch.php?q={0}&amp;output=json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `k` - `string`. The query term.</span>
+
+<span class="sd">Helper that calls archive.org API with a query and returns JSON results set. </span>
+<span class="sd">Returns an array of JSON objects in the `[&#39;response&#39;][&#39;docs&#39;]` value. </span>
+<span class="sd">&quot;&quot;&quot;</span>    
+    <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://archive.org/advancedsearch.php?q={0}&amp;output=json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">quote</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
-    <span class="c"># Returns an array of JSON objects (&quot;docs&quot;) in the [&#39;response&#39;][&#39;docs&#39;] key</span>
-    <span class="c"># See get_schema() docstring below for more comlete documentation</span>
     <span class="k">if</span> <span class="n">ret</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;docs&#39;</span> <span class="p">:</span> <span class="n">ret</span><span class="p">[</span><span class="s">&#39;response&#39;</span><span class="p">][</span><span class="s">&#39;docs&#39;</span><span class="p">]}</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1201,6 +1248,12 @@ a list of objects, each with this possible set of keys.</p>
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">ArchiveDotOrgSearchResults</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;archive_dot_org_search_results&#39;`</span>
+<span class="sd">* `self.group = &#39;example&#39;`</span>
+<span class="sd">* `self.schema = [&#39;docs&#39;]`</span>
+<span class="sd">* `self.adds_keys = False`</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;docs&#39;</span><span class="p">]</span>
@@ -1208,8 +1261,13 @@ a list of objects, each with this possible set of keys.</p>
    
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calls archive.org using their CGI query string API to send a search query and</span>
-<span class="sd">return JSON.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process.</span>
+<span class="sd">* `args` - `&#39;list`. Empty for this plugin.</span>
+
+<span class="sd">Calls archive.org using their CGI query string API to send a search query and</span>
+<span class="sd">return JSON.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_archive_dot_org</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
@@ -1272,14 +1330,25 @@ a list of objects, each with this possible set of keys.</p>
 
       
   
+      <div class="desc"><ul>
+<li><code>self.name = 'archive_dot_org_search_results'</code></li>
+<li><code>self.group = 'example'</code></li>
+<li><code>self.schema = ['docs']</code></li>
+<li><code>self.adds_keys = False</code></li>
+</ul></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.__init__', this);">Show source.</a></p>
     <div id="source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.__init__" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;docs&#39;</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">elf.name = &#39;archive_dot_org_search_results&#39;`</span>
+<span class="s">elf.group = &#39;example&#39;`</span>
+<span class="s">elf.schema = [&#39;docs&#39;]`</span>
+<span class="s">elf.adds_keys = False`</span>
+<span class="s">    self.name = &#39;archive_dot_org_search_results&#39;</span>
+<span class="s">    self.group = &#39;example&#39;</span>
+<span class="s">    self.schema = [&#39;docs&#39;]</span>
+<span class="s">    self.adds_keys = False</span>
 </pre></div>
 
     </div>
@@ -1296,18 +1365,25 @@ a list of objects, each with this possible set of keys.</p>
 
       
   
-      <div class="desc"><p>Calls archive.org using their CGI query string API to send a search query and
+      <div class="desc"><ul>
+<li><code>keys</code> - <code>list</code>. The list of keys to process.</li>
+<li><code>args</code> - <code>'list</code>. Empty for this plugin.</li>
+</ul>
+<p>Calls archive.org using their CGI query string API to send a search query and
 return JSON.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.get_data', this);">Show source.</a></p>
     <div id="source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.get_data" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calls archive.org using their CGI query string API to send a search query and</span>
-<span class="sd">rn JSON.&quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_archive_dot_org</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">eys` - `list`. The list of keys to process.</span>
+<span class="s">rgs` - `&#39;list`. Empty for this plugin.</span>
+<span class="s">s archive.org using their CGI query string API to send a search query and</span>
+<span class="s">rn JSON.</span>
+<span class="s">    data = {}</span>
+<span class="s">    for k in keys:</span>
+<span class="s">        data[k] = query_archive_dot_org(k)</span>
+<span class="s">    return data</span>
 </pre></div>
 
     </div>
@@ -1328,6 +1404,12 @@ return JSON.</p></div>
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">ArchiveDotOrgSearchResults</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;archive_dot_org_search_results&#39;`</span>
+<span class="sd">* `self.group = &#39;example&#39;`</span>
+<span class="sd">* `self.schema = [&#39;docs&#39;]`</span>
+<span class="sd">* `self.adds_keys = False`</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;docs&#39;</span><span class="p">]</span>
@@ -1335,8 +1417,13 @@ return JSON.</p></div>
    
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calls archive.org using their CGI query string API to send a search query and</span>
-<span class="sd">return JSON.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process.</span>
+<span class="sd">* `args` - `&#39;list`. Empty for this plugin.</span>
+
+<span class="sd">Calls archive.org using their CGI query string API to send a search query and</span>
+<span class="sd">return JSON.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
             <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_archive_dot_org</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
@@ -1419,14 +1506,25 @@ return JSON.</p></div>
 
       
   
+      <div class="desc inherited"><ul>
+<li><code>self.name = 'archive_dot_org_search_results'</code></li>
+<li><code>self.group = 'example'</code></li>
+<li><code>self.schema = ['docs']</code></li>
+<li><code>self.adds_keys = False</code></li>
+</ul></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.__init__', this);">Show source.</a></p>
     <div id="source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.__init__" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;docs&#39;</span><span class="p">]</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">elf.name = &#39;archive_dot_org_search_results&#39;`</span>
+<span class="s">elf.group = &#39;example&#39;`</span>
+<span class="s">elf.schema = [&#39;docs&#39;]`</span>
+<span class="s">elf.adds_keys = False`</span>
+<span class="s">    self.name = &#39;archive_dot_org_search_results&#39;</span>
+<span class="s">    self.group = &#39;example&#39;</span>
+<span class="s">    self.schema = [&#39;docs&#39;]</span>
+<span class="s">    self.adds_keys = False</span>
 </pre></div>
 
     </div>
@@ -1447,18 +1545,25 @@ return JSON.</p></div>
 
       
   
-      <div class="desc inherited"><p>Calls archive.org using their CGI query string API to send a search query and
+      <div class="desc inherited"><ul>
+<li><code>keys</code> - <code>list</code>. The list of keys to process.</li>
+<li><code>args</code> - <code>'list</code>. Empty for this plugin.</li>
+</ul>
+<p>Calls archive.org using their CGI query string API to send a search query and
 return JSON.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.get_data', this);">Show source.</a></p>
     <div id="source-archive_dot_org_search_results.ArchiveDotOrgSearchResults.get_data" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calls archive.org using their CGI query string API to send a search query and</span>
-<span class="sd">rn JSON.&quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_archive_dot_org</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">data</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">eys` - `list`. The list of keys to process.</span>
+<span class="s">rgs` - `&#39;list`. Empty for this plugin.</span>
+<span class="s">s archive.org using their CGI query string API to send a search query and</span>
+<span class="s">rn JSON.</span>
+<span class="s">    data = {}</span>
+<span class="s">    for k in keys:</span>
+<span class="s">        data[k] = query_archive_dot_org(k)</span>
+<span class="s">    return data</span>
 </pre></div>
 
     </div>

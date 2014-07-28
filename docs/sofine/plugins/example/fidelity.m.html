@@ -7,7 +7,8 @@
 	<meta charset="utf-8">
 
       <title>fidelity API documentation</title>
-      <meta name="description" content="">
+      <meta name="description" content="WARNING: This script requires that you pass your username, password 
+and accountId. This script call...">
 
   
   <style type="text/css">
@@ -977,11 +978,37 @@ table {
 
 
   <h1>Module fidelity</h1>
-  
+  <p>WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.</p>
+<p>A plugin that wraps logging into Fidelity.com and retrieving porfolio keys and attributes by
+by scraping the page displaying a portfolio for an account.</p>
+<p>Based on a project with the license and credited contributors listed in the comment to this
+module, which is immediately after this.</p>
   
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity', this);">Show source.</a></p>
     <div id="source-fidelity" class="source">
-      <div class="codehilite"><pre><span class="c"># www.fidelity.com account positions scraper</span>
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;WARNING: This script requires that you pass your username, password </span>
+<span class="sd">and accountId. This script calls cleartext only to the login form. </span>
+<span class="sd">Once logged in subsequent HTML calls are https. That said, you are </span>
+<span class="sd">passing this in clear text when running this from your shell, </span>
+<span class="sd">so your system must be secure and that is YOUR responsibility. Also, </span>
+<span class="sd">of course, do NOT store this information unencryted in a plain text</span>
+<span class="sd">file anywhere, ever.</span>
+
+<span class="sd">A plugin that wraps logging into Fidelity.com and retrieving porfolio keys and attributes by</span>
+<span class="sd">by scraping the page displaying a portfolio for an account.</span>
+
+<span class="sd">Based on a project with the license and credited contributors listed in the comment to this</span>
+<span class="sd">module, which is immediately after this.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c"># www.fidelity.com account positions scraper</span>
 
 <span class="c"># Copyright (c) 2009 Matthew J Ernisse &lt;mernisse@ub3rgeek.net&gt;</span>
 <span class="c"># Copyright (c) 2009 John Morrissey &lt;jwm@horde.net&gt;</span>
@@ -1035,8 +1062,6 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Login in to fidelity.com.&quot;&quot;&quot;</span>
-    
     <span class="c"># By default, store the RRD file in the same directory as this script.</span>
     <span class="c"># RRD = &#39;%s/fidelity-balance.rrd&#39; % os.path.dirname(sys.argv[0])</span>
     <span class="c"># Keep this many years of data in the RRD.</span>
@@ -1100,8 +1125,6 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_get_fidelity_position_data</span><span class="p">(</span><span class="n">br</span><span class="p">,</span> <span class="n">account_id</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Retrieve the data from the Fidelity Account Positions page.&quot;&quot;&quot;</span>
-    
     <span class="n">r</span> <span class="o">=</span> <span class="n">br</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">ACCOUNT_PAGE</span> <span class="o">%</span> <span class="n">account_id</span><span class="p">)</span>
     <span class="n">strip_script</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s">r&#39;&lt;script\s+.*?&lt;/script&gt;&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">S</span><span class="p">)</span>
     <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">strip_script</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">&#39;&#39;</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">get_data</span><span class="p">()),</span> <span class="s">&quot;lxml&quot;</span><span class="p">)</span>
@@ -1175,21 +1198,27 @@ table {
 <span class="k">class</span> <span class="nc">FidelityPortfolioScraper</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;fidelity&#39;`</span>
+<span class="sd">* `self.group = &#39;example&#39;`</span>
+<span class="sd">* `self.schema = [&#39;change_since_purchase&#39;, &#39;description&#39;, </span>
+<span class="sd">                  &#39;change_since_purchase_pct&#39;, &#39;quantity&#39;]`</span>
+<span class="sd">* `self.adds_keys = True`</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
                        <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
-        <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
-        <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
-        <span class="c">#  attributes matching those found in the account for the user and </span>
-        <span class="c">#  password and account passed in</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
 
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
-<span class="sd">at the value in keys argument, since this is a pure source that simply retrieves data</span>
-<span class="sd">from an outside resource for the args it recieves.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process.</span>
+<span class="sd">* `args` - `&#39;list`. Must include, in order the users `customer_id`, `pin`, </span>
+<span class="sd">`account_id`, `customer_email`.</span>
+
+<span class="sd">Retrieves data for the portfolio identified by the args passed in. </span>
 <span class="sd">&quot;&quot;&quot;</span>
         <span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span> <span class="o">=</span> <span class="n">args</span>
         <span class="n">br</span> <span class="o">=</span> <span class="n">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">)</span>
@@ -1198,6 +1227,21 @@ table {
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">WARNING: This script requires that you pass your username, password </span>
+<span class="sd">and accountId. This script calls cleartext only to the login form. </span>
+<span class="sd">Once logged in subsequent HTML calls are https. That said, you are </span>
+<span class="sd">passing this in clear text when running this from your shell, </span>
+<span class="sd">so your system must be secure and that is YOUR responsibility. Also, </span>
+<span class="sd">of course, do NOT store this information unencryted in a plain text</span>
+<span class="sd">file anywhere, ever.</span>
+
+<span class="sd">* `[-c|--customer-id]` - Customer Id. Required.</span>
+<span class="sd">* `[-p|--pin]` - Customer PIN number or password. Required.</span>
+<span class="sd">* `[-a|--account-id]` - Customer account from which to retrieve position information. Required.</span>
+<span class="sd">* `[-e|--customer-email]` - Customer email. Required.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
         <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">WARNING: This script requires that you pass your username, password </span>
 <span class="s">and accountId. This script calls cleartext only to the login form. </span>
@@ -1326,21 +1370,27 @@ table {
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">FidelityPortfolioScraper</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;fidelity&#39;`</span>
+<span class="sd">* `self.group = &#39;example&#39;`</span>
+<span class="sd">* `self.schema = [&#39;change_since_purchase&#39;, &#39;description&#39;, </span>
+<span class="sd">                  &#39;change_since_purchase_pct&#39;, &#39;quantity&#39;]`</span>
+<span class="sd">* `self.adds_keys = True`</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
                        <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
-        <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
-        <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
-        <span class="c">#  attributes matching those found in the account for the user and </span>
-        <span class="c">#  password and account passed in</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
 
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
-<span class="sd">at the value in keys argument, since this is a pure source that simply retrieves data</span>
-<span class="sd">from an outside resource for the args it recieves.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process.</span>
+<span class="sd">* `args` - `&#39;list`. Must include, in order the users `customer_id`, `pin`, </span>
+<span class="sd">`account_id`, `customer_email`.</span>
+
+<span class="sd">Retrieves data for the portfolio identified by the args passed in. </span>
 <span class="sd">&quot;&quot;&quot;</span>
         <span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span> <span class="o">=</span> <span class="n">args</span>
         <span class="n">br</span> <span class="o">=</span> <span class="n">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">)</span>
@@ -1349,6 +1399,21 @@ table {
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">WARNING: This script requires that you pass your username, password </span>
+<span class="sd">and accountId. This script calls cleartext only to the login form. </span>
+<span class="sd">Once logged in subsequent HTML calls are https. That said, you are </span>
+<span class="sd">passing this in clear text when running this from your shell, </span>
+<span class="sd">so your system must be secure and that is YOUR responsibility. Also, </span>
+<span class="sd">of course, do NOT store this information unencryted in a plain text</span>
+<span class="sd">file anywhere, ever.</span>
+
+<span class="sd">* `[-c|--customer-id]` - Customer Id. Required.</span>
+<span class="sd">* `[-p|--pin]` - Customer PIN number or password. Required.</span>
+<span class="sd">* `[-a|--account-id]` - Customer account from which to retrieve position information. Required.</span>
+<span class="sd">* `[-e|--customer-email]` - Customer email. Required.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
         <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">WARNING: This script requires that you pass your username, password </span>
 <span class="s">and accountId. This script calls cleartext only to the login form. </span>
@@ -1458,19 +1523,28 @@ table {
 
       
   
+      <div class="desc"><ul>
+<li><code>self.name = 'fidelity'</code></li>
+<li><code>self.group = 'example'</code></li>
+<li><code>self.schema = ['change_since_purchase', 'description', 
+                  'change_since_purchase_pct', 'quantity']</code></li>
+<li><code>self.adds_keys = True</code></li>
+</ul></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.__init__', this);">Show source.</a></p>
     <div id="source-fidelity.FidelityPortfolioScraper.__init__" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
-                   <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
-    <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
-    <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
-    <span class="c">#  attributes matching those found in the account for the user and </span>
-    <span class="c">#  password and account passed in</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">elf.name = &#39;fidelity&#39;`</span>
+<span class="s">elf.group = &#39;example&#39;`</span>
+<span class="s">elf.schema = [&#39;change_since_purchase&#39;, &#39;description&#39;, </span>
+<span class="s">              &#39;change_since_purchase_pct&#39;, &#39;quantity&#39;]`</span>
+<span class="s">elf.adds_keys = True`</span>
+<span class="s">    self.name = &#39;fidelity&#39;</span>
+<span class="s">    self.group = &#39;example&#39;</span>
+<span class="s">    self.schema = [&#39;change_since_purchase&#39;, &#39;description&#39;, </span>
+<span class="s">                   &#39;change_since_purchase_pct&#39;, &#39;quantity&#39;]</span>
+<span class="s">    self.adds_keys = True</span>
 </pre></div>
 
     </div>
@@ -1487,16 +1561,21 @@ table {
 
       
   
-      <div class="desc"><p>Retrieves data for the portfolio identified by the args passed in. Does not look
-at the value in keys argument, since this is a pure source that simply retrieves data
-from an outside resource for the args it recieves.</p></div>
+      <div class="desc"><ul>
+<li><code>keys</code> - <code>list</code>. The list of keys to process.</li>
+<li><code>args</code> - <code>'list</code>. Must include, in order the users <code>customer_id</code>, <code>pin</code>, 
+<code>account_id</code>, <code>customer_email</code>.</li>
+</ul>
+<p>Retrieves data for the portfolio identified by the args passed in.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.get_data', this);">Show source.</a></p>
     <div id="source-fidelity.FidelityPortfolioScraper.get_data" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="s">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
-<span class="s">he value in keys argument, since this is a pure source that simply retrieves data</span>
-<span class="s"> an outside resource for the args it recieves.</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">eys` - `list`. The list of keys to process.</span>
+<span class="s">rgs` - `&#39;list`. Must include, in order the users `customer_id`, `pin`, </span>
+<span class="s">ount_id`, `customer_email`.</span>
+<span class="s">ieves data for the portfolio identified by the args passed in. </span>
 <span class="s">    customer_id, pin, account_id, customer_email = args</span>
 <span class="s">    br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)</span>
 <span class="s">    data = _get_fidelity_position_data(br, account_id)</span>
@@ -1517,55 +1596,80 @@ from an outside resource for the args it recieves.</p></div>
 
       
   
+      <div class="desc"><p>WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.</p>
+<ul>
+<li><code>[-c|--customer-id]</code> - Customer Id. Required.</li>
+<li><code>[-p|--pin]</code> - Customer PIN number or password. Required.</li>
+<li><code>[-a|--account-id]</code> - Customer account from which to retrieve position information. Required.</li>
+<li><code>[-e|--customer-email]</code> - Customer email. Required.</li>
+</ul></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.parse_args', this);">Show source.</a></p>
     <div id="source-fidelity.FidelityPortfolioScraper.parse_args" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
-    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">ING: This script requires that you pass your username, password </span>
-<span class="s">accountId. This script calls cleartext only to the login form. </span>
-<span class="s"> logged in subsequent HTML calls are https. That said, you are </span>
-<span class="s">ing this in clear text when running this from your shell, </span>
-<span class="s">our system must be secure and that is YOUR responsibility. Also, </span>
-<span class="s">ourse, do NOT store this information unencryted in a plain text</span>
-<span class="s"> anywhere, ever.</span>
-<span class="s">--customer-id] - Customer Id. Required.</span>
-<span class="s">--pin] - Customer PIN number or password. Required.</span>
-<span class="s">--account-id] - Customer account from which to retrieve position information. Required.</span>
-<span class="s">--customer-email] - Customer email. Required.</span>
-<span class="s">    parser = OptionParser(usage=usage)</span>
-<span class="s">    parser.add_option(&quot;-c&quot;, &quot;--customer-id&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_id&quot;,</span>
-<span class="s">                    help=&quot;Customer Id of the customer to retrieve position data for. Required.&quot;) </span>
-<span class="s">    parser.add_option(&quot;-p&quot;, &quot;--pin&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;pin&quot;,</span>
-<span class="s">                    help=&quot;Customer pin number. Required.&quot;) </span>
-<span class="s">    parser.add_option(&quot;-a&quot;, &quot;--account-id&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;account_id&quot;,</span>
-<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ING: This script requires that you pass your username, password </span>
+<span class="sd">accountId. This script calls cleartext only to the login form. </span>
+<span class="sd"> logged in subsequent HTML calls are https. That said, you are </span>
+<span class="sd">ing this in clear text when running this from your shell, </span>
+<span class="sd">our system must be secure and that is YOUR responsibility. Also, </span>
+<span class="sd">ourse, do NOT store this information unencryted in a plain text</span>
+<span class="sd"> anywhere, ever.</span>
+<span class="sd">-c|--customer-id]` - Customer Id. Required.</span>
+<span class="sd">-p|--pin]` - Customer PIN number or password. Required.</span>
+<span class="sd">-a|--account-id]` - Customer account from which to retrieve position information. Required.</span>
+<span class="sd">-e|--customer-email]` - Customer email. Required.</span>
+<span class="sd">    usage = &quot;&quot;&quot;</span>
+<span class="n">ING</span><span class="p">:</span> <span class="n">This</span> <span class="n">script</span> <span class="n">requires</span> <span class="n">that</span> <span class="n">you</span> <span class="k">pass</span> <span class="n">your</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> 
+<span class="n">accountId</span><span class="o">.</span> <span class="n">This</span> <span class="n">script</span> <span class="n">calls</span> <span class="n">cleartext</span> <span class="n">only</span> <span class="n">to</span> <span class="n">the</span> <span class="n">login</span> <span class="n">form</span><span class="o">.</span> 
+ <span class="n">logged</span> <span class="ow">in</span> <span class="n">subsequent</span> <span class="n">HTML</span> <span class="n">calls</span> <span class="n">are</span> <span class="n">https</span><span class="o">.</span> <span class="n">That</span> <span class="n">said</span><span class="p">,</span> <span class="n">you</span> <span class="n">are</span> 
+<span class="n">ing</span> <span class="n">this</span> <span class="ow">in</span> <span class="n">clear</span> <span class="n">text</span> <span class="n">when</span> <span class="n">running</span> <span class="n">this</span> <span class="kn">from</span> <span class="nn">your</span> <span class="nn">shell</span><span class="p">,</span> 
+<span class="n">our</span> <span class="n">system</span> <span class="n">must</span> <span class="n">be</span> <span class="n">secure</span> <span class="ow">and</span> <span class="n">that</span> <span class="ow">is</span> <span class="n">YOUR</span> <span class="n">responsibility</span><span class="o">.</span> <span class="n">Also</span><span class="p">,</span> 
+<span class="n">ourse</span><span class="p">,</span> <span class="n">do</span> <span class="n">NOT</span> <span class="n">store</span> <span class="n">this</span> <span class="n">information</span> <span class="n">unencryted</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">plain</span> <span class="n">text</span>
+ <span class="n">anywhere</span><span class="p">,</span> <span class="n">ever</span><span class="o">.</span>
+<span class="o">--</span><span class="n">customer</span><span class="o">-</span><span class="nb">id</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">Id</span><span class="o">.</span> <span class="n">Required</span><span class="o">.</span>
+<span class="o">--</span><span class="n">pin</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">PIN</span> <span class="n">number</span> <span class="ow">or</span> <span class="n">password</span><span class="o">.</span> <span class="n">Required</span><span class="o">.</span>
+<span class="o">--</span><span class="n">account</span><span class="o">-</span><span class="nb">id</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">account</span> <span class="kn">from</span> <span class="nn">which</span> <span class="nn">to</span> <span class="nn">retrieve</span> <span class="nn">position</span> <span class="nn">information.</span> <span class="nn">Required.</span>
+<span class="o">--</span><span class="n">customer</span><span class="o">-</span><span class="n">email</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">email</span><span class="o">.</span> <span class="n">Required</span><span class="o">.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-id&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_id&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer Id of the customer to retrieve position data for. Required.&quot;</span><span class="p">)</span> 
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="s">&quot;--pin&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;pin&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer pin number. Required.&quot;</span><span class="p">)</span> 
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-a&quot;</span><span class="p">,</span> <span class="s">&quot;--account-id&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;account_id&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
 
-<span class="s">    parser.add_option(&quot;-e&quot;, &quot;--customer-email&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_email&quot;,</span>
-<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
-<span class="s">    (opts, args) = parser.parse_args(argv)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-e&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-email&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_email&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+    <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
-<span class="s">    is_valid = True</span>
-<span class="s">    if not (opts.customer_id and </span><span class="se">\</span>
-<span class="s">            opts.pin and </span><span class="se">\</span>
-<span class="s">            opts.account_id and </span><span class="se">\</span>
-<span class="s">            opts.customer_email):</span>
-<span class="s">        print &quot;Invalid argument error.&quot;</span>
-<span class="s">        print &quot;&quot;&quot;</span>
- <span class="n">args</span><span class="p">:</span>  
-<span class="n">stomer_id</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span> 
-<span class="n">n</span> <span class="p">{</span><span class="mi">1</span><span class="p">}</span> 
-<span class="n">count_id</span> <span class="p">{</span><span class="mi">2</span><span class="p">}</span> 
-<span class="n">stomer_email</span> <span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="s">&quot;&quot;&quot;.format(opts.customer_id, opts.pin, opts.account_id, opts.customer_email)</span>
-<span class="s">        print usage</span>
-<span class="s">        is_valid = False</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span> <span class="ow">and</span> \
+            <span class="n">opts</span><span class="o">.</span><span class="n">pin</span> <span class="ow">and</span> \
+            <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span> <span class="ow">and</span> \
+            <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;Invalid argument error.&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s"> args:  </span>
+<span class="s">stomer_id {0} </span>
+<span class="s">n {1} </span>
+<span class="s">count_id {2} </span>
+<span class="s">stomer_email {3}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">)</span>
+        <span class="k">print</span> <span class="n">usage</span>
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">False</span>
 
-<span class="s">    # NOTE: the protocol for parse_args is to pass the returned args in a list</span>
-<span class="s">    return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]</span>
+    <span class="c"># NOTE: the protocol for parse_args is to pass the returned args in a list</span>
+    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -1586,21 +1690,27 @@ from an outside resource for the args it recieves.</p></div>
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">FidelityPortfolioScraper</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;fidelity&#39;`</span>
+<span class="sd">* `self.group = &#39;example&#39;`</span>
+<span class="sd">* `self.schema = [&#39;change_since_purchase&#39;, &#39;description&#39;, </span>
+<span class="sd">                  &#39;change_since_purchase_pct&#39;, &#39;quantity&#39;]`</span>
+<span class="sd">* `self.adds_keys = True`</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
                        <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
-        <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
-        <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
-        <span class="c">#  attributes matching those found in the account for the user and </span>
-        <span class="c">#  password and account passed in</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
 
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
-<span class="sd">at the value in keys argument, since this is a pure source that simply retrieves data</span>
-<span class="sd">from an outside resource for the args it recieves.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process.</span>
+<span class="sd">* `args` - `&#39;list`. Must include, in order the users `customer_id`, `pin`, </span>
+<span class="sd">`account_id`, `customer_email`.</span>
+
+<span class="sd">Retrieves data for the portfolio identified by the args passed in. </span>
 <span class="sd">&quot;&quot;&quot;</span>
         <span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span> <span class="o">=</span> <span class="n">args</span>
         <span class="n">br</span> <span class="o">=</span> <span class="n">_get_fidelity_logged_in_browser_session</span><span class="p">(</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">pin</span><span class="p">,</span> <span class="n">account_id</span><span class="p">,</span> <span class="n">customer_email</span><span class="p">)</span>
@@ -1609,6 +1719,21 @@ from an outside resource for the args it recieves.</p></div>
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">WARNING: This script requires that you pass your username, password </span>
+<span class="sd">and accountId. This script calls cleartext only to the login form. </span>
+<span class="sd">Once logged in subsequent HTML calls are https. That said, you are </span>
+<span class="sd">passing this in clear text when running this from your shell, </span>
+<span class="sd">so your system must be secure and that is YOUR responsibility. Also, </span>
+<span class="sd">of course, do NOT store this information unencryted in a plain text</span>
+<span class="sd">file anywhere, ever.</span>
+
+<span class="sd">* `[-c|--customer-id]` - Customer Id. Required.</span>
+<span class="sd">* `[-p|--pin]` - Customer PIN number or password. Required.</span>
+<span class="sd">* `[-a|--account-id]` - Customer account from which to retrieve position information. Required.</span>
+<span class="sd">* `[-e|--customer-email]` - Customer email. Required.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
         <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">WARNING: This script requires that you pass your username, password </span>
 <span class="s">and accountId. This script calls cleartext only to the login form. </span>
@@ -1738,19 +1863,28 @@ from an outside resource for the args it recieves.</p></div>
 
       
   
+      <div class="desc inherited"><ul>
+<li><code>self.name = 'fidelity'</code></li>
+<li><code>self.group = 'example'</code></li>
+<li><code>self.schema = ['change_since_purchase', 'description', 
+                  'change_since_purchase_pct', 'quantity']</code></li>
+<li><code>self.adds_keys = True</code></li>
+</ul></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.__init__', this);">Show source.</a></p>
     <div id="source-fidelity.FidelityPortfolioScraper.__init__" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;fidelity&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;change_since_purchase&#39;</span><span class="p">,</span> <span class="s">&#39;description&#39;</span><span class="p">,</span> 
-                   <span class="s">&#39;change_since_purchase_pct&#39;</span><span class="p">,</span> <span class="s">&#39;quantity&#39;</span><span class="p">]</span>
-    <span class="c"># This data source must be the first call in a chain of calls. It will ignore </span>
-    <span class="c">#  any data passed to it, and it will return data with a set of keys and </span>
-    <span class="c">#  attributes matching those found in the account for the user and </span>
-    <span class="c">#  password and account passed in</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">elf.name = &#39;fidelity&#39;`</span>
+<span class="s">elf.group = &#39;example&#39;`</span>
+<span class="s">elf.schema = [&#39;change_since_purchase&#39;, &#39;description&#39;, </span>
+<span class="s">              &#39;change_since_purchase_pct&#39;, &#39;quantity&#39;]`</span>
+<span class="s">elf.adds_keys = True`</span>
+<span class="s">    self.name = &#39;fidelity&#39;</span>
+<span class="s">    self.group = &#39;example&#39;</span>
+<span class="s">    self.schema = [&#39;change_since_purchase&#39;, &#39;description&#39;, </span>
+<span class="s">                   &#39;change_since_purchase_pct&#39;, &#39;quantity&#39;]</span>
+<span class="s">    self.adds_keys = True</span>
 </pre></div>
 
     </div>
@@ -1771,16 +1905,21 @@ from an outside resource for the args it recieves.</p></div>
 
       
   
-      <div class="desc inherited"><p>Retrieves data for the portfolio identified by the args passed in. Does not look
-at the value in keys argument, since this is a pure source that simply retrieves data
-from an outside resource for the args it recieves.</p></div>
+      <div class="desc inherited"><ul>
+<li><code>keys</code> - <code>list</code>. The list of keys to process.</li>
+<li><code>args</code> - <code>'list</code>. Must include, in order the users <code>customer_id</code>, <code>pin</code>, 
+<code>account_id</code>, <code>customer_email</code>.</li>
+</ul>
+<p>Retrieves data for the portfolio identified by the args passed in.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.get_data', this);">Show source.</a></p>
     <div id="source-fidelity.FidelityPortfolioScraper.get_data" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="s">&quot;&quot;&quot;Retrieves data for the portfolio identified by the args passed in. Does not look</span>
-<span class="s">he value in keys argument, since this is a pure source that simply retrieves data</span>
-<span class="s"> an outside resource for the args it recieves.</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">eys` - `list`. The list of keys to process.</span>
+<span class="s">rgs` - `&#39;list`. Must include, in order the users `customer_id`, `pin`, </span>
+<span class="s">ount_id`, `customer_email`.</span>
+<span class="s">ieves data for the portfolio identified by the args passed in. </span>
 <span class="s">    customer_id, pin, account_id, customer_email = args</span>
 <span class="s">    br = _get_fidelity_logged_in_browser_session(customer_id, pin, account_id, customer_email)</span>
 <span class="s">    data = _get_fidelity_position_data(br, account_id)</span>
@@ -1805,55 +1944,80 @@ from an outside resource for the args it recieves.</p></div>
 
       
   
+      <div class="desc inherited"><p>WARNING: This script requires that you pass your username, password 
+and accountId. This script calls cleartext only to the login form. 
+Once logged in subsequent HTML calls are https. That said, you are 
+passing this in clear text when running this from your shell, 
+so your system must be secure and that is YOUR responsibility. Also, 
+of course, do NOT store this information unencryted in a plain text
+file anywhere, ever.</p>
+<ul>
+<li><code>[-c|--customer-id]</code> - Customer Id. Required.</li>
+<li><code>[-p|--pin]</code> - Customer PIN number or password. Required.</li>
+<li><code>[-a|--account-id]</code> - Customer account from which to retrieve position information. Required.</li>
+<li><code>[-e|--customer-email]</code> - Customer email. Required.</li>
+</ul></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-fidelity.FidelityPortfolioScraper.parse_args', this);">Show source.</a></p>
     <div id="source-fidelity.FidelityPortfolioScraper.parse_args" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
-    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">ING: This script requires that you pass your username, password </span>
-<span class="s">accountId. This script calls cleartext only to the login form. </span>
-<span class="s"> logged in subsequent HTML calls are https. That said, you are </span>
-<span class="s">ing this in clear text when running this from your shell, </span>
-<span class="s">our system must be secure and that is YOUR responsibility. Also, </span>
-<span class="s">ourse, do NOT store this information unencryted in a plain text</span>
-<span class="s"> anywhere, ever.</span>
-<span class="s">--customer-id] - Customer Id. Required.</span>
-<span class="s">--pin] - Customer PIN number or password. Required.</span>
-<span class="s">--account-id] - Customer account from which to retrieve position information. Required.</span>
-<span class="s">--customer-email] - Customer email. Required.</span>
-<span class="s">    parser = OptionParser(usage=usage)</span>
-<span class="s">    parser.add_option(&quot;-c&quot;, &quot;--customer-id&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_id&quot;,</span>
-<span class="s">                    help=&quot;Customer Id of the customer to retrieve position data for. Required.&quot;) </span>
-<span class="s">    parser.add_option(&quot;-p&quot;, &quot;--pin&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;pin&quot;,</span>
-<span class="s">                    help=&quot;Customer pin number. Required.&quot;) </span>
-<span class="s">    parser.add_option(&quot;-a&quot;, &quot;--account-id&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;account_id&quot;,</span>
-<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ING: This script requires that you pass your username, password </span>
+<span class="sd">accountId. This script calls cleartext only to the login form. </span>
+<span class="sd"> logged in subsequent HTML calls are https. That said, you are </span>
+<span class="sd">ing this in clear text when running this from your shell, </span>
+<span class="sd">our system must be secure and that is YOUR responsibility. Also, </span>
+<span class="sd">ourse, do NOT store this information unencryted in a plain text</span>
+<span class="sd"> anywhere, ever.</span>
+<span class="sd">-c|--customer-id]` - Customer Id. Required.</span>
+<span class="sd">-p|--pin]` - Customer PIN number or password. Required.</span>
+<span class="sd">-a|--account-id]` - Customer account from which to retrieve position information. Required.</span>
+<span class="sd">-e|--customer-email]` - Customer email. Required.</span>
+<span class="sd">    usage = &quot;&quot;&quot;</span>
+<span class="n">ING</span><span class="p">:</span> <span class="n">This</span> <span class="n">script</span> <span class="n">requires</span> <span class="n">that</span> <span class="n">you</span> <span class="k">pass</span> <span class="n">your</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span> 
+<span class="n">accountId</span><span class="o">.</span> <span class="n">This</span> <span class="n">script</span> <span class="n">calls</span> <span class="n">cleartext</span> <span class="n">only</span> <span class="n">to</span> <span class="n">the</span> <span class="n">login</span> <span class="n">form</span><span class="o">.</span> 
+ <span class="n">logged</span> <span class="ow">in</span> <span class="n">subsequent</span> <span class="n">HTML</span> <span class="n">calls</span> <span class="n">are</span> <span class="n">https</span><span class="o">.</span> <span class="n">That</span> <span class="n">said</span><span class="p">,</span> <span class="n">you</span> <span class="n">are</span> 
+<span class="n">ing</span> <span class="n">this</span> <span class="ow">in</span> <span class="n">clear</span> <span class="n">text</span> <span class="n">when</span> <span class="n">running</span> <span class="n">this</span> <span class="kn">from</span> <span class="nn">your</span> <span class="nn">shell</span><span class="p">,</span> 
+<span class="n">our</span> <span class="n">system</span> <span class="n">must</span> <span class="n">be</span> <span class="n">secure</span> <span class="ow">and</span> <span class="n">that</span> <span class="ow">is</span> <span class="n">YOUR</span> <span class="n">responsibility</span><span class="o">.</span> <span class="n">Also</span><span class="p">,</span> 
+<span class="n">ourse</span><span class="p">,</span> <span class="n">do</span> <span class="n">NOT</span> <span class="n">store</span> <span class="n">this</span> <span class="n">information</span> <span class="n">unencryted</span> <span class="ow">in</span> <span class="n">a</span> <span class="n">plain</span> <span class="n">text</span>
+ <span class="n">anywhere</span><span class="p">,</span> <span class="n">ever</span><span class="o">.</span>
+<span class="o">--</span><span class="n">customer</span><span class="o">-</span><span class="nb">id</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">Id</span><span class="o">.</span> <span class="n">Required</span><span class="o">.</span>
+<span class="o">--</span><span class="n">pin</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">PIN</span> <span class="n">number</span> <span class="ow">or</span> <span class="n">password</span><span class="o">.</span> <span class="n">Required</span><span class="o">.</span>
+<span class="o">--</span><span class="n">account</span><span class="o">-</span><span class="nb">id</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">account</span> <span class="kn">from</span> <span class="nn">which</span> <span class="nn">to</span> <span class="nn">retrieve</span> <span class="nn">position</span> <span class="nn">information.</span> <span class="nn">Required.</span>
+<span class="o">--</span><span class="n">customer</span><span class="o">-</span><span class="n">email</span><span class="p">]</span> <span class="o">-</span> <span class="n">Customer</span> <span class="n">email</span><span class="o">.</span> <span class="n">Required</span><span class="o">.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-c&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-id&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_id&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer Id of the customer to retrieve position data for. Required.&quot;</span><span class="p">)</span> 
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="s">&quot;--pin&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;pin&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer pin number. Required.&quot;</span><span class="p">)</span> 
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-a&quot;</span><span class="p">,</span> <span class="s">&quot;--account-id&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;account_id&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
 
-<span class="s">    parser.add_option(&quot;-e&quot;, &quot;--customer-email&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;customer_email&quot;,</span>
-<span class="s">                    help=&quot;Customer account from which to retrieve position information. Required.&quot;) </span>
-<span class="s">    (opts, args) = parser.parse_args(argv)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-e&quot;</span><span class="p">,</span> <span class="s">&quot;--customer-email&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;customer_email&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Customer account from which to retrieve position information. Required.&quot;</span><span class="p">)</span> 
+    <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
-<span class="s">    is_valid = True</span>
-<span class="s">    if not (opts.customer_id and </span><span class="se">\</span>
-<span class="s">            opts.pin and </span><span class="se">\</span>
-<span class="s">            opts.account_id and </span><span class="se">\</span>
-<span class="s">            opts.customer_email):</span>
-<span class="s">        print &quot;Invalid argument error.&quot;</span>
-<span class="s">        print &quot;&quot;&quot;</span>
- <span class="n">args</span><span class="p">:</span>  
-<span class="n">stomer_id</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span> 
-<span class="n">n</span> <span class="p">{</span><span class="mi">1</span><span class="p">}</span> 
-<span class="n">count_id</span> <span class="p">{</span><span class="mi">2</span><span class="p">}</span> 
-<span class="n">stomer_email</span> <span class="p">{</span><span class="mi">3</span><span class="p">}</span><span class="s">&quot;&quot;&quot;.format(opts.customer_id, opts.pin, opts.account_id, opts.customer_email)</span>
-<span class="s">        print usage</span>
-<span class="s">        is_valid = False</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span> <span class="ow">and</span> \
+            <span class="n">opts</span><span class="o">.</span><span class="n">pin</span> <span class="ow">and</span> \
+            <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span> <span class="ow">and</span> \
+            <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&quot;Invalid argument error.&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s"> args:  </span>
+<span class="s">stomer_id {0} </span>
+<span class="s">n {1} </span>
+<span class="s">count_id {2} </span>
+<span class="s">stomer_email {3}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">)</span>
+        <span class="k">print</span> <span class="n">usage</span>
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">False</span>
 
-<span class="s">    # NOTE: the protocol for parse_args is to pass the returned args in a list</span>
-<span class="s">    return is_valid, [opts.customer_id, opts.pin, opts.account_id, opts.customer_email]</span>
+    <span class="c"># NOTE: the protocol for parse_args is to pass the returned args in a list</span>
+    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">customer_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">pin</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">account_id</span><span class="p">,</span> <span class="n">opts</span><span class="o">.</span><span class="n">customer_email</span><span class="p">]</span>
 </pre></div>
 
     </div>

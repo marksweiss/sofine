@@ -988,17 +988,21 @@ table {
 
 
 <span class="k">def</span> <span class="nf">get_keys</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Retrieves a set of keys found in the file named in the &#39;path&#39; arg.</span>
-<span class="sd">Keys must be written in a valid JSON object, which has a single key </span>
-<span class="sd">&#39;keys&#39; and a JSON array of valid JSON values for keys.  </span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `path` - `string`. The path to the file_source configuration file</span>
 
-<span class="sd">Example: {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
+<span class="sd">Retrieves a set of keys found in the file named in the `path` arg.</span>
+<span class="sd">Keys must be written in a valid JSON object, which has a single key </span>
+<span class="sd">`keys` and a JSON array of valid JSON values for keys.  </span>
+
+<span class="sd">    // Example </span>
+<span class="sd">    {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
 
 <span class="sd">Provided as a helper to the plugin class and also as a convenience for clients </span>
-<span class="sd">to retrieve the keys found in a given file at &#39;path.&#39; So, exposed here as a free</span>
-<span class="sd">function. Clients may access it through the runner interface like so:</span>
-<span class="sd">    mod = runner.get_plugin_module(&#39;file_source&#39;, &#39;standard&#39;)</span>
-<span class="sd">    keys = mod.get_keys(path)</span>
+<span class="sd">to retrieve the keys found in a given file at `path.` A common use case might be to </span>
+<span class="sd">store a list of keys at `path` and start a chained sofine call with the call to </span>
+<span class="sd">`file_source` to retrieve a static set of keys to then pass to other plugins that </span>
+<span class="sd">don&#39;t add keys themselves but just retrieve attributes for the keys passed to them.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">file_source_json</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1007,24 +1011,39 @@ table {
 
 
 <span class="k">class</span> <span class="nc">FileSource</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
-
+    
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;file_source&#39;`</span>
+<span class="sd">* `self.group = &#39;standard&#39;`</span>
+<span class="sd">* `self.schema = []`</span>
+
+<span class="sd">This is a dynamic plugin for which adds_keys() is True but it only </span>
+<span class="sd">provides keys to the data set, not attributes for those keys. So</span>
+<span class="sd">it&#39;s schema property is [].</span>
+
+<span class="sd">* `self.adds_keys = True`</span>
+
+<span class="sd">This plugin adds keys from it&#39;s file.</span>
+<span class="sd">&quot;&quot;&quot;</span>     
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;file_source&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;standard&#39;</span>
-        <span class="c"># This is a dynamic plugin for which adds_keys() is True but it only </span>
-        <span class="c">#  provides keys to the data set, not attributes for those keys. So</span>
-        <span class="c">#  it&#39;s schema property is [] </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c"># This plugin adds keys from it&#39;s file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
 
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loads a set of keys found in the file named in the &#39;path&#39; arg. Ignores any keys </span>
-<span class="sd">passed in -- this is a pure data source. Keys must be written in a valid JSON object, </span>
-<span class="sd">which has a single key &#39;keys&#39; and a JSON array of valid JSON values for keys.  </span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process. Should be empty for this plugin which </span>
+<span class="sd">in any case will ignore the argument.</span>
+<span class="sd">* `args` - `&#39;list`. The args for calling this plugin. There is one, the path to the </span>
+<span class="sd">file with the keys to be retrieved.</span>
 
-<span class="sd">Example: {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
+<span class="sd">Loads a set of keys found in the file named in the `path` arg, which</span>
+<span class="sd">is the first and only element in `args`.</span>
+
+<span class="sd">    // Example: </span>
+<span class="sd">    {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
 <span class="sd">&quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">new_keys</span> <span class="o">=</span> <span class="n">get_keys</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -1033,6 +1052,8 @@ table {
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;`[-p|--path]` - Path to the file listing the keys to load into this data source.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">[-p|--path] - Path to the file listing the keys to load into this data source.</span>
 <span class="s">&quot;&quot;&quot;</span>
@@ -1079,30 +1100,41 @@ table {
 
       
   
-      <div class="desc"><p>Retrieves a set of keys found in the file named in the 'path' arg.
+      <div class="desc"><ul>
+<li><code>path</code> - <code>string</code>. The path to the file_source configuration file</li>
+</ul>
+<p>Retrieves a set of keys found in the file named in the <code>path</code> arg.
 Keys must be written in a valid JSON object, which has a single key 
-'keys' and a JSON array of valid JSON values for keys.  </p>
-<p>Example: {"keys" : ["AAPL", "MSFT"]}</p>
+<code>keys</code> and a JSON array of valid JSON values for keys.  </p>
+<div class="codehilite"><pre><span class="c1">// Example </span>
+<span class="p">{</span><span class="s">&quot;keys&quot;</span> <span class="o">:</span> <span class="p">[</span><span class="s">&quot;AAPL&quot;</span><span class="p">,</span> <span class="s">&quot;MSFT&quot;</span><span class="p">]}</span>
+</pre></div>
+
+
 <p>Provided as a helper to the plugin class and also as a convenience for clients 
-to retrieve the keys found in a given file at 'path.' So, exposed here as a free
-function. Clients may access it through the runner interface like so:
-    mod = runner.get_plugin_module('file_source', 'standard')
-    keys = mod.get_keys(path)</p></div>
+to retrieve the keys found in a given file at <code>path.</code> A common use case might be to 
+store a list of keys at <code>path</code> and start a chained sofine call with the call to 
+<code>file_source</code> to retrieve a static set of keys to then pass to other plugins that 
+don't add keys themselves but just retrieve attributes for the keys passed to them.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.get_keys', this);">Show source.</a></p>
     <div id="source-file_source.get_keys" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_keys</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Retrieves a set of keys found in the file named in the &#39;path&#39; arg.</span>
-<span class="sd">Keys must be written in a valid JSON object, which has a single key </span>
-<span class="sd">&#39;keys&#39; and a JSON array of valid JSON values for keys.  </span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `path` - `string`. The path to the file_source configuration file</span>
 
-<span class="sd">Example: {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
+<span class="sd">Retrieves a set of keys found in the file named in the `path` arg.</span>
+<span class="sd">Keys must be written in a valid JSON object, which has a single key </span>
+<span class="sd">`keys` and a JSON array of valid JSON values for keys.  </span>
+
+<span class="sd">    // Example </span>
+<span class="sd">    {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
 
 <span class="sd">Provided as a helper to the plugin class and also as a convenience for clients </span>
-<span class="sd">to retrieve the keys found in a given file at &#39;path.&#39; So, exposed here as a free</span>
-<span class="sd">function. Clients may access it through the runner interface like so:</span>
-<span class="sd">    mod = runner.get_plugin_module(&#39;file_source&#39;, &#39;standard&#39;)</span>
-<span class="sd">    keys = mod.get_keys(path)</span>
+<span class="sd">to retrieve the keys found in a given file at `path.` A common use case might be to </span>
+<span class="sd">store a list of keys at `path` and start a chained sofine call with the call to </span>
+<span class="sd">`file_source` to retrieve a static set of keys to then pass to other plugins that </span>
+<span class="sd">don&#39;t add keys themselves but just retrieve attributes for the keys passed to them.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">file_source_json</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -1126,24 +1158,39 @@ function. Clients may access it through the runner interface like so:
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource', this);">Show source.</a></p>
     <div id="source-file_source.FileSource" class="source">
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">FileSource</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
-
+    
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;file_source&#39;`</span>
+<span class="sd">* `self.group = &#39;standard&#39;`</span>
+<span class="sd">* `self.schema = []`</span>
+
+<span class="sd">This is a dynamic plugin for which adds_keys() is True but it only </span>
+<span class="sd">provides keys to the data set, not attributes for those keys. So</span>
+<span class="sd">it&#39;s schema property is [].</span>
+
+<span class="sd">* `self.adds_keys = True`</span>
+
+<span class="sd">This plugin adds keys from it&#39;s file.</span>
+<span class="sd">&quot;&quot;&quot;</span>     
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;file_source&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;standard&#39;</span>
-        <span class="c"># This is a dynamic plugin for which adds_keys() is True but it only </span>
-        <span class="c">#  provides keys to the data set, not attributes for those keys. So</span>
-        <span class="c">#  it&#39;s schema property is [] </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c"># This plugin adds keys from it&#39;s file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
 
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loads a set of keys found in the file named in the &#39;path&#39; arg. Ignores any keys </span>
-<span class="sd">passed in -- this is a pure data source. Keys must be written in a valid JSON object, </span>
-<span class="sd">which has a single key &#39;keys&#39; and a JSON array of valid JSON values for keys.  </span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process. Should be empty for this plugin which </span>
+<span class="sd">in any case will ignore the argument.</span>
+<span class="sd">* `args` - `&#39;list`. The args for calling this plugin. There is one, the path to the </span>
+<span class="sd">file with the keys to be retrieved.</span>
 
-<span class="sd">Example: {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
+<span class="sd">Loads a set of keys found in the file named in the `path` arg, which</span>
+<span class="sd">is the first and only element in `args`.</span>
+
+<span class="sd">    // Example: </span>
+<span class="sd">    {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
 <span class="sd">&quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">new_keys</span> <span class="o">=</span> <span class="n">get_keys</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -1152,6 +1199,8 @@ function. Clients may access it through the runner interface like so:
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;`[-p|--path]` - Path to the file listing the keys to load into this data source.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">[-p|--path] - Path to the file listing the keys to load into this data source.</span>
 <span class="s">&quot;&quot;&quot;</span>
@@ -1231,18 +1280,36 @@ function. Clients may access it through the runner interface like so:
 
       
   
+      <div class="desc"><ul>
+<li><code>self.name = 'file_source'</code></li>
+<li><code>self.group = 'standard'</code></li>
+<li><code>self.schema = []</code></li>
+</ul>
+<p>This is a dynamic plugin for which adds_keys() is True but it only 
+provides keys to the data set, not attributes for those keys. So
+it's schema property is [].</p>
+<ul>
+<li><code>self.adds_keys = True</code></li>
+</ul>
+<p>This plugin adds keys from it's file.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource.__init__', this);">Show source.</a></p>
     <div id="source-file_source.FileSource.__init__" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;file_source&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;standard&#39;</span>
-    <span class="c"># This is a dynamic plugin for which adds_keys() is True but it only </span>
-    <span class="c">#  provides keys to the data set, not attributes for those keys. So</span>
-    <span class="c">#  it&#39;s schema property is [] </span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c"># This plugin adds keys from it&#39;s file</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">elf.name = &#39;file_source&#39;`</span>
+<span class="s">elf.group = &#39;standard&#39;`</span>
+<span class="s">elf.schema = []`</span>
+<span class="s"> is a dynamic plugin for which adds_keys() is True but it only </span>
+<span class="s">ides keys to the data set, not attributes for those keys. So</span>
+<span class="s"> schema property is [].</span>
+<span class="s">elf.adds_keys = True`</span>
+<span class="s"> plugin adds keys from it&#39;s file.</span>
+<span class="s">    </span>
+<span class="s">    self.name = &#39;file_source&#39;</span>
+<span class="s">    self.group = &#39;standard&#39;</span>
+<span class="s">    self.schema = []</span>
+<span class="s">    self.adds_keys = True</span>
 </pre></div>
 
     </div>
@@ -1259,18 +1326,30 @@ function. Clients may access it through the runner interface like so:
 
       
   
-      <div class="desc"><p>Loads a set of keys found in the file named in the 'path' arg. Ignores any keys 
-passed in -- this is a pure data source. Keys must be written in a valid JSON object, 
-which has a single key 'keys' and a JSON array of valid JSON values for keys.  </p>
-<p>Example: {"keys" : ["AAPL", "MSFT"]}</p></div>
+      <div class="desc"><ul>
+<li><code>keys</code> - <code>list</code>. The list of keys to process. Should be empty for this plugin which 
+in any case will ignore the argument.</li>
+<li><code>args</code> - <code>'list</code>. The args for calling this plugin. There is one, the path to the 
+file with the keys to be retrieved.</li>
+</ul>
+<p>Loads a set of keys found in the file named in the <code>path</code> arg, which
+is the first and only element in <code>args</code>.</p>
+<div class="codehilite"><pre><span class="c1">// Example: </span>
+<span class="p">{</span><span class="s">&quot;keys&quot;</span> <span class="o">:</span> <span class="p">[</span><span class="s">&quot;AAPL&quot;</span><span class="p">,</span> <span class="s">&quot;MSFT&quot;</span><span class="p">]}</span>
+</pre></div></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource.get_data', this);">Show source.</a></p>
     <div id="source-file_source.FileSource.get_data" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="s">&quot;&quot;&quot;Loads a set of keys found in the file named in the &#39;path&#39; arg. Ignores any keys </span>
-<span class="s">ed in -- this is a pure data source. Keys must be written in a valid JSON object, </span>
-<span class="s">h has a single key &#39;keys&#39; and a JSON array of valid JSON values for keys.  </span>
-<span class="s">ple: {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">eys` - `list`. The list of keys to process. Should be empty for this plugin which </span>
+<span class="s">ny case will ignore the argument.</span>
+<span class="s">rgs` - `&#39;list`. The args for calling this plugin. There is one, the path to the </span>
+<span class="s"> with the keys to be retrieved.</span>
+<span class="s">s a set of keys found in the file named in the `path` arg, which</span>
+<span class="s">he first and only element in `args`.</span>
+<span class="s">// Example: </span>
+<span class="s">{&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
 <span class="s">    path = args[0]</span>
 <span class="s">    new_keys = get_keys(path)</span>
 <span class="s">    data = dict.fromkeys(new_keys, {})</span>
@@ -1291,27 +1370,29 @@ which has a single key 'keys' and a JSON array of valid JSON values for keys.  <
 
       
   
+      <div class="desc"><p><code>[-p|--path]</code> - Path to the file listing the keys to load into this data source.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource.parse_args', this);">Show source.</a></p>
     <div id="source-file_source.FileSource.parse_args" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
-    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">--path] - Path to the file listing the keys to load into this data source.</span>
-<span class="s">    parser = OptionParser(usage=usage)</span>
-<span class="s">    parser.add_option(&quot;-p&quot;, &quot;--path&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;path&quot;,</span>
-<span class="s">                    help=&quot;Path to the file listing the keys to load into this data source. Required.&quot;) </span>
-<span class="s">    (opts, args) = parser.parse_args(argv)</span>
+    <span class="sd">&quot;&quot;&quot;`[-p|--path]` - Path to the file listing the keys to load into this data source.</span>
+<span class="sd">    usage = &quot;&quot;&quot;</span>
+<span class="o">--</span><span class="n">path</span><span class="p">]</span> <span class="o">-</span> <span class="n">Path</span> <span class="n">to</span> <span class="n">the</span> <span class="nb">file</span> <span class="n">listing</span> <span class="n">the</span> <span class="n">keys</span> <span class="n">to</span> <span class="n">load</span> <span class="n">into</span> <span class="n">this</span> <span class="n">data</span> <span class="n">source</span><span class="o">.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="s">&quot;--path&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;path&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Path to the file listing the keys to load into this data source. Required.&quot;</span><span class="p">)</span> 
+    <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
-<span class="s">    is_valid = True</span>
-<span class="s">    if not opts.path:</span>
-<span class="s">        print &quot;Invalid argument error.&quot;</span>
-<span class="s">        print &quot;&quot;&quot;</span>
- <span class="n">args</span><span class="p">:</span>  
-<span class="n">th</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span><span class="s">&quot;&quot;&quot;.format(opts.path)</span>
-<span class="s">        print usage</span>
-<span class="s">        is_valid = False</span>
-<span class="s">    return is_valid, [opts.path]</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Invalid argument error.&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s"> args:  </span>
+<span class="s">th {0}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">print</span> <span class="n">usage</span>
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -1330,24 +1411,39 @@ which has a single key 'keys' and a JSON array of valid JSON values for keys.  <
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource', this);">Show source.</a></p>
     <div id="source-file_source.FileSource" class="source">
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">FileSource</span><span class="p">(</span><span class="n">plugin_base</span><span class="o">.</span><span class="n">PluginBase</span><span class="p">):</span>
-
+    
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `self.name = &#39;file_source&#39;`</span>
+<span class="sd">* `self.group = &#39;standard&#39;`</span>
+<span class="sd">* `self.schema = []`</span>
+
+<span class="sd">This is a dynamic plugin for which adds_keys() is True but it only </span>
+<span class="sd">provides keys to the data set, not attributes for those keys. So</span>
+<span class="sd">it&#39;s schema property is [].</span>
+
+<span class="sd">* `self.adds_keys = True`</span>
+
+<span class="sd">This plugin adds keys from it&#39;s file.</span>
+<span class="sd">&quot;&quot;&quot;</span>     
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;file_source&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;standard&#39;</span>
-        <span class="c"># This is a dynamic plugin for which adds_keys() is True but it only </span>
-        <span class="c">#  provides keys to the data set, not attributes for those keys. So</span>
-        <span class="c">#  it&#39;s schema property is [] </span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c"># This plugin adds keys from it&#39;s file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
 
 
     <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Loads a set of keys found in the file named in the &#39;path&#39; arg. Ignores any keys </span>
-<span class="sd">passed in -- this is a pure data source. Keys must be written in a valid JSON object, </span>
-<span class="sd">which has a single key &#39;keys&#39; and a JSON array of valid JSON values for keys.  </span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `keys` - `list`. The list of keys to process. Should be empty for this plugin which </span>
+<span class="sd">in any case will ignore the argument.</span>
+<span class="sd">* `args` - `&#39;list`. The args for calling this plugin. There is one, the path to the </span>
+<span class="sd">file with the keys to be retrieved.</span>
 
-<span class="sd">Example: {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
+<span class="sd">Loads a set of keys found in the file named in the `path` arg, which</span>
+<span class="sd">is the first and only element in `args`.</span>
+
+<span class="sd">    // Example: </span>
+<span class="sd">    {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
 <span class="sd">&quot;&quot;&quot;</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">new_keys</span> <span class="o">=</span> <span class="n">get_keys</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
@@ -1356,6 +1452,8 @@ which has a single key 'keys' and a JSON array of valid JSON values for keys.  <
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;`[-p|--path]` - Path to the file listing the keys to load into this data source.</span>
+<span class="sd">&quot;&quot;&quot;</span>
         <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
 <span class="s">[-p|--path] - Path to the file listing the keys to load into this data source.</span>
 <span class="s">&quot;&quot;&quot;</span>
@@ -1455,18 +1553,36 @@ which has a single key 'keys' and a JSON array of valid JSON values for keys.  <
 
       
   
+      <div class="desc inherited"><ul>
+<li><code>self.name = 'file_source'</code></li>
+<li><code>self.group = 'standard'</code></li>
+<li><code>self.schema = []</code></li>
+</ul>
+<p>This is a dynamic plugin for which adds_keys() is True but it only 
+provides keys to the data set, not attributes for those keys. So
+it's schema property is [].</p>
+<ul>
+<li><code>self.adds_keys = True</code></li>
+</ul>
+<p>This plugin adds keys from it's file.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource.__init__', this);">Show source.</a></p>
     <div id="source-file_source.FileSource.__init__" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;file_source&#39;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="s">&#39;standard&#39;</span>
-    <span class="c"># This is a dynamic plugin for which adds_keys() is True but it only </span>
-    <span class="c">#  provides keys to the data set, not attributes for those keys. So</span>
-    <span class="c">#  it&#39;s schema property is [] </span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c"># This plugin adds keys from it&#39;s file</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">elf.name = &#39;file_source&#39;`</span>
+<span class="s">elf.group = &#39;standard&#39;`</span>
+<span class="s">elf.schema = []`</span>
+<span class="s"> is a dynamic plugin for which adds_keys() is True but it only </span>
+<span class="s">ides keys to the data set, not attributes for those keys. So</span>
+<span class="s"> schema property is [].</span>
+<span class="s">elf.adds_keys = True`</span>
+<span class="s"> plugin adds keys from it&#39;s file.</span>
+<span class="s">    </span>
+<span class="s">    self.name = &#39;file_source&#39;</span>
+<span class="s">    self.group = &#39;standard&#39;</span>
+<span class="s">    self.schema = []</span>
+<span class="s">    self.adds_keys = True</span>
 </pre></div>
 
     </div>
@@ -1487,18 +1603,30 @@ which has a single key 'keys' and a JSON array of valid JSON values for keys.  <
 
       
   
-      <div class="desc inherited"><p>Loads a set of keys found in the file named in the 'path' arg. Ignores any keys 
-passed in -- this is a pure data source. Keys must be written in a valid JSON object, 
-which has a single key 'keys' and a JSON array of valid JSON values for keys.  </p>
-<p>Example: {"keys" : ["AAPL", "MSFT"]}</p></div>
+      <div class="desc inherited"><ul>
+<li><code>keys</code> - <code>list</code>. The list of keys to process. Should be empty for this plugin which 
+in any case will ignore the argument.</li>
+<li><code>args</code> - <code>'list</code>. The args for calling this plugin. There is one, the path to the 
+file with the keys to be retrieved.</li>
+</ul>
+<p>Loads a set of keys found in the file named in the <code>path</code> arg, which
+is the first and only element in <code>args</code>.</p>
+<div class="codehilite"><pre><span class="c1">// Example: </span>
+<span class="p">{</span><span class="s">&quot;keys&quot;</span> <span class="o">:</span> <span class="p">[</span><span class="s">&quot;AAPL&quot;</span><span class="p">,</span> <span class="s">&quot;MSFT&quot;</span><span class="p">]}</span>
+</pre></div></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource.get_data', this);">Show source.</a></p>
     <div id="source-file_source.FileSource.get_data" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
-    <span class="s">&quot;&quot;&quot;Loads a set of keys found in the file named in the &#39;path&#39; arg. Ignores any keys </span>
-<span class="s">ed in -- this is a pure data source. Keys must be written in a valid JSON object, </span>
-<span class="s">h has a single key &#39;keys&#39; and a JSON array of valid JSON values for keys.  </span>
-<span class="s">ple: {&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
+    <span class="s">&quot;&quot;&quot;</span>
+<span class="s">eys` - `list`. The list of keys to process. Should be empty for this plugin which </span>
+<span class="s">ny case will ignore the argument.</span>
+<span class="s">rgs` - `&#39;list`. The args for calling this plugin. There is one, the path to the </span>
+<span class="s"> with the keys to be retrieved.</span>
+<span class="s">s a set of keys found in the file named in the `path` arg, which</span>
+<span class="s">he first and only element in `args`.</span>
+<span class="s">// Example: </span>
+<span class="s">{&quot;keys&quot; : [&quot;AAPL&quot;, &quot;MSFT&quot;]}</span>
 <span class="s">    path = args[0]</span>
 <span class="s">    new_keys = get_keys(path)</span>
 <span class="s">    data = dict.fromkeys(new_keys, {})</span>
@@ -1523,27 +1651,29 @@ which has a single key 'keys' and a JSON array of valid JSON values for keys.  <
 
       
   
+      <div class="desc inherited"><p><code>[-p|--path]</code> - Path to the file listing the keys to load into this data source.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-file_source.FileSource.parse_args', this);">Show source.</a></p>
     <div id="source-file_source.FileSource.parse_args" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
-    <span class="n">usage</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span>
-<span class="s">--path] - Path to the file listing the keys to load into this data source.</span>
-<span class="s">    parser = OptionParser(usage=usage)</span>
-<span class="s">    parser.add_option(&quot;-p&quot;, &quot;--path&quot;, </span>
-<span class="s">                    action=&quot;store&quot;, dest=&quot;path&quot;,</span>
-<span class="s">                    help=&quot;Path to the file listing the keys to load into this data source. Required.&quot;) </span>
-<span class="s">    (opts, args) = parser.parse_args(argv)</span>
+    <span class="sd">&quot;&quot;&quot;`[-p|--path]` - Path to the file listing the keys to load into this data source.</span>
+<span class="sd">    usage = &quot;&quot;&quot;</span>
+<span class="o">--</span><span class="n">path</span><span class="p">]</span> <span class="o">-</span> <span class="n">Path</span> <span class="n">to</span> <span class="n">the</span> <span class="nb">file</span> <span class="n">listing</span> <span class="n">the</span> <span class="n">keys</span> <span class="n">to</span> <span class="n">load</span> <span class="n">into</span> <span class="n">this</span> <span class="n">data</span> <span class="n">source</span><span class="o">.</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">OptionParser</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">usage</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span><span class="s">&quot;-p&quot;</span><span class="p">,</span> <span class="s">&quot;--path&quot;</span><span class="p">,</span> 
+                    <span class="n">action</span><span class="o">=</span><span class="s">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s">&quot;path&quot;</span><span class="p">,</span>
+                    <span class="n">help</span><span class="o">=</span><span class="s">&quot;Path to the file listing the keys to load into this data source. Required.&quot;</span><span class="p">)</span> 
+    <span class="p">(</span><span class="n">opts</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
 
-<span class="s">    is_valid = True</span>
-<span class="s">    if not opts.path:</span>
-<span class="s">        print &quot;Invalid argument error.&quot;</span>
-<span class="s">        print &quot;&quot;&quot;</span>
- <span class="n">args</span><span class="p">:</span>  
-<span class="n">th</span> <span class="p">{</span><span class="mi">0</span><span class="p">}</span><span class="s">&quot;&quot;&quot;.format(opts.path)</span>
-<span class="s">        print usage</span>
-<span class="s">        is_valid = False</span>
-<span class="s">    return is_valid, [opts.path]</span>
+    <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">opts</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+        <span class="k">print</span> <span class="s">&quot;Invalid argument error.&quot;</span>
+        <span class="k">print</span> <span class="s">&quot;&quot;&quot;</span>
+<span class="s"> args:  </span>
+<span class="s">th {0}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">print</span> <span class="n">usage</span>
+        <span class="n">is_valid</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">return</span> <span class="n">is_valid</span><span class="p">,</span> <span class="p">[</span><span class="n">opts</span><span class="o">.</span><span class="n">path</span><span class="p">]</span>
 </pre></div>
 
     </div>

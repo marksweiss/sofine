@@ -7,7 +7,8 @@
 	<meta charset="utf-8">
 
       <title>conf API documentation</title>
-      <meta name="description" content="">
+      <meta name="description" content="Loads global sofine configuration in from a configuration file. The file must be stored 
+in the proj...">
 
   
   <style type="text/css">
@@ -977,11 +978,32 @@ table {
 
 
   <h1>Module conf</h1>
-  
+  <p>Loads global sofine configuration in from a configuration file. The file must be stored 
+in the project root and must be called either <code>sofine.conf</code> or <code>example.sofine.conf</code>. If 
+<code>sofine.conf</code> is found it will be used over <code>example.sofine.conf</code>.</p>
+<p>Current supported configuration keys are:</p>
+<ul>
+<li><code>plugin_path</code> - The path to the user's plugins directory. This can be any reachable path 
+that sofine has permission to read.</li>
+<li><code>rest_port</code> - The port for running the sofine REST server under the <code>localhost</code> domain. 
+The default value is <code>10000</code> defined in <code>example.sofine.conf</code>.</li>
+</ul>
   
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-conf', this);">Show source.</a></p>
     <div id="source-conf" class="source">
-      <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">inspect</span>
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;Loads global sofine configuration in from a configuration file. The file must be stored </span>
+<span class="sd">in the project root and must be called either `sofine.conf` or `example.sofine.conf`. If </span>
+<span class="sd">`sofine.conf` is found it will be used over `example.sofine.conf`.</span>
+
+<span class="sd">Current supported configuration keys are:</span>
+
+<span class="sd">* `plugin_path` - The path to the user&#39;s plugins directory. This can be any reachable path </span>
+<span class="sd">that sofine has permission to read.</span>
+<span class="sd">* `rest_port` - The port for running the sofine REST server under the `localhost` domain. </span>
+<span class="sd">The default value is `10000` defined in `example.sofine.conf`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
@@ -996,7 +1018,18 @@ table {
 
 <span class="n">plugin_conf</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="sd">&quot;&quot;&quot;The user-defined plugin directory. The idea is that users of sofine simply install the </span>
+<span class="sd">library, configure this value, and then can deploy, version control, write tests for and </span>
+<span class="sd">otherwise manage their plugins in a separate directory, which sofine CLI and REST calls </span>
+<span class="sd">transparently look in to load plugins. This value is defined in the JSON configuration file </span>
+<span class="sd">`sofine.conf` under the key `plugin_path`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="n">REST_PORT</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="sd">&quot;&quot;&quot;The port for running the sofine REST server under the `localhost` domain. This value </span>
+<span class="sd">is defined in the JSON configuration file `sofine.conf` under the key `rest_port`. The default </span>
+<span class="sd">value is defined in `example.sofine.conf` and will be used if the user doesn&#39;t override it in </span>
+<span class="sd">`sofine.conf`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">plugin_conf_path</span> <span class="o">+</span> <span class="s">&#39;/sofine.conf&#39;</span><span class="p">))</span>
 <span class="k">except</span><span class="p">:</span>
@@ -1028,6 +1061,11 @@ table {
         <p id="conf.CUSTOM_PLUGIN_BASE_PATH" class="name">var <span class="ident">CUSTOM_PLUGIN_BASE_PATH</span></p>
         
   
+      <div class="desc"><p>The user-defined plugin directory. The idea is that users of sofine simply install the 
+library, configure this value, and then can deploy, version control, write tests for and 
+otherwise manage their plugins in a separate directory, which sofine CLI and REST calls 
+transparently look in to load plugins. This value is defined in the JSON configuration file 
+<code>sofine.conf</code> under the key <code>plugin_path</code>.</p></div>
     <div class="source_cont">
 </div>
 
@@ -1044,6 +1082,10 @@ table {
         <p id="conf.REST_PORT" class="name">var <span class="ident">REST_PORT</span></p>
         
   
+      <div class="desc"><p>The port for running the sofine REST server under the <code>localhost</code> domain. This value 
+is defined in the JSON configuration file <code>sofine.conf</code> under the key <code>rest_port</code>. The default 
+value is defined in <code>example.sofine.conf</code> and will be used if the user doesn't override it in 
+<code>sofine.conf</code>.</p></div>
     <div class="source_cont">
 </div>
 

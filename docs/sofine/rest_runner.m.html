@@ -7,7 +7,8 @@
 	<meta charset="utf-8">
 
       <title>rest_runner API documentation</title>
-      <meta name="description" content="">
+      <meta name="description" content="This module is the main driver for running plugins from the REST interface. It 
+provides its own lig...">
 
   
   <style type="text/css">
@@ -977,11 +978,67 @@ table {
 
 
   <h1>Module rest_runner</h1>
-  
+  <p>This module is the main driver for running plugins from the REST interface. It 
+provides its own lightweight server, which runs at <code>http://localhost:[PORT]</code>,
+where <code>[PORT]</code> is the value set in the JSON configuration file <code>sofine.conf</code> 
+in the sofine project root for the key <code>plugin_path</code>.</p>
+<p>The request handler expects calls to represent calls to plugins as REST-ful 
+resources. Just as in the CLI interface, there are four elements to a plugin call:</p>
+<ul>
+<li><code>SF-s|SF-data-source</code> - Required, the name of the plugin being called</li>
+<li><code>SF-g|SF-data-source-group</code> - Required, the group of the plugin being called</li>
+<li><code>SF-a|SF-action</code> - Required for <code>adds_keys</code>, <code>get_schema</code> and <code>parse_args</code> and 
+optional for <code>get_data</code>. Value must be <code>[adds_keys|get_schema|parse_args|get_data]</code>.</li>
+<li>Optional additional args required by the plugin call.</li>
+</ul>
+<p>All elements are represented in the path of the HTTP call. The path must pass args
+in order: </p>
+<div class="codehilite"><pre><span class="p">/</span><span class="nx">SF</span><span class="na">-s</span><span class="o">/&lt;</span><span class="nb">SOURCE</span><span class="o">&gt;/</span><span class="nx">SF</span><span class="na">-g</span><span class="o">/&lt;</span><span class="k">GROUP</span><span class="o">&gt;/</span><span class="nx">SF</span><span class="na">-a</span><span class="o">/&lt;</span><span class="nb">ACTION</span><span class="o">&gt;/&lt;</span><span class="nx">ARG1_NAME</span><span class="o">&gt;/&lt;</span><span class="nx">ARG1_VAL</span><span class="o">&gt;/</span> <span class="nx">...</span>
+</pre></div>
+
+
+<p>Calls can be chained by repeating the above sequence as many time as desired. 
+That is, each time a new 'SF-s' path element is encounted this marks 
+the start of a new call. </p>
+<p>This module doesn't stand on its own. Rather, its main responsibility is to provide 
+robust but very simple application server, parse and validate REST routes as calls 
+to run plugins by name, group and with their arguments, and dispatch to <code>runner.py</code> 
+and capture the return value, and package that for return as HTTP response.</p>
   
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-rest_runner', this);">Show source.</a></p>
     <div id="source-rest_runner" class="source">
-      <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">sofine.runner</span> <span class="kn">as</span> <span class="nn">runner</span>
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;This module is the main driver for running plugins from the REST interface. It </span>
+<span class="sd">provides its own lightweight server, which runs at `http://localhost:[PORT]`,</span>
+<span class="sd">where `[PORT]` is the value set in the JSON configuration file `sofine.conf` </span>
+<span class="sd">in the sofine project root for the key `plugin_path`.</span>
+
+<span class="sd">The request handler expects calls to represent calls to plugins as REST-ful </span>
+<span class="sd">resources. Just as in the CLI interface, there are four elements to a plugin call:</span>
+
+<span class="sd">* `SF-s|SF-data-source` - Required, the name of the plugin being called</span>
+<span class="sd">* `SF-g|SF-data-source-group` - Required, the group of the plugin being called</span>
+<span class="sd">* `SF-a|SF-action` - Required for `adds_keys`, `get_schema` and `parse_args` and </span>
+<span class="sd">optional for `get_data`. Value must be `[adds_keys|get_schema|parse_args|get_data]`.</span>
+<span class="sd">* Optional additional args required by the plugin call.</span>
+
+<span class="sd">All elements are represented in the path of the HTTP call. The path must pass args</span>
+<span class="sd">in order: </span>
+<span class="sd">    </span>
+<span class="sd">    /SF-s/&lt;SOURCE&gt;/SF-g/&lt;GROUP&gt;/SF-a/&lt;ACTION&gt;/&lt;ARG1_NAME&gt;/&lt;ARG1_VAL&gt;/ ...</span>
+
+<span class="sd">Calls can be chained by repeating the above sequence as many time as desired. </span>
+<span class="sd">That is, each time a new &#39;SF-s&#39; path element is encounted this marks </span>
+<span class="sd">the start of a new call. </span>
+
+<span class="sd">This module doesn&#39;t stand on its own. Rather, its main responsibility is to provide </span>
+<span class="sd">robust but very simple application server, parse and validate REST routes as calls </span>
+<span class="sd">to run plugins by name, group and with their arguments, and dispatch to `runner.py` </span>
+<span class="sd">and capture the return value, and package that for return as HTTP response.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">sofine.runner</span> <span class="kn">as</span> <span class="nn">runner</span>
 <span class="kn">import</span> <span class="nn">sofine.lib.utils.conf</span> <span class="kn">as</span> <span class="nn">conf</span>
 <span class="kn">from</span> <span class="nn">cgi</span> <span class="kn">import</span> <span class="n">parse_qs</span><span class="p">,</span> <span class="n">escape</span>
 <span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">exc_info</span>
@@ -994,16 +1051,6 @@ table {
 
 
 <span class="k">def</span> <span class="nf">_parse_calls_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span> 
-    <span class="sd">&quot;&quot;&quot;Parses call args from PATH_INFO. Loops through args from the path</span>
-<span class="sd">and splits them into key/val pairs. Each time a new &#39;SF-s&#39; path element is </span>
-<span class="sd">encounted this delimits the start of a new call. </span>
-
-<span class="sd">NOTE: The path must pass args</span>
-<span class="sd">in order: /SF-s/&lt;SOURCE&gt;/SF-g/&lt;GROUP&gt;/SF-a/&lt;ACTION&gt;/&lt;ARG1_NAME&gt;/&lt;ARG1_VAL&gt;/ ...</span>
-
-<span class="sd">As with CLI and Python lib usage, the &#39;action&#39; argument is optional for the</span>
-<span class="sd">&#39;get_data&#39; action&quot;&quot;&quot;</span>
-    
     <span class="c"># Put each new list of args making up a call into calls. Then loop</span>
     <span class="c">#  through calls to make each call and append to ret. Just like CLI impl.</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
@@ -1046,9 +1093,29 @@ table {
 
 
 <span class="k">def</span> <span class="nf">application</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The runner for REST calls to plugins. Note that use of the &#39;file_source&#39;</span>
-<span class="sd">plugin included in the &#39;standard&#39; sofine plugins directory is NOT supported, for</span>
-<span class="sd">security reasons. Allowing it would allow HTTP calls access to the local file system.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `environ` - `dict`. A wsgi standard variable, containing all the header names/values in the </span>
+<span class="sd">HTTP call being handled.</span>
+<span class="sd">* `start_response` - A wsgi standard variable, a callable that the response handler (this </span>
+<span class="sd">function) must call, which itself takes two arguments, an HTTP status code and a list of </span>
+<span class="sd">two-element tuples of strings, each of which is an HTTP header name and header value.</span>
+
+<span class="sd">The runner for REST calls to plugins. This method only allows GET and POST calls, depending </span>
+<span class="sd">on the action of the call. Calls to `get_data` are POST, because they pass in the JSON </span>
+<span class="sd">data being built by the call as JSON in the POST body. This is true despite the fact that </span>
+<span class="sd">the semantics of the call are to retrieve resource state, not change it. (REST semantics </span>
+<span class="sd">aside, POST-ing is the only practical way to do data retrieval over HTTP, because it </span>
+<span class="sd">supports large payloads.) Calls to `parse_args`, `adds_keys` and `get_schema` are GET.</span>
+
+<span class="sd">Valid calls return `200 OK`. Failed calls always return `404 Not Found`. Calls to </span>
+<span class="sd">verbs other than POST or GET return `405 Method Not Allowed`. The return payload is JSON </span>
+<span class="sd">object which is the data set of keys mapped to JSON objects built by the call(s). The </span>
+<span class="sd">structure of this data is described in the the documentation of `runner.get_data`.</span>
+
+<span class="sd">NOTE: Use of the `file_source` plugin included in the `standard` sofine plugins directory </span>
+<span class="sd">is NOT supported, for security reasons. Allowing it would allow HTTP calls access to </span>
+<span class="sd">the local file system.</span>
+<span class="sd">&quot;&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span> 
     <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/json&#39;</span><span class="p">)]</span>
@@ -1120,16 +1187,53 @@ table {
 
       
   
-      <div class="desc"><p>The runner for REST calls to plugins. Note that use of the 'file_source'
-plugin included in the 'standard' sofine plugins directory is NOT supported, for
-security reasons. Allowing it would allow HTTP calls access to the local file system.</p></div>
+      <div class="desc"><ul>
+<li><code>environ</code> - <code>dict</code>. A wsgi standard variable, containing all the header names/values in the 
+HTTP call being handled.</li>
+<li><code>start_response</code> - A wsgi standard variable, a callable that the response handler (this 
+function) must call, which itself takes two arguments, an HTTP status code and a list of 
+two-element tuples of strings, each of which is an HTTP header name and header value.</li>
+</ul>
+<p>The runner for REST calls to plugins. This method only allows GET and POST calls, depending 
+on the action of the call. Calls to <code>get_data</code> are POST, because they pass in the JSON 
+data being built by the call as JSON in the POST body. This is true despite the fact that 
+the semantics of the call are to retrieve resource state, not change it. (REST semantics 
+aside, POST-ing is the only practical way to do data retrieval over HTTP, because it 
+supports large payloads.) Calls to <code>parse_args</code>, <code>adds_keys</code> and <code>get_schema</code> are GET.</p>
+<p>Valid calls return <code>200 OK</code>. Failed calls always return <code>404 Not Found</code>. Calls to 
+verbs other than POST or GET return <code>405 Method Not Allowed</code>. The return payload is JSON 
+object which is the data set of keys mapped to JSON objects built by the call(s). The 
+structure of this data is described in the the documentation of <code>runner.get_data</code>.</p>
+<p>NOTE: Use of the <code>file_source</code> plugin included in the <code>standard</code> sofine plugins directory 
+is NOT supported, for security reasons. Allowing it would allow HTTP calls access to 
+the local file system.</p></div>
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-rest_runner.application', this);">Show source.</a></p>
     <div id="source-rest_runner.application" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">application</span><span class="p">(</span><span class="n">environ</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;The runner for REST calls to plugins. Note that use of the &#39;file_source&#39;</span>
-<span class="sd">plugin included in the &#39;standard&#39; sofine plugins directory is NOT supported, for</span>
-<span class="sd">security reasons. Allowing it would allow HTTP calls access to the local file system.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `environ` - `dict`. A wsgi standard variable, containing all the header names/values in the </span>
+<span class="sd">HTTP call being handled.</span>
+<span class="sd">* `start_response` - A wsgi standard variable, a callable that the response handler (this </span>
+<span class="sd">function) must call, which itself takes two arguments, an HTTP status code and a list of </span>
+<span class="sd">two-element tuples of strings, each of which is an HTTP header name and header value.</span>
+
+<span class="sd">The runner for REST calls to plugins. This method only allows GET and POST calls, depending </span>
+<span class="sd">on the action of the call. Calls to `get_data` are POST, because they pass in the JSON </span>
+<span class="sd">data being built by the call as JSON in the POST body. This is true despite the fact that </span>
+<span class="sd">the semantics of the call are to retrieve resource state, not change it. (REST semantics </span>
+<span class="sd">aside, POST-ing is the only practical way to do data retrieval over HTTP, because it </span>
+<span class="sd">supports large payloads.) Calls to `parse_args`, `adds_keys` and `get_schema` are GET.</span>
+
+<span class="sd">Valid calls return `200 OK`. Failed calls always return `404 Not Found`. Calls to </span>
+<span class="sd">verbs other than POST or GET return `405 Method Not Allowed`. The return payload is JSON </span>
+<span class="sd">object which is the data set of keys mapped to JSON objects built by the call(s). The </span>
+<span class="sd">structure of this data is described in the the documentation of `runner.get_data`.</span>
+
+<span class="sd">NOTE: Use of the `file_source` plugin included in the `standard` sofine plugins directory </span>
+<span class="sd">is NOT supported, for security reasons. Allowing it would allow HTTP calls access to </span>
+<span class="sd">the local file system.</span>
+<span class="sd">&quot;&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span> 
     <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
     <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/json&#39;</span><span class="p">)]</span>
