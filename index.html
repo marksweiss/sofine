@@ -1205,7 +1205,26 @@ table {
 
 
 <h2>Developing sofine</h2>
-<p>These links lead to the complete code documentation.</p>
+<p>All of the above documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications, without ever needing to understand how <code>sofine</code> works. It's a library and it works if it follows the rules.</p>
+<p>However, you might want to develop with <code>sofine</code> more directly.</p>
+<h3>make Targets</h3>
+<p>To run core unit tests:
+    make test</p>
+<p>To run unit tests on the example plugins:
+    make test_examples</p>
+<p>To rebuild the documentation, which is everthing in <code>docs</code> and <code>index.html</code> in project root:
+    make docs</p>
+<p>To support using the plugins in <code>PROJECT_ROOT/sofine/plugins/examples and 
+running the tests in PROJECT_ROOT/tests/*_examples.py</code>:</p>
+<div class="codehilite"><pre><span class="n">easy_install</span> <span class="n">mechanize</span>
+<span class="n">easy_install</span> <span class="n">beautifulsoup4</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">ystockquote</span>
+</pre></div>
+
+
+<p><em>NOTE: Tests for fidelity example plugin must be run manually, because this 
+plugin requires arguments that contain sensitive data</em></p>
+<h3>Complete Code Documentation</h3>
 <p><strong>Command Runners</strong><br/>
 <a href="docs/sofine/runner.m.html">runner</a><br/>
 <a href="docs/sofine/rest_runner.m.html">rest_runner</a><br/>
@@ -1230,22 +1249,6 @@ table {
 <a href="docs/sofine/lib/utils.m.html">lib/utils</a><br/>
 <a href="docs/sofine/lib/conf.m.html">lib/conf</a><br/>
 </body></p>
-<h3>make targets</h3>
-<p>To run core unit tests:
-    make test</p>
-<p>To run unit tests on the example plugins:
-    make test_examples</p>
-<p>To rebuild the documentation, which is everthing in <code>docs</code> and <code>index.html</code> in project root:
-    make docs`</p>
-<p>To support using the plugins in PROJECT_ROOT/sofine/plugins/examples and 
-running the tests in PROJECT_ROOT/tests/*_examples.py:
- easy_install mechanize
- easy_install beautifulsoup4
- pip install ystockquote</p>
-<p>To run example unit tests for ystockquotelib example plugin only:
- make test_examples</p>
-<p>NOTE: Tests for fidelity example plugin must be run manually, because this 
-plugin requires arguments that contain sensitive data</p>
   
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-index', this);">Show source.</a></p>
     <div id="source-index" class="source">
@@ -1483,7 +1486,32 @@ plugin requires arguments that contain sensitive data</p>
 
 <span class="sd">## Developing sofine</span>
 
-<span class="sd">These links lead to the complete code documentation.</span>
+<span class="sd">All of the above documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications, without ever needing to understand how `sofine` works. It&#39;s a library and it works if it follows the rules.</span>
+
+<span class="sd">However, you might want to develop with `sofine` more directly.</span>
+
+<span class="sd">### make Targets</span>
+
+<span class="sd">To run core unit tests:</span>
+<span class="sd">    make test</span>
+
+<span class="sd">To run unit tests on the example plugins:</span>
+<span class="sd">    make test_examples</span>
+
+<span class="sd">To rebuild the documentation, which is everthing in `docs` and `index.html` in project root:</span>
+<span class="sd">    make docs</span>
+
+<span class="sd">To support using the plugins in `PROJECT_ROOT/sofine/plugins/examples and </span>
+<span class="sd">running the tests in PROJECT_ROOT/tests/*_examples.py`:</span>
+<span class="sd">    </span>
+<span class="sd">    easy_install mechanize</span>
+<span class="sd">    easy_install beautifulsoup4</span>
+<span class="sd">    pip install ystockquote</span>
+
+<span class="sd">*NOTE: Tests for fidelity example plugin must be run manually, because this </span>
+<span class="sd">plugin requires arguments that contain sensitive data*</span>
+
+<span class="sd">### Complete Code Documentation</span>
 
 <span class="sd">&lt;strong&gt;Command Runners&lt;/strong&gt;&lt;br/&gt;</span>
 <span class="sd">&lt;a href=&quot;docs/sofine/runner.m.html&quot;&gt;runner&lt;/a&gt;&lt;br/&gt;</span>
@@ -1510,28 +1538,6 @@ plugin requires arguments that contain sensitive data</p>
 <span class="sd">&lt;a href=&quot;docs/sofine/lib/conf.m.html&quot;&gt;lib/conf&lt;/a&gt;&lt;br/&gt;</span>
 <span class="sd">&lt;/body&gt;</span>
 
-<span class="sd">### make targets</span>
-
-<span class="sd">To run core unit tests:</span>
-<span class="sd">    make test</span>
-
-<span class="sd">To run unit tests on the example plugins:</span>
-<span class="sd">    make test_examples</span>
-
-<span class="sd">To rebuild the documentation, which is everthing in `docs` and `index.html` in project root:</span>
-<span class="sd">    make docs`</span>
-
-<span class="sd">To support using the plugins in PROJECT_ROOT/sofine/plugins/examples and </span>
-<span class="sd">running the tests in PROJECT_ROOT/tests/*_examples.py:</span>
-<span class="sd"> easy_install mechanize</span>
-<span class="sd"> easy_install beautifulsoup4</span>
-<span class="sd"> pip install ystockquote</span>
-
-<span class="sd">To run example unit tests for ystockquotelib example plugin only:</span>
-<span class="sd"> make test_examples</span>
-
-<span class="sd">NOTE: Tests for fidelity example plugin must be run manually, because this </span>
-<span class="sd">plugin requires arguments that contain sensitive data</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>

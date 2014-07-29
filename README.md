@@ -230,7 +230,32 @@ This is the complete documenation of the attributes and methods of a plugin.
 
 ## Developing sofine
 
-These links lead to the complete code documentation.
+All of the above documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications, without ever needing to understand how `sofine` works. It's a library and it works if it follows the rules.
+
+However, you might want to develop with `sofine` more directly.
+
+### make Targets
+
+To run core unit tests:
+    make test
+
+To run unit tests on the example plugins:
+    make test_examples
+
+To rebuild the documentation, which is everthing in `docs` and `index.html` in project root:
+    make docs
+
+To support using the plugins in `PROJECT_ROOT/sofine/plugins/examples and 
+running the tests in PROJECT_ROOT/tests/*_examples.py`:
+    
+    easy_install mechanize
+    easy_install beautifulsoup4
+    pip install ystockquote
+
+*NOTE: Tests for fidelity example plugin must be run manually, because this 
+plugin requires arguments that contain sensitive data*
+
+### Complete Code Documentation
 
 <strong>Command Runners</strong><br/>
 <a href="docs/sofine/runner.m.html">runner</a><br/>
@@ -257,25 +282,3 @@ These links lead to the complete code documentation.
 <a href="docs/sofine/lib/conf.m.html">lib/conf</a><br/>
 </body>
 
-### make targets
-
-To run core unit tests:
-    make test
-
-To run unit tests on the example plugins:
-    make test_examples
-
-To rebuild the documentation, which is everthing in `docs` and `index.html` in project root:
-    make docs`
-
-To support using the plugins in PROJECT_ROOT/sofine/plugins/examples and 
-running the tests in PROJECT_ROOT/tests/*_examples.py:
- easy_install mechanize
- easy_install beautifulsoup4
- pip install ystockquote
-
-To run example unit tests for ystockquotelib example plugin only:
- make test_examples
-
-NOTE: Tests for fidelity example plugin must be run manually, because this 
-plugin requires arguments that contain sensitive data
