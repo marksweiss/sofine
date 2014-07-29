@@ -8,7 +8,11 @@ test_examples:
 
 docs:
 	./make_docs
-	cp -r docs /tmp
 
 docs_static:
-	cp -rf /tmp/docs . 
+	git checkout gh-pages
+	git merge master
+	git add -A
+	git commit -m "Updated static documentation."
+	git push origin gh-pages
+	git checkout master
