@@ -1,31 +1,1564 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>		<html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>		<html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
-<body>
-<h2>sofine Code Documentation</h2>
-<p/>
-<p/>
+	<meta charset="utf-8">
 
-<strong>Command Runners</strong>
-<a href="docs/sofine/runner.m.html">runner</a>
-<a href="docs/sofine/rest_runner.m.html">rest_runner</a>
-<p/>
-<strong>Plugins</strong>
-<a href="docs/sofine/plugins/plugin_base.m.html">plugin_base</a>
-<a href="docs/sofine/plugins/standard/file_source.m.html">standard/file_source</a>
-<a href="docs/sofine/plugins/example/ystockquotelib.m.html">example/ystockquotelib</a>
-<a href="docs/sofine/plugins/example/google_search_results.m.html">example/google_search_results</a>
-<a href="docs/sofine/plugins/example/fidelity.m.html">example/fidelity</a>
-<a href="docs/sofine/plugins/example/archive_dot_org_search_results.m.html">example/archive_dot_org_search_results</a>
-<a href="docs/sofine/plugins/mock/ystockquotelib_mock.m.html">mock/ystockquotelib</a>
-<p/>
-<strong>Tests</strong>
-<a href="docs/sofine/tests/test_runner_from_rest.m.html">tests/test_runner_from_rest</a>
-<a href="docs/sofine/tests/test_runner_from_py_examples.m.html">tests/test_runner_from_py_examples</a>
-<a href="docs/sofine/tests/test_runner_from_py.m.html">tests/test_runner_from_py</a>
-<a href="docs/sofine/tests/test_runner_from_cli_examples.m.html">tests/test_runner_from_cli_examples</a>
-<a href="docs/sofine/tests/test_runner_from_cli.m.html">tests/test_runner_from_cli</a>
-</p>
-<strong>Utils and Conf</strong>
-<a href="docs/sofine/lib/utils.m.html">lib/utils</a>
-<a href="docs/sofine/lib/conf.m.html">lib/conf</a>
-</body>
+      <title>index API documentation</title>
+      <meta name="description" content="## What is sofine?
+
+`sofine` is a minimal framework for creating a library of data collection plugin...">
+
+  
+  <style type="text/css">
+  
+/*! normalize.css v1.1.1 | MIT License | git.io/normalize */
+
+/* ==========================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+/**
+ * Correct `block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+summary {
+    display: block;
+}
+
+/**
+ * Correct `inline-block` display not defined in IE 6/7/8/9 and Firefox 3.
+ */
+
+audio,
+canvas,
+video {
+    display: inline-block;
+    *display: inline;
+    *zoom: 1;
+}
+
+/**
+ * Prevent modern browsers from displaying `audio` without controls.
+ * Remove excess height in iOS 5 devices.
+ */
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Firefox 3, and Safari 4.
+ * Known issue: no IE 6 support.
+ */
+
+[hidden] {
+    display: none;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
+/**
+ * 1. Prevent system color scheme's background color being used in Firefox, IE,
+ *    and Opera.
+ * 2. Prevent system color scheme's text color being used in Firefox, IE, and
+ *    Opera.
+ * 3. Correct text resizing oddly in IE 6/7 when body `font-size` is set using
+ *    `em` units.
+ * 4. Prevent iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+
+html {
+    background: #fff; /* 1 */
+    color: #000; /* 2 */
+    font-size: 100%; /* 3 */
+    -webkit-text-size-adjust: 100%; /* 4 */
+    -ms-text-size-adjust: 100%; /* 4 */
+}
+
+/**
+ * Address `font-family` inconsistency between `textarea` and other form
+ * elements.
+ */
+
+html,
+button,
+input,
+select,
+textarea {
+    font-family: sans-serif;
+}
+
+/**
+ * Address margins handled incorrectly in IE 6/7.
+ */
+
+body {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Links
+   ========================================================================== */
+
+/**
+ * Address `outline` inconsistency between Chrome and other browsers.
+ */
+
+a:focus {
+    outline: thin dotted;
+}
+
+/**
+ * Improve readability when focused and also mouse hovered in all browsers.
+ */
+
+a:active,
+a:hover {
+    outline: 0;
+}
+
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/**
+ * Address font sizes and margins set differently in IE 6/7.
+ * Address font sizes within `section` and `article` in Firefox 4+, Safari 5,
+ * and Chrome.
+ */
+
+h1 {
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin: 0.83em 0;
+}
+
+h3 {
+    font-size: 1.17em;
+    margin: 1em 0;
+}
+
+h4 {
+    font-size: 1em;
+    margin: 1.33em 0;
+}
+
+h5 {
+    font-size: 0.83em;
+    margin: 1.67em 0;
+}
+
+h6 {
+    font-size: 0.67em;
+    margin: 2.33em 0;
+}
+
+/**
+ * Address styling not present in IE 7/8/9, Safari 5, and Chrome.
+ */
+
+abbr[title] {
+    border-bottom: 1px dotted;
+}
+
+/**
+ * Address style set to `bolder` in Firefox 3+, Safari 4/5, and Chrome.
+ */
+
+b,
+strong {
+    font-weight: bold;
+}
+
+blockquote {
+    margin: 1em 40px;
+}
+
+/**
+ * Address styling not present in Safari 5 and Chrome.
+ */
+
+dfn {
+    font-style: italic;
+}
+
+/**
+ * Address differences between Firefox and other browsers.
+ * Known issue: no IE 6/7 normalization.
+ */
+
+hr {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    height: 0;
+}
+
+/**
+ * Address styling not present in IE 6/7/8/9.
+ */
+
+mark {
+    background: #ff0;
+    color: #000;
+}
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+p,
+pre {
+    margin: 1em 0;
+}
+
+/**
+ * Correct font family set oddly in IE 6, Safari 4/5, and Chrome.
+ */
+
+code,
+kbd,
+pre,
+samp {
+    font-family: monospace, serif;
+    _font-family: 'courier new', monospace;
+    font-size: 1em;
+}
+
+/**
+ * Improve readability of pre-formatted text in all browsers.
+ */
+
+pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/**
+ * Address CSS quotes not supported in IE 6/7.
+ */
+
+q {
+    quotes: none;
+}
+
+/**
+ * Address `quotes` property not supported in Safari 4.
+ */
+
+q:before,
+q:after {
+    content: '';
+    content: none;
+}
+
+/**
+ * Address inconsistent and variable font size in all browsers.
+ */
+
+small {
+    font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` affecting `line-height` in all browsers.
+ */
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sup {
+    top: -0.5em;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+/* ==========================================================================
+   Lists
+   ========================================================================== */
+
+/**
+ * Address margins set differently in IE 6/7.
+ */
+
+dl,
+menu,
+ol,
+ul {
+    margin: 1em 0;
+}
+
+dd {
+    margin: 0 0 0 40px;
+}
+
+/**
+ * Address paddings set differently in IE 6/7.
+ */
+
+menu,
+ol,
+ul {
+    padding: 0 0 0 40px;
+}
+
+/**
+ * Correct list images handled incorrectly in IE 7.
+ */
+
+nav ul,
+nav ol {
+    list-style: none;
+    list-style-image: none;
+}
+
+/* ==========================================================================
+   Embedded content
+   ========================================================================== */
+
+/**
+ * 1. Remove border when inside `a` element in IE 6/7/8/9 and Firefox 3.
+ * 2. Improve image quality when scaled in IE 7.
+ */
+
+img {
+    border: 0; /* 1 */
+    -ms-interpolation-mode: bicubic; /* 2 */
+}
+
+/**
+ * Correct overflow displayed oddly in IE 9.
+ */
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Figures
+   ========================================================================== */
+
+/**
+ * Address margin not present in IE 6/7/8/9, Safari 5, and Opera 11.
+ */
+
+figure {
+    margin: 0;
+}
+
+/* ==========================================================================
+   Forms
+   ========================================================================== */
+
+/**
+ * Correct margin displayed oddly in IE 6/7.
+ */
+
+form {
+    margin: 0;
+}
+
+/**
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: 1px solid #c0c0c0;
+    margin: 0 2px;
+    padding: 0.35em 0.625em 0.75em;
+}
+
+/**
+ * 1. Correct color not being inherited in IE 6/7/8/9.
+ * 2. Correct text not wrapping in Firefox 3.
+ * 3. Correct alignment displayed oddly in IE 6/7.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0;
+    white-space: normal; /* 2 */
+    *margin-left: -7px; /* 3 */
+}
+
+/**
+ * 1. Correct font size not being inherited in all browsers.
+ * 2. Address margins set differently in IE 6/7, Firefox 3+, Safari 5,
+ *    and Chrome.
+ * 3. Improve appearance and consistency in all browsers.
+ */
+
+button,
+input,
+select,
+textarea {
+    font-size: 100%; /* 1 */
+    margin: 0; /* 2 */
+    vertical-align: baseline; /* 3 */
+    *vertical-align: middle; /* 3 */
+}
+
+/**
+ * Address Firefox 3+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/**
+ * Address inconsistent `text-transform` inheritance for `button` and `select`.
+ * All other form control elements do not inherit `text-transform` values.
+ * Correct `button` style inheritance in Chrome, Safari 5+, and IE 6+.
+ * Correct `select` style inheritance in Firefox 4+ and Opera.
+ */
+
+button,
+select {
+    text-transform: none;
+}
+
+/**
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Correct inability to style clickable `input` types in iOS.
+ * 3. Improve usability and consistency of cursor style between image-type
+ *    `input` and others.
+ * 4. Remove inner spacing in IE 7 without affecting normal text inputs.
+ *    Known issue: inner spacing remains in IE 6.
+ */
+
+button,
+html input[type="button"], /* 1 */
+input[type="reset"],
+input[type="submit"] {
+    -webkit-appearance: button; /* 2 */
+    cursor: pointer; /* 3 */
+    *overflow: visible;  /* 4 */
+}
+
+/**
+ * Re-set default cursor for disabled elements.
+ */
+
+button[disabled],
+html input[disabled] {
+    cursor: default;
+}
+
+/**
+ * 1. Address box sizing set to content-box in IE 8/9.
+ * 2. Remove excess padding in IE 8/9.
+ * 3. Remove excess padding in IE 7.
+ *    Known issue: excess padding remains in IE 6.
+ */
+
+input[type="checkbox"],
+input[type="radio"] {
+    box-sizing: border-box; /* 1 */
+    padding: 0; /* 2 */
+    *height: 13px; /* 3 */
+    *width: 13px; /* 3 */
+}
+
+/**
+ * 1. Address `appearance` set to `searchfield` in Safari 5 and Chrome.
+ * 2. Address `box-sizing` set to `border-box` in Safari 5 and Chrome
+ *    (include `-moz` to future-proof).
+ */
+
+input[type="search"] {
+    -webkit-appearance: textfield; /* 1 */
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box; /* 2 */
+    box-sizing: content-box;
+}
+
+/**
+ * Remove inner padding and search cancel button in Safari 5 and Chrome
+ * on OS X.
+ */
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+    -webkit-appearance: none;
+}
+
+/**
+ * Remove inner padding and border in Firefox 3+.
+ */
+
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+}
+
+/**
+ * 1. Remove default vertical scrollbar in IE 6/7/8/9.
+ * 2. Improve readability and alignment in all browsers.
+ */
+
+textarea {
+    overflow: auto; /* 1 */
+    vertical-align: top; /* 2 */
+}
+
+/* ==========================================================================
+   Tables
+   ========================================================================== */
+
+/**
+ * Remove most spacing between table cells.
+ */
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+  </style>
+
+  <style type="text/css">
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #ddd;
+    height: 100%;
+  }
+
+  #container {
+    width: 840px;
+    background-color: #fdfdfd;
+    color: #111;
+    margin: 0 auto;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    padding: 10px 25px;
+    min-height: 100%;
+  }
+
+  #nav {
+    font-size: 130%;
+    margin: 0 0 15px 0;
+  }
+
+  #top {
+    display: block;
+    position: fixed;
+    top: 5px;
+    left: 5px;
+    font-size: 140%;
+  }
+
+  h1 {
+    margin: 0 0 10px 0;
+  }
+
+  h2 {
+    margin: 25px 0 10px 0;
+  }
+
+  h3 {
+    margin: 25px 0 10px 0;
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 105%;
+  }
+
+  a {
+    color: #058;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #e08524;
+  }
+
+  p {
+    line-height: 1.35em;
+  }
+
+  pre, code, .mono, .name {
+    font-family: "Ubuntu Mono", "Cousine", "DejaVu Sans Mono", monospace;
+  }
+
+  .ident {
+    color: #900;
+  }
+
+  code {
+    background: #e8e8e8;
+  } 
+
+  pre {
+    background: #e8e8e8;
+    padding: 6px;
+    margin: 0 30px;
+  }
+
+  .codehilite {
+    margin: 0 30px 10px 30px;
+  }
+
+    .codehilite pre {
+      margin: 0;
+    }
+
+  table#module-list {
+    font-size: 110%;
+  }
+
+    table#module-list tr td:first-child {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    table#module-list td {
+      vertical-align: top;
+      padding-bottom: 8px;
+    }
+
+      table#module-list td p {
+        margin: 0 0 7px 0;
+      }
+
+  .def {
+    display: table;
+  }
+
+    .def p {
+      display: table-cell;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    .def p:first-child {
+      white-space: nowrap;
+    }
+
+    .def p:last-child {
+      width: 100%;
+    }
+
+  ul#index {
+    padding: 0;
+    margin: 0;
+  }
+
+    ul#index .class_name {
+      /* font-size: 110%; */
+      font-weight: bold;
+    }
+
+    ul#index li {
+      margin-bottom: 18px;
+    }
+
+      ul#index ul li {
+        margin-bottom: 8px;
+      }
+
+    ul#index, ul#index ul {
+      list-style-type: none;
+    }
+
+    ul#index ul {
+      margin: 0 0 10px 20px;
+      padding: 0;
+    }
+
+  .column_list {
+    width: 100%;
+    display: inline-block;
+    margin-left: 20px;
+  }
+
+  .column_list:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    height: 0;
+    content: " ";
+    clear: both;
+  }
+
+    .column_list ul {
+      float: left;
+      text-align: left;
+      width: 32%;
+      margin: 0 !important;
+    }
+
+  .item {
+    margin: 0 0 25px 0;
+  }
+
+    .item .class {
+      margin: 0 0 25px 30px;
+    }
+
+      .item .class ul.class_list {
+        margin: 0 0 20px 0;
+      }
+
+    .item .name {
+      background: #e8e8e8;
+      padding: 4px;
+      margin: 0 0 8px 0;
+      font-size: 110%;
+      font-weight: bold;
+    }
+
+    .item .empty_desc {
+      margin: 0 0 5px 0;
+      padding: 0;
+    }
+
+    .item .inheritance {
+      margin: 3px 0 10px 0;
+      padding: 0 8px;
+    }
+
+    .item .inherited {
+      color: #666;
+    }
+
+    .item .desc {
+      padding: 0 8px;
+      margin: 0;
+    }
+
+      .item .desc p {
+        margin: 0 0 10px 0;
+      }
+
+    .source_cont {
+      margin: 10px 8px 0 8px;
+      padding: 0;
+    }
+
+    .source_link {
+      font-weight: bold;
+    }
+
+    .source {
+      display: none;
+      max-height: 600px;
+      overflow-y: scroll;
+      margin-bottom: 15px;
+    }
+
+      .source .codehilite {
+        margin: 0;
+      }
+
+  .desc h1, .desc h2, .desc h3 {
+    font-size: 100% !important;
+  }
+
+  /*****************************/
+
+  </style>
+
+    <style type="text/css">
+    .codehilite .hll { background-color: #ffffcc }
+.codehilite  { background: #f8f8f8; }
+.codehilite .c { color: #408080; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #FF0000 } /* Error */
+.codehilite .k { color: #008000; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666666 } /* Operator */
+.codehilite .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #BC7A00 } /* Comment.Preproc */
+.codehilite .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #408080; font-style: italic } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .gr { color: #FF0000 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888888 } /* Generic.Output */
+.codehilite .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #0044DD } /* Generic.Traceback */
+.codehilite .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #008000 } /* Keyword.Pseudo */
+.codehilite .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #B00040 } /* Keyword.Type */
+.codehilite .m { color: #666666 } /* Literal.Number */
+.codehilite .s { color: #BA2121 } /* Literal.String */
+.codehilite .na { color: #7D9029 } /* Name.Attribute */
+.codehilite .nb { color: #008000 } /* Name.Builtin */
+.codehilite .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #880000 } /* Name.Constant */
+.codehilite .nd { color: #AA22FF } /* Name.Decorator */
+.codehilite .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.codehilite .nf { color: #0000FF } /* Name.Function */
+.codehilite .nl { color: #A0A000 } /* Name.Label */
+.codehilite .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #19177C } /* Name.Variable */
+.codehilite .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #bbbbbb } /* Text.Whitespace */
+.codehilite .mf { color: #666666 } /* Literal.Number.Float */
+.codehilite .mh { color: #666666 } /* Literal.Number.Hex */
+.codehilite .mi { color: #666666 } /* Literal.Number.Integer */
+.codehilite .mo { color: #666666 } /* Literal.Number.Oct */
+.codehilite .sb { color: #BA2121 } /* Literal.String.Backtick */
+.codehilite .sc { color: #BA2121 } /* Literal.String.Char */
+.codehilite .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #BA2121 } /* Literal.String.Double */
+.codehilite .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.codehilite .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.codehilite .sx { color: #008000 } /* Literal.String.Other */
+.codehilite .sr { color: #BB6688 } /* Literal.String.Regex */
+.codehilite .s1 { color: #BA2121 } /* Literal.String.Single */
+.codehilite .ss { color: #19177C } /* Literal.String.Symbol */
+.codehilite .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.codehilite .vc { color: #19177C } /* Name.Variable.Class */
+.codehilite .vg { color: #19177C } /* Name.Variable.Global */
+.codehilite .vi { color: #19177C } /* Name.Variable.Instance */
+.codehilite .il { color: #666666 } /* Literal.Number.Integer.Long */
+    </style>
+
+  <style type="text/css">
+  
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
+
+  </style>
+
+  <script type="text/javascript">
+    function toggle(id, $link) {
+      $node = document.getElementById(id);
+      if (!$node)
+        return;
+      if (!$node.style.display || $node.style.display == 'none') {
+        $node.style.display = 'block';
+        $link.innerHTML = 'Hide source.';
+      } else {
+        $node.style.display = 'none';
+        $link.innerHTML = 'Show source.';
+      }
+    }
+  </script>
 </head>
+<body>
+
+<div id="container">
+
+    
+  
+
+  
+
+
+  <h1>Module index</h1>
+  <h2>What is sofine?</h2>
+<p><code>sofine</code> is a minimal framework for creating a library of data collection plugins that follow simple conventions so that they can composed as you wish.</p>
+<p>How minimal? Let's write a Google search results plugin. This is the part you would have to write in any case -- it takes a search term and calls the Google API.</p>
+<div class="codehilite"><pre><span class="n">def</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">http</span><span class="o">:</span><span class="c1">//ajax.googleapis.com/ajax/services/search/web?v=1.0&amp;q={0}&#39;.format(urllib.quote(k))</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="p">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="p">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">ret</span><span class="o">:</span> 
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">results</span><span class="err">&#39;</span> <span class="o">:</span> <span class="n">ret</span><span class="p">[</span><span class="err">&#39;</span><span class="n">responseData</span><span class="err">&#39;</span><span class="p">][</span><span class="err">&#39;</span><span class="n">results</span><span class="err">&#39;</span><span class="p">]}</span>
+    <span class="nl">else:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="err">&#39;</span><span class="n">results</span><span class="err">&#39;</span> <span class="o">:</span> <span class="p">[]}</span>
+
+    <span class="k">return</span> <span class="n">ret</span>
+</pre></div>
+
+
+<p>Here is the additional code you have to add to make your plugin sofine.</p>
+<div class="codehilite"><pre><span class="n">class</span> <span class="n">GoogleSearchResults</span><span class="p">(</span><span class="n">plugin_base</span><span class="p">.</span><span class="n">PluginBase</span><span class="p">)</span><span class="o">:</span>
+
+    <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">google_search_results</span><span class="err">&#39;</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">group</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">example</span><span class="err">&#39;</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="err">&#39;</span><span class="n">results</span><span class="err">&#39;</span><span class="p">]</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="n">False</span>
+
+    <span class="n">def</span> <span class="n">get_data</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="n">in</span> <span class="n">keys</span><span class="o">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+<span class="n">plugin</span> <span class="o">=</span> <span class="n">GoogleSearchResults</span>
+</pre></div>
+
+
+<h2>Why is it sofine?</h2>
+<p>The core value proposition of <code>sofine</code> is this: </p>
+<ul>
+<li>You do (almost) no more work than if you wrote a one-off data collection script </li>
+<li>You can manage your plugins in any directory with any directory structure you like, with a single entry in a single configuration file as the sole dependency on the library</li>
+<li>You can call plugins from the command line, as REST resources or from Python</li>
+<li>You can chain as many plugin calls as you want together and get back one JSON data set with all the data collected from all the chained calls</li>
+</ul>
+<p>That last bullet is really the point -- the idea is that rather than writing one offs, you are just a tiny bit more thoughtful when wrapping various APIs and data resources.  In return, each plugin you write becomes much more valuable because you can combine it with all the others.  As time goes on and you write more plugins, you discover more things you can do by combining your plugins together.</p>
+<h2>Your Data Pipeline is sofine!</h2>
+<p><code>sofine</code> aims to support exactly one use case, but it is very flexible, general, composable, and (hopefully) useful.</p>
+<p>Each call to <code>sofine</code> chains together calls to one or more data source plugins. Plugins always receive a set of string keys, and they retrieve JSON objects of data for those keys which are collected from each plugin and all mapped to the keys.</p>
+<p>Imagine you are chaining calls operating on stock ticker keys.  The final output would look lik this:</p>
+<div class="codehilite"><pre><span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_1::attr_name_2&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_2::attr_name_1, value},</span>
+<span class="s">&quot;MSFT&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_1::attr_name_2&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_2::attr_name_1, value} </span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Here is a real example, combining calls to Yahoo! Finance and Goole Search Results plugins:</p>
+<div class="codehilite"><pre><span class="err">$</span> <span class="nx">echo</span> <span class="s1">&#39;{&quot;AAPL&quot;:{}}&#39;</span> <span class="o">|</span> <span class="nx">python</span> <span class="nx">sofine</span><span class="p">/</span><span class="nx">runner.py</span> <span class="s1">&#39;--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example&#39;</span>
+
+<span class="p">{</span>
+<span class="s2">&quot;AAPL&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;example::google_search_results::results&quot;</span><span class="p">:</span> <span class="err">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;GsearchResultClass&quot;</span><span class="p">:</span> <span class="s2">&quot;GwebSearch&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cacheUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;http://www.google.com/search?q=cache:XhbIlCyrcXMJ:finance.yahoo.com&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;View the basic &lt;b&gt;AAPL&lt;/b&gt; stock chart on Yahoo! Finance. Change the date range, chart type and compare Apple Inc. against other companies.&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;b&gt;AAPL&lt;/b&gt;: Summary for Apple Inc.- Yahoo! Finance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;titleNoFormatting&quot;</span><span class="p">:</span> <span class="s2">&quot;AAPL: Summary for Apple Inc.- Yahoo! Finance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;unescapedUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;http://finance.yahoo.com/q?s=AAPL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;http://finance.yahoo.com/q%3Fs%3DAAPL&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;visibleUrl&quot;</span><span class="p">:</span> <span class="s2">&quot;finance.yahoo.com&quot;</span>
+        <span class="p">},</span>
+        <span class="nx">...</span>
+        <span class="nx">...</span>
+    <span class="cp">]</span>,
+    &quot;example::ystockquotelib::avg_daily_volume&quot;: &quot;59390100&quot;,
+    &quot;example::ystockquotelib::book_value&quot;: &quot;20.193&quot;,
+    &quot;example::ystockquotelib::change&quot;: &quot;+1.349&quot;,
+    &quot;example::ystockquotelib::dividend_per_share&quot;: &quot;1.7771&quot;,
+    &quot;example::ystockquotelib::dividend_yield&quot;: &quot;1.82&quot;,
+    &quot;example::ystockquotelib::earnings_per_share&quot;: &quot;6.20&quot;,
+    &quot;example::ystockquotelib::ebitda&quot;: &quot;59.128B&quot;,
+    &quot;example::ystockquotelib::fifty_day_moving_avg&quot;: &quot;93.8151&quot;,
+    &quot;example::ystockquotelib::fifty_two_week_high&quot;: &quot;99.24&quot;,
+    &quot;example::ystockquotelib::fifty_two_week_low&quot;: &quot;63.8886&quot;,
+    &quot;example::ystockquotelib::market_cap&quot;: &quot;592.9B&quot;,
+    &quot;example::ystockquotelib::price&quot;: &quot;99.02&quot;,
+    &quot;example::ystockquotelib::price_book_ratio&quot;: &quot;4.84&quot;,
+    &quot;example::ystockquotelib::price_earnings_growth_ratio&quot;: &quot;1.26&quot;,
+    &quot;example::ystockquotelib::price_earnings_ratio&quot;: &quot;15.75&quot;,
+    &quot;example::ystockquotelib::price_sales_ratio&quot;: &quot;3.28&quot;,
+    &quot;example::ystockquotelib::short_ratio&quot;: &quot;1.70&quot;,
+    &quot;example::ystockquotelib::stock_exchange&quot;: &quot;&quot;NasdaqNM&quot;&quot;,
+    &quot;example::ystockquotelib::two_hundred_day_moving_avg&quot;: &quot;82.8458&quot;,
+    &quot;example::ystockquotelib::volume&quot;: &quot;55317688&quot;
+}
+}
+</pre></div>
+
+
+<h3>Some sofine Terminology</h3>
+<p>Each chain of one of more calls builds a JSON object <code>data set</code>. That object has a set of one or more string <code>keys</code>. Each key in turn has as its value another JSON object. Each call to a plugin recieves the set of keys, does its thing in its <code>get_data</code> implementation to get whatever data it can for those keys, and returns a set of objects mapped to the keys. In <code>sofine</code> we call the values mapped to the top-level <code>keys</code> <code>attributes</code>. Because <code>attributes</code> are JSON objects they in turn have <code>attribute keys</code> which are mapped to values. We call this set of attribute keys the <code>schema</code> of the plugin.</p>
+<h3>The Algorithm for Filling the Data Pipeline</h3>
+<ul>
+<li>If this is the first call in the chain, data is empty, so just fill it with the return of this call</li>
+<li>If there is already data, add any new keys retrieved and add attribute key/value pairs associated with any new or existing keys </li>
+<li>Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and do not overwrite other attributes with the same name from other plugins  </li>
+<li>So, the set of keys on each call is the union of all previously collected keys</li>
+<li>So, the set of attributes associated with each key is the union of all previously collected attribute/value pairs collected for that key</li>
+</ul>
+<h2>Those Examples are sofine!</h2>
+<p>Here is an example, which retrieves attributes about all the securities in a portfolio by ticker from Fidelity and then takes the same set of tickers and adds data from the Yahoo! Finance API:</p>
+<div class="codehilite"><pre><span class="nx">python</span> <span class="nx">sofine</span><span class="p">/</span><span class="nx">runner.py</span> <span class="s1">&#39;--SF-s fidelity --SF-g example -c &lt;CUSTOMER_ID&gt; -p &lt;PIN&gt; -a &lt;ACCOUNT_ID&gt; -e &lt;EMAIL&gt; | --SF-s ystockquotelib --SF-g example&#39;</span>
+</pre></div>
+
+
+<p><code>sofine</code> automatically takes care of the following:</p>
+<ul>
+<li>Loading each plugin from its <code>SF-s</code> "source" and <code>SF-g</code> "group"</li>
+<li>Adding to the JSON data set it is building on each call</li>
+<li>Namespacing all data added from each call so that none is lost</li>
+<li>Returning the data to stdout as JSON</li>
+</ul>
+<p>If you wanted to call this REST-fully, it would look nearly the same. In curl:</p>
+<div class="codehilite"><pre><span class="nb">curl</span> <span class="na">-X</span> <span class="nx">POST</span> <span class="na">-d</span> <span class="s1">&#39;{}&#39;</span> <span class="o">--</span><span class="k">header</span> <span class="s2">&quot;Content-Type:application/json&quot;</span> <span class="nx">http</span><span class="p">:</span><span class="c1">//localhost:10000/SF-s/fidelity/SF-g/example/c/&lt;CUSTOMER_ID&gt;/p/&lt;PIN&gt;/a/&lt;ACCOUNT_ID&gt;/e/&lt;EMAIL&gt;/SF-s/ystockquotelib/SF-g/example</span>
+</pre></div>
+
+
+<p><code>sofine</code> ships with a server which you launch at <code>python sofine/rest_runner.py</code>. The server returns the same JSON. The same ability to chain calls is simply expressed as a REST resource path.</p>
+<h2>Your Pipes are sofine!</h2>
+<p>Just as <code>sofine</code> allows you to compose plugin calls, when run from the command line it takes input from stdin if it is present and always sends output to stdout.  So you can do this:</p>
+<div class="codehilite"><pre><span class="n">echo</span> <span class="err">&#39;</span><span class="p">{</span><span class="s">&quot;AAPL&quot;</span><span class="o">:</span><span class="p">{}}</span><span class="err">&#39;</span> <span class="o">|</span> <span class="n">python</span> <span class="n">sofine</span><span class="o">/</span><span class="n">runner</span><span class="p">.</span><span class="n">py</span> <span class="err">&#39;</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span> <span class="n">ystockquotelib</span> <span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span> <span class="n">example</span> <span class="o">|</span> <span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span> <span class="n">google_search_results</span> <span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span> <span class="n">example</span><span class="err">&#39;</span> <span class="o">|</span> <span class="n">jq</span> <span class="err">&#39;</span><span class="n">map</span><span class="p">(</span><span class="n">recurse</span><span class="p">(.</span><span class="n">SOME_KEY</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="n">SOME_OTHER_KEY</span><span class="p">}</span><span class="err">&#39;</span>
+</pre></div>
+
+
+<p>This gets you the data that Yahoo! Finance has on Apple and combines it with search results from the Google Search API and then passes the result to the <a href="https://github.com/stedolan/jq">JSON query tool jq</a>, a fantastic uber-<code>grep</code> for JSON data that I highly recommend.</p>
+<h2>Managing Plugins</h2>
+<ul>
+<li>You put all plugins into subdirectories of your parent plugin directory. Typically you think of these as plugin groups and name the directories meaningfully.</li>
+<li>You put a file in the root <code>sofine</code> directory called <code>sofine.conf</code> and put a JSON object there with the key <code>"plugin_path"</code> and the value the path to your plugin directory</li>
+<li>You can always combine calls to your plugins with those the five that are included with <code>sofine</code>:</li>
+<li>standard.file_source</li>
+<li>example.archive_dot_org_search_results</li>
+<li>example.google_search_results</li>
+<li>example.fidelity</li>
+<li>example.ystockquotelib</li>
+<li>These combinations of plugin group and name are reserved plugin identifiers. You can name yourplugin groups and names anything else you want without clashing with the built-in plugins</li>
+<li>You can put anything else into your plugin group directories and <code>sofine</code> will ignore it. So, for example, you could have a <code>tests</code> directory with unit tests for the plugins in that group in each plugin directory.</li>
+</ul>
+<h2>Creating Plugins</h2>
+<p>To create plugins you do the following:</p>
+<ul>
+<li>Derive from the base class <code>sofine/plugins/plugin_base.PluginBase</code></li>
+<li>You must define these two attributes:</li>
+<li><code>name</code></li>
+<li><code>group</code></li>
+<li>You really should define these two attributes, to let clients introspect your plugin:</li>
+<li><code>schema</code> - the list of all possible attribute keys returned by this plugin in the attributes associated with the keys of the <code>data</code> set being built</li>
+<li><code>adds_keys</code> - indicates whether the plugin adds keys or just adds attributes to the existing keys</li>
+<li>You must define one method for every plugin:</li>
+<li><code>get_data()</code>, which recieves a list of strings which are the keys for which data is being collected, and also a list of arguments in case the plugin requires them to do its work</li>
+<li>If your <code>get_data</code> requires arguments, you must implement <code>parse_args()</code>, which takes the args in argv format as a list of arg names and values in sequence and validates them. If your plugin takes no arguments then the default implementation in PluginBase is all you need.</li>
+<li>Plugins inherit two other introspection methods from PluginBase. You don't need to implement these in general, but your plugin will have them.</li>
+<li><code>get_schema</code> returns the list of attribute keys you set in <code>self.schema</code>, properly namespaced with the plugin group and name.<ul>
+<li>Note that if your plugin doesn't know what attributes it might retrieve, then you need to override and implement <code>get_schema</code>. Your plugin might query a datastore that could return a varying set of attributes for a key, so you can't statically set <code>self.schema</code> and so need to implement <code>get_schema</code> to dynamically discover and return the schema attribute keys.</li>
+</ul>
+</li>
+</ul>
+<p>Here is a complete example, minus the docstrings:</p>
+<div class="codehilite"><pre><span class="n">from</span> <span class="n">sofine</span><span class="p">.</span><span class="n">plugins</span> <span class="n">import</span> <span class="n">plugin_base</span> <span class="n">as</span> <span class="n">plugin_base</span>
+<span class="n">import</span> <span class="n">ystockquote</span>
+
+
+<span class="n">class</span> <span class="n">YStockQuoteLib</span><span class="p">(</span><span class="n">plugin_base</span><span class="p">.</span><span class="n">PluginBase</span><span class="p">)</span><span class="o">:</span>
+
+    <span class="n">def</span> <span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="o">:</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">ystockquotelib</span><span class="err">&#39;</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">group</span> <span class="o">=</span> <span class="err">&#39;</span><span class="n">example</span><span class="err">&#39;</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="err">&#39;</span><span class="n">fifty_two_week_low</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">market_cap</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">price</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">short_ratio</span><span class="err">&#39;</span><span class="p">,</span> 
+                       <span class="err">&#39;</span><span class="n">volume</span><span class="sc">&#39;,&#39;</span><span class="n">dividend_yield</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">avg_daily_volume</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">ebitda</span><span class="err">&#39;</span><span class="p">,</span> 
+                       <span class="err">&#39;</span><span class="n">change</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">dividend_per_share</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">stock_exchange</span><span class="err">&#39;</span><span class="p">,</span> 
+                       <span class="err">&#39;</span><span class="n">two_hundred_day_moving_avg</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">fifty_two_week_high</span><span class="err">&#39;</span><span class="p">,</span> 
+                       <span class="err">&#39;</span><span class="n">price_sales_ratio</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">price_earnings_growth_ratio</span><span class="err">&#39;</span><span class="p">,</span>
+                       <span class="err">&#39;</span><span class="n">fifty_day_moving_avg</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">price_book_ratio</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">earnings_per_share</span><span class="err">&#39;</span><span class="p">,</span> 
+                       <span class="err">&#39;</span><span class="n">price_earnings_ratio</span><span class="err">&#39;</span><span class="p">,</span> <span class="err">&#39;</span><span class="n">book_value</span><span class="err">&#39;</span><span class="p">]</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="n">False</span>
+
+
+<span class="n">def</span> <span class="n">get_data</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span><span class="o">:</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">ticker</span> <span class="o">:</span> <span class="n">ystockquote</span><span class="p">.</span><span class="n">get_all</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span> <span class="k">for</span> <span class="n">ticker</span> <span class="n">in</span> <span class="n">keys</span><span class="p">}</span>
+
+
+<span class="n">plugin</span> <span class="o">=</span> <span class="n">YStockQuoteLib</span>
+</pre></div>
+
+
+<h3>Plugin Methods</h3>
+<p>This is the complete documenation of the attributes and methods of a plugin.</p>
+<h4>Plugin Instance Fields</h4>
+<ul>
+<li><code>self.name</code> - <code>string</code>. The name of the plugin</li>
+<li><code>self.group</code> - <code>string</code>. The pluging group of the plugin. This the subdirectory in the plugin directory into which the plugin is deployed.</li>
+<li><code>self.schema</code> - <code>list of string</code>. The set of attribute keys that calls to <code>get_data</code> can associate with a key passed to <code>get_data</code>.</li>
+<li><code>self.adds_keys</code> - <code>boolean</code>. Indicates whether the plugin adds keys to the data set being built or only adds attributes to existing keys.</li>
+</ul>
+<h4>Plugin Instance Methods</h4>
+<div class="codehilite"><pre><span class="cp"># Required</span>
+<span class="n">def</span> <span class="n">get_data</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span><span class="o">:</span>
+    <span class="err">#</span> <span class="n">keys</span> <span class="o">-</span> <span class="n">list</span> <span class="n">of</span> <span class="n">string</span><span class="p">.</span> <span class="n">The</span> <span class="n">list</span> <span class="n">of</span> <span class="n">keys</span> <span class="n">to</span> <span class="n">process</span><span class="p">.</span>
+    <span class="err">#</span> <span class="n">args</span> <span class="o">-</span> <span class="n">list</span> <span class="n">of</span> <span class="n">string</span><span class="p">.</span> <span class="n">Any</span> <span class="n">args</span> <span class="n">required</span> <span class="n">to</span> <span class="n">call</span> <span class="n">get_data</span><span class="p">().</span>
+
+<span class="n">Returns</span> <span class="n">JSON</span> <span class="n">objects</span> <span class="k">for</span> <span class="n">each</span> <span class="n">key</span> <span class="n">received</span><span class="p">,</span> <span class="n">in</span> <span class="n">a</span> <span class="n">dict</span> <span class="n">mapping</span> <span class="n">keys</span> <span class="n">to</span> <span class="n">the</span> <span class="n">objects</span><span class="p">,</span> <span class="n">which</span> 
+<span class="n">we</span> <span class="n">call</span> <span class="n">attributes</span> <span class="n">in</span> <span class="n">sofine</span>
+
+<span class="cp"># Required *only* if schema is dynamic</span>
+<span class="n">def</span> <span class="n">parse_args</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">)</span><span class="o">:</span>
+    <span class="err">#</span> <span class="n">Takes</span> <span class="n">any</span> <span class="n">args</span> <span class="n">required</span> <span class="n">to</span> <span class="n">call</span> <span class="n">get_data</span><span class="p">,</span> <span class="n">validates</span> <span class="n">them</span> <span class="n">and</span> <span class="n">returns</span> <span class="n">a</span> <span class="n">tuple</span> <span class="n">of</span> <span class="n">a</span> <span class="n">boolean</span> <span class="n">indicating</span> <span class="n">whether</span> <span class="n">the</span> <span class="n">parse</span> <span class="n">succeeded</span> <span class="n">and</span> <span class="n">a</span> <span class="n">possibly</span> <span class="n">altered</span> <span class="n">set</span> <span class="n">of</span> <span class="n">args</span><span class="p">.</span>
+    <span class="err">#</span> <span class="n">Returns</span> <span class="n">a</span> <span class="n">boolean</span> <span class="n">indicating</span> <span class="err">`</span><span class="n">args</span><span class="err">`</span> <span class="n">is</span> <span class="n">valid</span><span class="p">,</span> <span class="n">and</span> <span class="n">the</span> <span class="n">args</span><span class="p">.</span> 
+    <span class="err">#</span> <span class="n">Required</span> <span class="o">*</span><span class="n">only</span><span class="o">*</span> <span class="k">if</span> <span class="n">the</span> <span class="n">schema</span> <span class="n">is</span> <span class="n">dyanmic</span>
+
+<span class="n">def</span> <span class="n">get_schema</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">None</span><span class="p">)</span><span class="o">:</span>
+    <span class="err">#</span> <span class="n">Returns</span> <span class="n">the</span> <span class="n">set</span> <span class="n">of</span> <span class="n">attributes</span> <span class="n">that</span> <span class="n">the</span> <span class="n">call</span> <span class="n">might</span> <span class="k">return</span> <span class="n">in</span> <span class="n">association</span> <span class="n">with</span> <span class="n">keys</span><span class="p">.</span> <span class="n">Return</span> <span class="n">type</span> <span class="n">is</span> <span class="n">list</span> <span class="err">`</span><span class="p">[</span><span class="n">string</span><span class="p">]</span><span class="err">`</span>
+</pre></div>
+
+
+<h2>Developing sofine</h2>
+<p>These links lead to the complete code documentation.</p>
+<p><strong>Command Runners</strong><br/>
+<a href="docs/sofine/runner.m.html">runner</a><br/>
+<a href="docs/sofine/rest_runner.m.html">rest_runner</a><br/>
+<p/>
+<strong>Plugins</strong><br/>
+<a href="docs/sofine/plugins/plugin_base.m.html">plugin_base</a><br/>
+<a href="docs/sofine/plugins/standard/file_source.m.html">standard/file_source</a><br/>
+<a href="docs/sofine/plugins/example/ystockquotelib.m.html">example/ystockquotelib</a><br/>
+<a href="docs/sofine/plugins/example/google_search_results.m.html">example/google_search_results</a><br/>
+<a href="docs/sofine/plugins/example/fidelity.m.html">example/fidelity</a><br/>
+<a href="docs/sofine/plugins/example/archive_dot_org_search_results.m.html">example/archive_dot_org_search_results</a><br/>
+<a href="docs/sofine/plugins/mock/ystockquotelib_mock.m.html">mock/ystockquotelib</a><br/>
+<p/>
+<strong>Tests</strong><br/>
+<a href="docs/sofine/tests/test_runner_from_rest.m.html">tests/test_runner_from_rest</a><br/>
+<a href="docs/sofine/tests/test_runner_from_py_examples.m.html">tests/`test_runner_from_py_examples</a><br/>
+<a href="docs/sofine/tests/test_runner_from_py.m.html">tests/test_runner_from_py</a><br/>
+<a href="docs/sofine/tests/test_runner_from_cli_examples.m.html">tests/test_runner_from_cli_examples</a><br/>
+<a href="docs/sofine/tests/test_runner_from_cli.m.html">tests/test_runner_from_cli</a><br/>
+<p/>
+<strong>Utils and Conf</strong><br/>
+<a href="docs/sofine/lib/utils.m.html">lib/utils</a><br/>
+<a href="docs/sofine/lib/conf.m.html">lib/conf</a><br/>
+</body></p>
+<h3>make targets</h3>
+<p>To run core unit tests:
+    make test</p>
+<p>To run unit tests on the example plugins:
+    make test_examples</p>
+<p>To rebuild the documentation, which is everthing in <code>docs</code> and <code>index.html</code> in project root:
+    make docs`</p>
+<p>To support using the plugins in PROJECT_ROOT/sofine/plugins/examples and 
+running the tests in PROJECT_ROOT/tests/*_examples.py:
+ easy_install mechanize
+ easy_install beautifulsoup4
+ pip install ystockquote</p>
+<p>To run example unit tests for ystockquotelib example plugin only:
+ make test_examples</p>
+<p>NOTE: Tests for fidelity example plugin must be run manually, because this 
+plugin requires arguments that contain sensitive data</p>
+  
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-index', this);">Show source.</a></p>
+    <div id="source-index" class="source">
+      <div class="codehilite"><pre><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">## What is sofine?</span>
+
+<span class="sd">`sofine` is a minimal framework for creating a library of data collection plugins that follow simple conventions so that they can composed as you wish.</span>
+
+<span class="sd">How minimal? Let&#39;s write a Google search results plugin. This is the part you would have to write in any case -- it takes a search term and calls the Google API.</span>
+
+<span class="sd">    def query_google_search(k):</span>
+<span class="sd">        url = &#39;http://ajax.googleapis.com/ajax/services/search/web?v=1.0&amp;q={0}&#39;.format(urllib.quote(k))</span>
+<span class="sd">        ret = urllib2.urlopen(url)</span>
+<span class="sd">        ret = ret.read()</span>
+<span class="sd">        ret = json.loads(ret)</span>
+<span class="sd">    </span>
+<span class="sd">        if ret: </span>
+<span class="sd">            ret = {&#39;results&#39; : ret[&#39;responseData&#39;][&#39;results&#39;]}</span>
+<span class="sd">        else:</span>
+<span class="sd">            ret = {&#39;results&#39; : []}</span>
+<span class="sd">    </span>
+<span class="sd">        return ret</span>
+
+<span class="sd">Here is the additional code you have to add to make your plugin sofine.</span>
+
+<span class="sd">    class GoogleSearchResults(plugin_base.PluginBase):</span>
+
+<span class="sd">        def __init__(self):</span>
+<span class="sd">            self.name = &#39;google_search_results&#39;</span>
+<span class="sd">            self.group = &#39;example&#39;</span>
+<span class="sd">            self.schema = [&#39;results&#39;]</span>
+<span class="sd">            self.adds_keys = False</span>
+
+<span class="sd">        def get_data(self, keys, args):</span>
+<span class="sd">            data = {}</span>
+<span class="sd">            for k in keys:</span>
+<span class="sd">                data[k] = query_google_search(k)</span>
+<span class="sd">            return data</span>
+
+<span class="sd">    plugin = GoogleSearchResults </span>
+
+<span class="sd">## Why is it sofine?</span>
+
+<span class="sd">The core value proposition of `sofine` is this: </span>
+
+<span class="sd">* You do (almost) no more work than if you wrote a one-off data collection script </span>
+<span class="sd">* You can manage your plugins in any directory with any directory structure you like, with a single entry in a single configuration file as the sole dependency on the library</span>
+<span class="sd">* You can call plugins from the command line, as REST resources or from Python</span>
+<span class="sd">* You can chain as many plugin calls as you want together and get back one JSON data set with all the data collected from all the chained calls</span>
+
+<span class="sd">That last bullet is really the point -- the idea is that rather than writing one offs, you are just a tiny bit more thoughtful when wrapping various APIs and data resources.  In return, each plugin you write becomes much more valuable because you can combine it with all the others.  As time goes on and you write more plugins, you discover more things you can do by combining your plugins together.</span>
+
+<span class="sd">## Your Data Pipeline is sofine!</span>
+
+<span class="sd">`sofine` aims to support exactly one use case, but it is very flexible, general, composable, and (hopefully) useful.</span>
+
+<span class="sd">Each call to `sofine` chains together calls to one or more data source plugins. Plugins always receive a set of string keys, and they retrieve JSON objects of data for those keys which are collected from each plugin and all mapped to the keys.</span>
+
+<span class="sd">Imagine you are chaining calls operating on stock ticker keys.  The final output would look lik this:</span>
+
+<span class="sd">    {&quot;AAPL&quot; : {&quot;plugin_1::attr_name_1&quot; : value, &quot;plugin_1::attr_name_2&quot; : value, &quot;plugin_2::attr_name_1, value},</span>
+<span class="sd">    &quot;MSFT&quot; : {&quot;plugin_1::attr_name_1&quot; : value, &quot;plugin_1::attr_name_2&quot; : value, &quot;plugin_2::attr_name_1, value} </span>
+<span class="sd">    }</span>
+
+<span class="sd">Here is a real example, combining calls to Yahoo! Finance and Goole Search Results plugins:</span>
+
+<span class="sd">    $ echo &#39;{&quot;AAPL&quot;:{}}&#39; | python sofine/runner.py &#39;--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example&#39;</span>
+
+<span class="sd">    {</span>
+<span class="sd">    &quot;AAPL&quot;: {</span>
+<span class="sd">        &quot;example::google_search_results::results&quot;: [</span>
+<span class="sd">            {</span>
+<span class="sd">                &quot;GsearchResultClass&quot;: &quot;GwebSearch&quot;,</span>
+<span class="sd">                &quot;cacheUrl&quot;: &quot;http://www.google.com/search?q=cache:XhbIlCyrcXMJ:finance.yahoo.com&quot;,</span>
+<span class="sd">                &quot;content&quot;: &quot;View the basic &lt;b&gt;AAPL&lt;/b&gt; stock chart on Yahoo! Finance. Change the date range, chart type and compare Apple Inc. against other companies.&quot;,</span>
+<span class="sd">                &quot;title&quot;: &quot;&lt;b&gt;AAPL&lt;/b&gt;: Summary for Apple Inc.- Yahoo! Finance&quot;,</span>
+<span class="sd">                &quot;titleNoFormatting&quot;: &quot;AAPL: Summary for Apple Inc.- Yahoo! Finance&quot;,</span>
+<span class="sd">                &quot;unescapedUrl&quot;: &quot;http://finance.yahoo.com/q?s=AAPL&quot;,</span>
+<span class="sd">                &quot;url&quot;: &quot;http://finance.yahoo.com/q%3Fs%3DAAPL&quot;,</span>
+<span class="sd">                &quot;visibleUrl&quot;: &quot;finance.yahoo.com&quot;</span>
+<span class="sd">            },</span>
+<span class="sd">            ...</span>
+<span class="sd">            ...</span>
+<span class="sd">        ],</span>
+<span class="sd">        &quot;example::ystockquotelib::avg_daily_volume&quot;: &quot;59390100&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::book_value&quot;: &quot;20.193&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::change&quot;: &quot;+1.349&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::dividend_per_share&quot;: &quot;1.7771&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::dividend_yield&quot;: &quot;1.82&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::earnings_per_share&quot;: &quot;6.20&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::ebitda&quot;: &quot;59.128B&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::fifty_day_moving_avg&quot;: &quot;93.8151&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::fifty_two_week_high&quot;: &quot;99.24&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::fifty_two_week_low&quot;: &quot;63.8886&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::market_cap&quot;: &quot;592.9B&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::price&quot;: &quot;99.02&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::price_book_ratio&quot;: &quot;4.84&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::price_earnings_growth_ratio&quot;: &quot;1.26&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::price_earnings_ratio&quot;: &quot;15.75&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::price_sales_ratio&quot;: &quot;3.28&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::short_ratio&quot;: &quot;1.70&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::stock_exchange&quot;: &quot;\&quot;NasdaqNM\&quot;&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::two_hundred_day_moving_avg&quot;: &quot;82.8458&quot;,</span>
+<span class="sd">        &quot;example::ystockquotelib::volume&quot;: &quot;55317688&quot;</span>
+<span class="sd">    }</span>
+<span class="sd">    }  </span>
+
+<span class="sd">### Some sofine Terminology</span>
+
+<span class="sd">Each chain of one of more calls builds a JSON object `data set`. That object has a set of one or more string `keys`. Each key in turn has as its value another JSON object. Each call to a plugin recieves the set of keys, does its thing in its `get_data` implementation to get whatever data it can for those keys, and returns a set of objects mapped to the keys. In `sofine` we call the values mapped to the top-level `keys` `attributes`. Because `attributes` are JSON objects they in turn have `attribute keys` which are mapped to values. We call this set of attribute keys the `schema` of the plugin.</span>
+
+<span class="sd">### The Algorithm for Filling the Data Pipeline</span>
+
+<span class="sd">* If this is the first call in the chain, data is empty, so just fill it with the return of this call</span>
+<span class="sd">* If there is already data, add any new keys retrieved and add attribute key/value pairs associated with any new or existing keys </span>
+<span class="sd">* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and do not overwrite other attributes with the same name from other plugins  </span>
+<span class="sd">* So, the set of keys on each call is the union of all previously collected keys</span>
+<span class="sd">* So, the set of attributes associated with each key is the union of all previously collected attribute/value pairs collected for that key</span>
+
+<span class="sd">## Those Examples are sofine!</span>
+
+<span class="sd">Here is an example, which retrieves attributes about all the securities in a portfolio by ticker from Fidelity and then takes the same set of tickers and adds data from the Yahoo! Finance API:</span>
+
+<span class="sd">    python sofine/runner.py &#39;--SF-s fidelity --SF-g example -c &lt;CUSTOMER_ID&gt; -p &lt;PIN&gt; -a &lt;ACCOUNT_ID&gt; -e &lt;EMAIL&gt; | --SF-s ystockquotelib --SF-g example&#39;</span>
+
+<span class="sd">`sofine` automatically takes care of the following:</span>
+
+<span class="sd">* Loading each plugin from its `SF-s` &quot;source&quot; and `SF-g` &quot;group&quot;</span>
+<span class="sd">* Adding to the JSON data set it is building on each call</span>
+<span class="sd">* Namespacing all data added from each call so that none is lost</span>
+<span class="sd">* Returning the data to stdout as JSON</span>
+
+<span class="sd">If you wanted to call this REST-fully, it would look nearly the same. In curl:</span>
+
+<span class="sd">    curl -X POST -d &#39;{}&#39; --header &quot;Content-Type:application/json&quot; http://localhost:10000/SF-s/fidelity/SF-g/example/c/&lt;CUSTOMER_ID&gt;/p/&lt;PIN&gt;/a/&lt;ACCOUNT_ID&gt;/e/&lt;EMAIL&gt;/SF-s/ystockquotelib/SF-g/example</span>
+
+<span class="sd">`sofine` ships with a server which you launch at `python sofine/rest_runner.py`. The server returns the same JSON. The same ability to chain calls is simply expressed as a REST resource path.</span>
+
+<span class="sd">## Your Pipes are sofine!</span>
+
+<span class="sd">Just as `sofine` allows you to compose plugin calls, when run from the command line it takes input from stdin if it is present and always sends output to stdout.  So you can do this:</span>
+
+<span class="sd">    echo &#39;{&quot;AAPL&quot;:{}}&#39; | python sofine/runner.py &#39;--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example&#39; | jq &#39;map(recurse(.SOME_KEY) | {SOME_OTHER_KEY}&#39;</span>
+
+<span class="sd">This gets you the data that Yahoo! Finance has on Apple and combines it with search results from the Google Search API and then passes the result to the [JSON query tool jq](https://github.com/stedolan/jq), a fantastic uber-`grep` for JSON data that I highly recommend.</span>
+
+<span class="sd">## Managing Plugins</span>
+
+<span class="sd">* You put all plugins into subdirectories of your parent plugin directory. Typically you think of these as plugin groups and name the directories meaningfully.</span>
+<span class="sd">* You put a file in the root `sofine` directory called `sofine.conf` and put a JSON object there with the key `&quot;plugin_path&quot;` and the value the path to your plugin directory</span>
+<span class="sd">* You can always combine calls to your plugins with those the five that are included with `sofine`:</span>
+<span class="sd">* standard.file_source</span>
+<span class="sd">* example.archive_dot_org_search_results</span>
+<span class="sd">* example.google_search_results</span>
+<span class="sd">* example.fidelity</span>
+<span class="sd">* example.ystockquotelib</span>
+<span class="sd">* These combinations of plugin group and name are reserved plugin identifiers. You can name yourplugin groups and names anything else you want without clashing with the built-in plugins</span>
+<span class="sd">* You can put anything else into your plugin group directories and `sofine` will ignore it. So, for example, you could have a `tests` directory with unit tests for the plugins in that group in each plugin directory.</span>
+
+<span class="sd">## Creating Plugins</span>
+
+<span class="sd">To create plugins you do the following:</span>
+
+<span class="sd">* Derive from the base class `sofine/plugins/plugin_base.PluginBase`</span>
+<span class="sd">* You must define these two attributes:</span>
+<span class="sd">  * `name`</span>
+<span class="sd">  * `group`</span>
+<span class="sd">* You really should define these two attributes, to let clients introspect your plugin:</span>
+<span class="sd">  * `schema` - the list of all possible attribute keys returned by this plugin in the attributes associated with the keys of the `data` set being built</span>
+<span class="sd">  * `adds_keys` - indicates whether the plugin adds keys or just adds attributes to the existing keys</span>
+<span class="sd">* You must define one method for every plugin:</span>
+<span class="sd">  * `get_data()`, which recieves a list of strings which are the keys for which data is being collected, and also a list of arguments in case the plugin requires them to do its work</span>
+<span class="sd">* If your `get_data` requires arguments, you must implement `parse_args()`, which takes the args in argv format as a list of arg names and values in sequence and validates them. If your plugin takes no arguments then the default implementation in PluginBase is all you need.</span>
+<span class="sd">* Plugins inherit two other introspection methods from PluginBase. You don&#39;t need to implement these in general, but your plugin will have them.</span>
+<span class="sd">  * `get_schema` returns the list of attribute keys you set in `self.schema`, properly namespaced with the plugin group and name.</span>
+<span class="sd">    * Note that if your plugin doesn&#39;t know what attributes it might retrieve, then you need to override and implement `get_schema`. Your plugin might query a datastore that could return a varying set of attributes for a key, so you can&#39;t statically set `self.schema` and so need to implement `get_schema` to dynamically discover and return the schema attribute keys.</span>
+
+<span class="sd">Here is a complete example, minus the docstrings:</span>
+
+<span class="sd">    from sofine.plugins import plugin_base as plugin_base</span>
+<span class="sd">    import ystockquote</span>
+
+
+<span class="sd">    class YStockQuoteLib(plugin_base.PluginBase):</span>
+<span class="sd">    </span>
+<span class="sd">        def __init__(self):</span>
+<span class="sd">            self.name = &#39;ystockquotelib&#39;</span>
+<span class="sd">            self.group = &#39;example&#39;</span>
+<span class="sd">            self.schema = [&#39;fifty_two_week_low&#39;, &#39;market_cap&#39;, &#39;price&#39;, &#39;short_ratio&#39;, </span>
+<span class="sd">                           &#39;volume&#39;,&#39;dividend_yield&#39;, &#39;avg_daily_volume&#39;, &#39;ebitda&#39;, </span>
+<span class="sd">                           &#39;change&#39;, &#39;dividend_per_share&#39;, &#39;stock_exchange&#39;, </span>
+<span class="sd">                           &#39;two_hundred_day_moving_avg&#39;, &#39;fifty_two_week_high&#39;, </span>
+<span class="sd">                           &#39;price_sales_ratio&#39;, &#39;price_earnings_growth_ratio&#39;,</span>
+<span class="sd">                           &#39;fifty_day_moving_avg&#39;, &#39;price_book_ratio&#39;, &#39;earnings_per_share&#39;, </span>
+<span class="sd">                           &#39;price_earnings_ratio&#39;, &#39;book_value&#39;]</span>
+<span class="sd">            self.adds_keys = False</span>
+
+<span class="sd">            </span>
+<span class="sd">    def get_data(self, keys, args):</span>
+<span class="sd">        return {ticker : ystockquote.get_all(ticker) for ticker in keys} </span>
+
+
+<span class="sd">    plugin = YStockQuoteLib</span>
+
+<span class="sd">### Plugin Methods</span>
+
+<span class="sd">This is the complete documenation of the attributes and methods of a plugin.</span>
+
+<span class="sd">#### Plugin Instance Fields</span>
+
+<span class="sd">* `self.name` - `string`. The name of the plugin</span>
+<span class="sd">* `self.group` - `string`. The pluging group of the plugin. This the subdirectory in the plugin directory into which the plugin is deployed.</span>
+<span class="sd">* `self.schema` - `list of string`. The set of attribute keys that calls to `get_data` can associate with a key passed to `get_data`.</span>
+<span class="sd">* `self.adds_keys` - `boolean`. Indicates whether the plugin adds keys to the data set being built or only adds attributes to existing keys.</span>
+
+<span class="sd">#### Plugin Instance Methods</span>
+
+<span class="sd">    # Required</span>
+<span class="sd">    def get_data(self, keys, args):</span>
+<span class="sd">        # keys - list of string. The list of keys to process.</span>
+<span class="sd">        # args - list of string. Any args required to call get_data(). </span>
+
+<span class="sd">    Returns JSON objects for each key received, in a dict mapping keys to the objects, which </span>
+<span class="sd">    we call attributes in sofine</span>
+
+<span class="sd">    # Required *only* if schema is dynamic</span>
+<span class="sd">    def parse_args(self, argv):</span>
+<span class="sd">        # Takes any args required to call get_data, validates them and returns a tuple of a boolean indicating whether the parse succeeded and a possibly altered set of args.</span>
+<span class="sd">        # Returns a boolean indicating `args` is valid, and the args. </span>
+<span class="sd">        # Required *only* if the schema is dyanmic </span>
+<span class="sd">    </span>
+<span class="sd">    def get_schema(self, args=None):</span>
+<span class="sd">        # Returns the set of attributes that the call might return in association with keys. Return type is list `[string]`</span>
+
+<span class="sd">## Developing sofine</span>
+
+<span class="sd">These links lead to the complete code documentation.</span>
+
+<span class="sd">&lt;strong&gt;Command Runners&lt;/strong&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/runner.m.html&quot;&gt;runner&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/rest_runner.m.html&quot;&gt;rest_runner&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;p/&gt;</span>
+<span class="sd">&lt;strong&gt;Plugins&lt;/strong&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/plugins/plugin_base.m.html&quot;&gt;plugin_base&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/plugins/standard/file_source.m.html&quot;&gt;standard/file_source&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/plugins/example/ystockquotelib.m.html&quot;&gt;example/ystockquotelib&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/plugins/example/google_search_results.m.html&quot;&gt;example/google_search_results&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/plugins/example/fidelity.m.html&quot;&gt;example/fidelity&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/plugins/example/archive_dot_org_search_results.m.html&quot;&gt;example/archive_dot_org_search_results&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/plugins/mock/ystockquotelib_mock.m.html&quot;&gt;mock/ystockquotelib&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;p/&gt;</span>
+<span class="sd">&lt;strong&gt;Tests&lt;/strong&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/tests/test_runner_from_rest.m.html&quot;&gt;tests/test_runner_from_rest&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/tests/test_runner_from_py_examples.m.html&quot;&gt;tests/`test_runner_from_py_examples&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/tests/test_runner_from_py.m.html&quot;&gt;tests/test_runner_from_py&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/tests/test_runner_from_cli_examples.m.html&quot;&gt;tests/test_runner_from_cli_examples&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/tests/test_runner_from_cli.m.html&quot;&gt;tests/test_runner_from_cli&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;p/&gt;</span>
+<span class="sd">&lt;strong&gt;Utils and Conf&lt;/strong&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/lib/utils.m.html&quot;&gt;lib/utils&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;a href=&quot;docs/sofine/lib/conf.m.html&quot;&gt;lib/conf&lt;/a&gt;&lt;br/&gt;</span>
+<span class="sd">&lt;/body&gt;</span>
+
+<span class="sd">### make targets</span>
+
+<span class="sd">To run core unit tests:</span>
+<span class="sd">    make test</span>
+
+<span class="sd">To run unit tests on the example plugins:</span>
+<span class="sd">    make test_examples</span>
+
+<span class="sd">To rebuild the documentation, which is everthing in `docs` and `index.html` in project root:</span>
+<span class="sd">    make docs`</span>
+
+<span class="sd">To support using the plugins in PROJECT_ROOT/sofine/plugins/examples and </span>
+<span class="sd">running the tests in PROJECT_ROOT/tests/*_examples.py:</span>
+<span class="sd"> easy_install mechanize</span>
+<span class="sd"> easy_install beautifulsoup4</span>
+<span class="sd"> pip install ystockquote</span>
+
+<span class="sd">To run example unit tests for ystockquotelib example plugin only:</span>
+<span class="sd"> make test_examples</span>
+
+<span class="sd">NOTE: Tests for fidelity example plugin must be run manually, because this </span>
+<span class="sd">plugin requires arguments that contain sensitive data</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+
+    </div>
+
+  <hr>
+
+
+
+
+
+
+
+
+
+
+
+<hr>
+<p style="text-align: right;">
+  Documentation generated by
+  <code><a href="https://github.com/BurntSushi/pdoc">pdoc</a></code>
+  0.2.4.
+
+  pdoc is in the public domain with the
+  <a href="http://unlicense.org">UNLICENSE</a>.
+</p>
+</div>
+</body>
+</html>
