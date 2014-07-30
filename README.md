@@ -1,66 +1,57 @@
-## What is sofine?
+## What Problem Does sofine solve?
 
-`sofine` is a minimal framework for creating a library of data collection plugins that follow simple conventions so that they can composed as you wish.
+You need to get data related to a set of keys from many sources: web scrapers, Web APIs, flat files, data stores. Wouldn't it be nice to build those data sets with one command line, REST or Python call? Wouldn't it be great if each data retrieval script you wrote was a reusable plugin that you could combine with any other to retrieve one combined data set over a set of keys?
 
-How minimal? Let's write a Google search results plugin. This is the part you would have to write in any case -- it takes a search term and calls the Google API.
+You need a "glue API." 
 
-    def query_google_search(k):
-        url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q={0}'.format(urllib.quote(k))
-        ret = urllib2.urlopen(url)
-        ret = ret.read()
-        ret = json.loads(ret)
-    
-        if ret: 
-            ret = {'results' : ret['responseData']['results']}
-        else:
-            ret = {'results' : []}
-    
-        return ret
+This is the problem `sofine` solves. It's a small enough problem that you could solve it yourself. But `sofine` is minimal to deploy and write plugins for, and has already solved in an optimally flexible way the design decisions you would have to solve on your own if you did so. 
 
-Here is the additional code you have to add to make your plugin sofine.
+## Features
 
-    class GoogleSearchResults(plugin_base.PluginBase):
+1. Do (almost) no more work than if you wrote a one-off data collection scripts 
+2. Manage your plugins in any directory with any directory structure you like
+3. Call plugins from the command line, as REST resources or from Python
+4.  Chain as many plugin calls as you want together and get back one JSON data set with all the data collected from all the chained calls
+5. If called from the command line, `sofine` reads data from stdin if it is present, and always outputs to stdout. So `sofine` piped calls, such as the example above, can themselves be composed in larger piped expressions.
 
-        def __init__(self):
-            self.name = 'google_search_results'
-            self.group = 'example'
-            self.schema = ['results']
-            self.adds_keys = False
+For fun, here is an example of features 4 and 5, combining a `sofine` pipeline with the fantastic [JSON query tool jq](https://github.com/stedolan/jq) for further filtering.
 
-        def get_data(self, keys, args):
-            data = {}
-            for k in keys:
-                data[k] = query_google_search(k)
-            return data
+    echo '{"AAPL":{}}' | python sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example' | jq 'map(recurse(.SOME_KEY) | {SOME_OTHER_KEY}'
 
-    plugin = GoogleSearchResults 
+## Overview
 
-## Why is it sofine?
+To get started, you install the library, create a plugin directory, assign the plugin directory to an environment variable, and start writing plugins. Plugins require two attributes and one method in the simple case and three methods in the most elaborate edge case. You can optionally define two additional attributes for clients to use to introspect your plugin.
 
-The core value proposition of `sofine` is this: 
+`sofine` ships with a few useful plugins to get you started and give you the idea; you can combine these with your custom plugins with no additional configuration or code. The included plugins are:
 
-* You do (almost) no more work than if you wrote a one-off data collection script 
-* You can manage your plugins in any directory with any directory structure you like, with a single entry in a single configuration file as the sole dependency on the library
-* You can call plugins from the command line, as REST resources or from Python
-* You can chain as many plugin calls as you want together and get back one JSON data set with all the data collected from all the chained calls
+* `sofine.plugins.standard.file_source` - Retrieves keys from a JSON file to add to the data set being built. See here TODO for the details.
+* `example.archive_dot_org_search_results` - Takes a search query and returns results from www.archive.org
+* `example.google_search_results` - Takes a search query and returns results from the Google Search API
+* `example.fidelity` - Takes a userId, pin, accountId and email, logs into Fidelity, scrapes the account portfolio and returns the tickers found as keys and four attributes of data for each ticker
+* `example.ystockquotelib` - Takes a list of tickers and returns the data available from Yahoo! Finance for each ticker
 
-That last bullet is really the point -- the idea is that rather than writing one offs, you are just a tiny bit more thoughtful when wrapping various APIs and data resources.  In return, each plugin you write becomes much more valuable because you can combine it with all the others.  As time goes on and you write more plugins, you discover more things you can do by combining your plugins together.
+Here is what usage looks like ...
 
-## Your Data Pipeline is sofine!
-
-`sofine` aims to support exactly one use case, but it is very flexible, general, composable, and (hopefully) useful.
-
-Each call to `sofine` chains together calls to one or more data source plugins. Plugins always receive a set of string keys, and they retrieve JSON objects of data for those keys which are collected from each plugin and all mapped to the keys.
-
-Imagine you are chaining calls operating on stock ticker keys.  The final output would look lik this:
-
-    {"AAPL" : {"plugin_1::attr_name_1" : value, "plugin_1::attr_name_2" : value, "plugin_2::attr_name_1, value},
-    "MSFT" : {"plugin_1::attr_name_1" : value, "plugin_1::attr_name_2" : value, "plugin_2::attr_name_1, value} 
-    }
-
-Here is a real example, combining calls to Yahoo! Finance and Goole Search Results plugins:
+From the command line:
 
     $ echo '{"AAPL":{}}' | python sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example'
+
+REST-fully:
+
+    $ python sofine/rest_runner.py
+    curl -X POST -d '{"AAPL":{}}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-s/google_search_results/SF-g/example
+
+From Python:
+
+    import sofine.runner as runner
+    
+    data = {"AAPL": {}}
+    data_sources = ['ystockquotelib', 'google_search_results']
+    data_source_groups = ['example', 'example']
+    data_source_args = [[], []]
+    data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
+
+All three calling styles return the same data set. `sofine` data sets map JSON objects of data to string keys. So here, we have the key "AAPL," with all the attributes retrieved from Yahoo! Finance and the Google Search API combined in a JSON object associated with the key.  Notice that the keys in the attribute data set are namespaced so multiple calls can't overwrite data from each other.
 
     {
     "AAPL": {
@@ -101,79 +92,127 @@ Here is a real example, combining calls to Yahoo! Finance and Goole Search Resul
     }
     }  
 
-### Some sofine Terminology
+## The Details
 
-Each chain of one of more calls builds a JSON object `data set`. That object has a set of one or more string `keys`. Each key in turn has as its value another JSON object. Each call to a plugin recieves the set of keys, does its thing in its `get_data` implementation to get whatever data it can for those keys, and returns a set of objects mapped to the keys. In `sofine` we call the values mapped to the top-level `keys` `attributes`. Because `attributes` are JSON objects they in turn have `attribute keys` which are mapped to values. We call this set of attribute keys the `schema` of the plugin.
+### Getting sofine
 
-### The Algorithm for Filling the Data Pipeline
+    git clone git@github.com:marksweiss/sofine.git
+    cd <CLONED DIRECTORY>
+    python setup.py
 
-* If this is the first call in the chain, data is empty, so just fill it with the return of this call
-* If there is already data, add any new keys retrieved and add attribute key/value pairs associated with any new or existing keys 
-* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and do not overwrite other attributes with the same name from other plugins  
-* So, the set of keys on each call is the union of all previously collected keys
-* So, the set of attributes associated with each key is the union of all previously collected attribute/value pairs collected for that key
+Then, create a plugin directory and assign its path to an environment variable `SOFINE_PLUGIN_PATH`. You probably want to add it to your shell configuration file:
 
-## Those Examples are sofine!
+    export SOFINE_PLUGIN_PATH=<MY PATH>
 
-Here is an example, which retrieves attributes about all the securities in a portfolio by ticker from Fidelity and then takes the same set of tickers and adds data from the Yahoo! Finance API:
+### How Plugins Work and How to Write Them
 
-    python sofine/runner.py '--SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
+All plugins inherit from a base class which defines four attributes:
 
-`sofine` automatically takes care of the following:
+* `self.name` - `string`. The name of the plugin
+* `self.group` - `string`. The pluging group of the plugin. This the subdirectory in the plugin directory into which the plugin is deployed.
+* `self.schema` - `list of string`. The set of attribute keys that calls to `get_data` can associate with a key passed to `get_data`.
+* `self.adds_keys` - `boolean`. Indicates whether the plugin adds keys to the data set being built or only adds attributes to existing keys.
 
-* Loading each plugin from its `SF-s` "source" and `SF-g` "group"
-* Adding to the JSON data set it is building on each call
-* Namespacing all data added from each call so that none is lost
-* Returning the data to stdout as JSON
+You must always define `name` and `group`. `name` must match the module name of the plugin module, that is the name you would use in an `import` statement. `group` must match the name of the subdirectory of your plugin directory where the plugin is deployed. `sofine` uses `name` and `group` to load and run your plugin, so they have to be there and they have to be correct.
 
-If you wanted to call this REST-fully, it would look nearly the same. In curl:
+`schema` and `adds_keys` are optional. They allow users of your plugin to introspect your plugin. `schema` is a list of strings that tells a client of your plugin the set of possible attribute keys that your plugin returns for each key it recieves. For example, if your plugin takes stock tickers as keys and looks up their price, its `schema` declaration might look like this:
+    
+    self.schema = ['quote']
 
-    curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/fidelity/SF-g/example/c/<CUSTOMER_ID>/p/<PIN>/a/<ACCOUNT_ID>/e/<EMAIL>/SF-s/ystockquotelib/SF-g/example
+`adds_keys` lets users ask your plugin if it adds keys to the data set being built when `sofine` calls it, or if it just adds attributes for the keys it receives. For example, the `ystockquotelib` plugin in the `sofine.plugins.example` group takes a set of stock tikckers as keys and retrieves the available data for each of them from Yahoo! Finance. This plugin has the attribute declaration `self.adds_keys = False`. On the other hand, the `sofine.plugins.fidelity` plugin is a scraper that can log into the Fidelity, go to the portfolio page for the logged in user, scrape all the tickers for the securities in that portfolio, and add those keys and whatever data it finds to the data set being built. This plugin has a value of `True` for `adds_keys`.
 
-`sofine` ships with a server which you launch at `python sofine/rest_runner.py`. The server returns the same JSON. The same ability to chain calls is simply expressed as a REST resource path.
+Plugins also have three methods. `get_data` is not implemented in the base class and must be implemented by you in your plugin. This method takes a list of keys and a list of arguments. It must return a dict whose keys are a proper superset of the keys it received (the return set of keys can have more keys than were passed to `get_data` if the plugin adds keys). This dict must have string keys and a dict value for each key. The dict value is the data retrieved for each key. The keys in that dict must be a set of strings that is a proper subset of the set of strings in `self.schema`.
 
-## Your Pipes are sofine!
+Here is an example of `get_data` from the `sofine` plugin `sofine.plugins.example.ystockquotelib`.
 
-Just as `sofine` allows you to compose plugin calls, when run from the command line it takes input from stdin if it is present and always sends output to stdout.  So you can do this:
+    def get_data(self, keys, args):
+        """
+        * `keys` - `list`. The list of keys to process.
+        * `args` - `'list`. Empty for this plugin.
+        Calls the Yahoo API to get all available fields for each ticker provided as a key in `keys`."""
+        
+        return {ticker : ystockquote.get_all(ticker) for ticker in keys}
 
-    echo '{"AAPL":{}}' | python sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example' | jq 'map(recurse(.SOME_KEY) | {SOME_OTHER_KEY}'
+The other method you will often need to implement is `parse_args`. If your `get_data` requires no arguments you need not implement `parse_args` and can just use the base class default implementation. But if your `get_data` call requires arguments, you must implement `parse_args`. The method takes an argv style list of alternating arg names and values and is responsible for validating the correctness of argument names and values and returing a tuple with two members. The first member is a boolean `is_valid`. The second is the parsed list of argument values (without the argument names).
 
-This gets you the data that Yahoo! Finance has on Apple and combines it with search results from the Google Search API and then passes the result to the [JSON query tool jq](https://github.com/stedolan/jq), a fantastic uber-`grep` for JSON data that I highly recommend.
+Here is an example from the `sofine` plugin `sofine.plugins.standard.file_source`.
 
-## Managing Plugins
+    def parse_args(self, argv):
+        """`[-p|--path]` - Path to the file listing the keys to load into this data source."""
 
-* You put all plugins into subdirectories of your parent plugin directory. Typically you think of these as plugin groups and name the directories meaningfully.
-* You put a file in the root `sofine` directory called `sofine.conf` and put a JSON object there with the key `"plugin_path"` and the value the path to your plugin directory
-* You can always combine calls to your plugins with those the five that are included with `sofine`:
-* standard.file_source
-* example.archive_dot_org_search_results
-* example.google_search_results
-* example.fidelity
-* example.ystockquotelib
-* These combinations of plugin group and name are reserved plugin identifiers. You can name yourplugin groups and names anything else you want without clashing with the built-in plugins
-* You can put anything else into your plugin group directories and `sofine` will ignore it. So, for example, you could have a `tests` directory with unit tests for the plugins in that group in each plugin directory.
+        usage = "[-p|--path] - Path to the file listing the keys to load into this data source."
+        parser = OptionParser(usage=usage)
+        parser.add_option("-p", "--path", 
+                        action="store", dest="path",
+                        help="Path to the file listing the keys to load into this data source. Required.") 
+        (opts, args) = parser.parse_args(argv)
+    
+        is_valid = True
+        if not opts.path:
+            print "Invalid argument error."
+            print "Your args: path {0}".format(opts.path)
+            print usage
+            is_valid = False
 
-## Creating Plugins
+        return is_valid, [opts.path]
 
-To create plugins you do the following:
+The third method is `get_schema`. You will rarely need to implement this. Any plugin that knows the set of attributes it can return for a key doesn't need to implement `get_schema` and can rely on the default. So, for example, a call to an API that returns a know JSON or XML object, a scraper that builds a known object of attributes, or a call to a relational or NoSql data store with a known set of possible fields -- all of these can rely on the default `get_schema`. Note that `get_schema` returns the set of attribute keys you define in `self.schema` namespace qualified with the plugin group and name. For example, if our stock quote plugin mentioned above is named `get_quotes` and it is in the `trading` group, the return value of `get_schema` would be `["trading::get_quotes::price"]`.
 
-* Derive from the base class `sofine/plugins/plugin_base.PluginBase`
-* You must define these two attributes:
-  * `name`
-  * `group`
-* You really should define these two attributes, to let clients introspect your plugin:
-  * `schema` - the list of all possible attribute keys returned by this plugin in the attributes associated with the keys of the `data` set being built
-  * `adds_keys` - indicates whether the plugin adds keys or just adds attributes to the existing keys
-* You must define one method for every plugin:
-  * `get_data()`, which recieves a list of strings which are the keys for which data is being collected, and also a list of arguments in case the plugin requires them to do its work
-* If your `get_data` requires arguments, you must implement `parse_args()`, which takes the args in argv format as a list of arg names and values in sequence and validates them. If your plugin takes no arguments then the default implementation in PluginBase is all you need.
-* Plugins inherit two other introspection methods from PluginBase. You don't need to implement these in general, but your plugin will have them.
-  * `get_schema` returns the list of attribute keys you set in `self.schema`, properly namespaced with the plugin group and name.
-    * Note that if your plugin doesn't know what attributes it might retrieve, then you need to override and implement `get_schema`. Your plugin might query a datastore that could return a varying set of attributes for a key, so you can't statically set `self.schema` and so need to implement `get_schema` to dynamically discover and return the schema attribute keys.
+Finally, the last line of your plugin should assign the module-scope variable `plugin` to the name of your plugin class.  For example:
 
-Here is a complete example, minus the docstrings:
+    plugin = GoogleSearchResults 
 
+This is a small amount of overhead compared to writing one-off scripts for the return on investment of being able to know where your plugins are, call them with standard syntax, and compose them with each other in any useful combination.
+
+How small? Let's support the assertion that it's worth the effort with a small but not trivial example that ships with `sofine`, a plugin to call the Google Search API.
+
+It starts with a module scope helper function that you would have to write in any one-off script to call the API.
+
+    import urllib
+    import urllib2
+    import json
+
+    def query_google_search(k):
+        url = 'http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q={0}'.format(urllib.quote(k))
+        ret = urllib2.urlopen(url)
+        ret = ret.read()
+        ret = json.loads(ret)
+    
+        if ret: 
+            ret = {'results' : ret['responseData']['results']}
+        else:
+            ret = {'results' : []}
+    
+        return ret
+
+Now, here are the 13 additional lines of code you need to make your plugin run in `sofine`. 
+    
     from sofine.plugins import plugin_base as plugin_base
+
+
+    class GoogleSearchResults(plugin_base.PluginBase):
+
+        def __init__(self):
+            self.name = 'google_search_results'
+            self.group = 'example'
+            self.schema = ['results']
+            self.adds_keys = False
+
+
+        def get_data(self, keys, args):
+            data = {}
+            for k in keys:
+                data[k] = query_google_search(k)
+            return data
+
+
+    plugin = GoogleSearchResults
+
+Now write a unit test for `get_data`, which you can even leave in the same plugin subdirectory as the plugin, and you are done. 
+
+Just for fun, here is a second example. This shows you how easy it is to wrap existing Python API wrappers as `sofine` plugins. For a a few lines of additional boilerplate, you can now take any of these and combine them any which way you can.
+
+    froe sofine.plugins import plugin_base as plugin_base
     import ystockquote
 
 
@@ -192,93 +231,147 @@ Here is a complete example, minus the docstrings:
             self.adds_keys = False
 
             
-    def get_data(self, keys, args):
-        return {ticker : ystockquote.get_all(ticker) for ticker in keys} 
+        def get_data(self, keys, args):
+            return {ticker : ystockquote.get_all(ticker) for ticker in keys} 
 
 
     plugin = YStockQuoteLib
 
-### Plugin Methods
 
-This is the complete documenation of the attributes and methods of a plugin.
+### How to Call Plugins
 
-#### Plugin Instance Fields
+As we saw above in the Introduction section, there are three ways to call plugins, from the command line, as REST resources, or in Python.  When calling plugins to retrieve data, you need to pass three or four arguments, `data`,  the plugin name, the plugin group and, depending on the call, the plugin action. 
 
-* `self.name` - `string`. The name of the plugin
-* `self.group` - `string`. The pluging group of the plugin. This the subdirectory in the plugin directory into which the plugin is deployed.
-* `self.schema` - `list of string`. The set of attribute keys that calls to `get_data` can associate with a key passed to `get_data`.
-* `self.adds_keys` - `boolean`. Indicates whether the plugin adds keys to the data set being built or only adds attributes to existing keys.
+There are four actions, which correspond to the three methods `get_data`, `parse_args` and `get_schema`, while `adds_keys` returns the value of the the plugin's `self.adds_keys`.
 
-#### Plugin Instance Methods
+    get_data
+    parse_args
+    get_schema
+    adds_keys
 
-    # Required
-    def get_data(self, keys, args):
-        # keys - list of string. The list of keys to process.
-        # args - list of string. Any args required to call get_data(). 
+When calling from the CLI you pass these arguments like this:
 
-    Returns JSON objects for each key received, in a dict mapping keys to the objects, which 
-    we call attributes in sofine
+* `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the
+name of the plugin module being called. Required.
+* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is 
+the plugins subdirectory where the plugin module is deployed. Required.
+* `[--SF-a|--SF-action]` - The plugin action being called. 
 
-    # Required *only* if schema is dynamic
-    def parse_args(self, argv):
-        # Takes any args required to call get_data, validates them and returns a tuple of a boolean indicating whether the parse succeeded and a possibly altered set of args.
-        # Returns a boolean indicating `args` is valid, and the args. 
-        # Required *only* if the schema is dyanmic 
+Get data is the default, so action can be ommitted on calls to `get_data`. 
+
+#### get_data Examples
+
+Here is and example of calling get_data:
     
-    def get_schema(self, args=None):
-        # Returns the set of attributes that the call might return in association with keys. Return type is list `[string]`
+    TODO: Actual installer and correct path to call sofine
+    python sofine/runner.py '--SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
 
-## Developing sofine
+Notice that `--SF-a` is ommitted, which means this is chained call to retrieve data, first from the `fidelity` plugin (which is called first becasue it adds the set of keys returned) and then from the `ystockquotelib` plugin (which adds attributes to the keys it received from `fidelity`).
 
-All of the above documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications, without ever needing to understand how `sofine` works. It's a library and it works if it follows the rules.
+If you wanted to call this REST-fully, it would look nearly the same. `sofine` ships with a server which you launch at `python sofine/rest_runner.py`. The syntax to chain calls is expressed by converting the sequence of argument names and values into a REST resource path.
 
-However, you might want to develop with `sofine` more directly.
+    curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/fidelity/SF-g/example/c/<CUSTOMER_ID>/p/<PIN>/a/<ACCOUNT_ID>/e/<EMAIL>/SF-s/ystockquotelib/SF-g/example
 
-### make Targets
+Here is the same example calling from Python:
 
-To run core unit tests:
-    make test
-
-To run unit tests on the example plugins:
-    make test_examples
-
-To rebuild the documentation, which is everthing in `docs` and `index.html` in project root:
-    make docs
-
-To support using the plugins in `PROJECT_ROOT/sofine/plugins/examples and 
-running the tests in PROJECT_ROOT/tests/*_examples.py`:
+    import sofine.runner as runner
     
-    easy_install mechanize
-    easy_install beautifulsoup4
-    pip install ystockquote
+    data = {}
+    data_sources = ['fidelity', 'ystockquotelib']
+    data_source_groups = ['example', 'example']
+    data_source_args = [[customer_id, pin, account_id, email], []]
+    data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
 
-*NOTE: Tests for fidelity example plugin must be run manually, because this 
-plugin requires arguments that contain sensitive data*
+#### Other Action Examples
 
-### Complete Code Documentation
+Finally, let's discuss the other actions besides `get_data`. Note that none of these actions can be chained.
 
-<strong>Command Runners</strong><br/>
-<a href="docs/sofine/runner.m.html">runner</a><br/>
-<a href="docs/sofine/rest_runner.m.html">rest_runner</a><br/>
-<p/>
-<strong>Plugins</strong><br/>
-<a href="docs/sofine/plugins/plugin_base.m.html">plugin_base</a><br/>
-<a href="docs/sofine/plugins/standard/file_source.m.html">standard/file_source</a><br/>
-<a href="docs/sofine/plugins/example/ystockquotelib.m.html">example/ystockquotelib</a><br/>
-<a href="docs/sofine/plugins/example/google_search_results.m.html">example/google_search_results</a><br/>
-<a href="docs/sofine/plugins/example/fidelity.m.html">example/fidelity</a><br/>
-<a href="docs/sofine/plugins/example/archive_dot_org_search_results.m.html">example/archive_dot_org_search_results</a><br/>
-<a href="docs/sofine/plugins/mock/ystockquotelib_mock.m.html">mock/ystockquotelib</a><br/>
-<p/>
-<strong>Tests</strong><br/>
-<a href="docs/sofine/tests/test_runner_from_rest.m.html">tests/test_runner_from_rest</a><br/>
-<a href="docs/sofine/tests/test_runner_from_py_examples.m.html">tests/`test_runner_from_py_examples</a><br/>
-<a href="docs/sofine/tests/test_runner_from_py.m.html">tests/test_runner_from_py</a><br/>
-<a href="docs/sofine/tests/test_runner_from_cli_examples.m.html">tests/test_runner_from_cli_examples</a><br/>
-<a href="docs/sofine/tests/test_runner_from_cli.m.html">tests/test_runner_from_cli</a><br/>
-<p/>
-<strong>Utils and Conf</strong><br/>
-<a href="docs/sofine/lib/utils.m.html">lib/utils</a><br/>
-<a href="docs/sofine/lib/conf.m.html">lib/conf</a><br/>
-</body>
+#### parse_args
+
+You should rarely need to call a plugins `parse_args` directly. One use case is to test whether the arguments you plan to pass to `get_data` are valid -- you might want to do this before making a long-running `get_data call, for example.
+
+And you can call it from the CLI.
+
+    python sofine/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p "./sofine/tests/fixtures/file_source_test_data.txt"'
+
+And from this REST:
+
+    curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/file_source/SF-g/standard/SF-a/parse_args/p/.%2Fsofine%2Ftests%2Ffixtures%2Ffile_source_test_data.txt
+
+From Python:
+
+    def test_parse_args_file_source(self):
+        data_source = 'file_source'
+        data_source_group = 'standard'
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
+        args = ['-p', path]
+        actual = runner.parse_args(data_source, data_source_group, args)
+
+        self.assertTrue(actual['is_valid'] and actual['parsed_args'] == [path])
+
+#### get_schema
+
+There are several use cases for calling `get_schema`, particularly from Python. For example, you might want to retrieve the attribute keys from one or several plugins being called together, to filter or query the returned data for a subset of all the attribute keys.
+
+    python sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a get_schema'
+
+
+    curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-a/get_schema
+
+
+    data_source = 'ystockquotelib'
+    data_source_group = 'example'
+    schema = runner.get_schema(data_source, data_source_group)
+
+#### adds_keys
+
+The `adds_keys` action lets you ask a plugin programmatically whether it adds keys to the data set being built by `sofine`. Let's say you want to know which steps in a sequence of call to `sofine` plugins add keys and which keys they add.
+
+    for name, group in plugin_map:
+        prev_keys = set(data.keys())
+        data = runner.get_data(data, name, group, args_map[name])
+        
+        if runner.adds_keys(name, group):
+            new_keys = set(data.keys()) - prev_keys
+            logger.log(new_keys)
+
+Here are examples of calling adds_keys
+
+    python sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a adds_keys'
+
+
+    curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-a/adds_keys
+
+
+    data_source = 'ystockquotelib'
+    data_source_group = 'example'
+    schema = runner.adds_keys(data_source, data_source_group)
+
+### Managing Plugins
+
+Managing plugins is very simple. Pick a directory from which you want to call your plugins. Define the environment variable `SOFINE_PLUGIN_PATH` and assign it to the path to your plugin directory.
+
+Plugins themselves are just Python modules fulfilling the requirements detailed in the section, "How Plugins Work and How to Write Them."
+
+Plugins cannot be deployed at the root of your plugin directory. Instead you must create one or more subdirectories and place plugins in them. Any plugin can live in any subdirectory. If you want, you can even place a plugin in more than one plugin directory. The plugin module name must match the plugin's `self.name` attribute, and the plugin directory name must match the plugin's `self.group` attribute.
+
+This approach means you can manage your plugin directory without any dependencies on `sofine`.  You can manage your plugins directory like any other source code repo, and include unit tests for plugins anywhere in the plugin directory if you want. 
+
+### Appendix: The Data Retrieval Algorithm
+
+* The returned data set (let's call it "data") is always a JSON object of string keys mapped to object values.
+* On every call in a `sofine` chain, add any new keys returned to data, and add all key attribute data returned to that key in data.
+* All attributes mapped to a key are JSON objects which themselves consist of string keys mapped to legal JSON values.
+* All attribute keys are namespaced with the prefix of the plugin group and plugin name and then the attribute key name, guaranteeing they are unique.
+
+So, formally, the result of a call to a `sofine` pipe is the union of all keys retrieved by all plugin calls, with each key mapped to the union of all attributes returned by all plugin calls for that key.
+
+
+# Developing With the sofine Code Base
+
+All of the above documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications, without ever needing to understand how `sofine` works. It's a library and it works if you follow the rules.
+
+However, you might want to develop with `sofine` more directly. Perhaps you want to use pieces of the library for other purposes, or fork the library to add features, or even contribute!
+
+Developer documentation is here: http://marksweiss.github.io/sofine/
 
