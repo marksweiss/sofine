@@ -976,9 +976,8 @@ table {
 <p>The README documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications.</p>
 <p>However, you might want to develop with <code>sofine</code> more directly. Perhaps you want to just use the simple plugin loading mechanism in <code>sofine/lib/utils/utils.py</code> or want to fork the project to add features or integrate it with another project. Here is how to get started.</p>
 <h3>make Targets</h3>
-<p>To run core unit tests: <code>make test</code></p>
-<p>To run unit tests on the example plugins: <code>make test_examples</code></p>
-<p>To rebuild the documentation, which is everthing in <code>docs</code> folder in project root: <code>make docs</code></p>
+<p>To run core unit tests on OSX/Linux: <code>make test</code>, on Windows: <code>test.bat</code></p>
+<p>To run unit tests on the example plugins on OSX/Linux: <code>make test_examples</code>, on Windows <code>test_examples.bat</code></p>
 <p>To support using the plugins in <code>PROJECT_ROOT/sofine/plugins/examples</code> and running the tests in <code>PROJECT_ROOT/tests/*_examples.py</code>:</p>
 <div class="codehilite"><pre><span class="n">easy_install mechanize</span>
 <span class="n">easy_install beautifulsoup4</span>
