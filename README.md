@@ -242,6 +242,8 @@ There are four actions, which correspond to the three methods `get_data`, `parse
     get_schema
     adds_keys
 
+### Calling From the Command Line
+
 When calling from the CLI you pass these arguments:
 
 * `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the
@@ -250,18 +252,24 @@ name of the plugin module being called. Required.
 the plugins subdirectory where the plugin module is deployed. Required.
 * `[--SF-a|--SF-action]` - The plugin action being called. 
 
-Get data is the default, so action can be ommitted on calls to `get_data`. 
+Get data is the default, so action can be ommitted on calls to `get_data`.
+
+Any additional arguments that a call to `get_data` requires should be passed following the `--SF-s` and `--SF-g` arguments.
+
+### Calling REST-fully
+
+`sofine` ships with a server which you launch at `python sofine/rest_runner.py` to call plugins over HTTP. The servers runs by default on `localhost` on port `10000`. You can change the port it is running on by setting the environment variable `SOFINE_REST_PORT`.
 
 ### get_data Examples
 
-Here is an example of calling get_data:
+Here are examples of calling get_data:
     
     TODO: Actual installer and correct path to call sofine
     python sofine/runner.py '--SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
 
 Notice that `--SF-a` is ommitted, which means this is chained call to retrieve data, first from the `fidelity` plugin (which is called first becasue it adds the set of keys returned) and then from the `ystockquotelib` plugin (which adds attributes to the keys it received from `fidelity`).
 
-If you wanted to call this REST-fully, it would look nearly the same. `sofine` ships with a server which you launch at `python sofine/rest_runner.py`. The syntax to chain calls is expressed by converting the sequence of argument names and values into a REST resource path.
+If you wanted to call this REST-fully, it would look nearly the same. The syntax to chain calls is expressed by converting the sequence of argument names and values into a REST resource path.
 
     curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/fidelity/SF-g/example/c/<CUSTOMER_ID>/p/<PIN>/a/<ACCOUNT_ID>/e/<EMAIL>/SF-s/ystockquotelib/SF-g/example
 
@@ -283,7 +291,7 @@ Finally, let's discuss the other actions besides `get_data`. Note that none of t
 
 You should rarely need to call a plugins `parse_args` directly. One use case is to test whether the arguments you plan to pass to `get_data` are valid -- you might want to do this before making a long-running `get_data` call, for example.
 
-From the CLI.
+From the CLI:
 
     python sofine/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p "./sofine/tests/fixtures/file_source_test_data.txt"'
 
