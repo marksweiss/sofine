@@ -11,28 +11,10 @@ mkdir docs/sofine/plugins/mock
 mkdir docs/sofine/plugins/standard
 mkdir docs/sofine/lib
 
-# Hack. Copy the readme into a python 'module' called index.py. All it is is a docstring
-#  of the markdown in README. But pdocs interprets that as a Py module with docstring, and 
-#  it parses the markdown and renders an html help file called index.m.html.
-# Another hack. Need to move this into root/sofine to get it built by pdoc. 
-echo '"""' > sofine/index.py
-echo '' >> sofine/index.py
-cat README.md >> sofine/index.py
-echo '' >> sofine/index.py
-echo '"""' >> sofine/index.py
-
 # TODO FORK PDOCS, MAKE SUBMODULE AND AVOID RELATIVE PATHS
 # TODO Make dynamic by reading files from app irs and then writing to target doc dirs
 
 echo "Building documentation"
-
-# Last two hacks for index page
-# Move it back up a level for rendering and rename it to index.html for it be the 
-#  documentation home page when Github gh-pages serves the page 
-python ~/code/pdoc/scripts/pdoc --html --html-dir . --overwrite ./sofine/index.py
-mv index.m.html index.html
-rm -f sofine/index.py
-
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine --overwrite ./sofine/runner.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine --overwrite ./sofine/rest_runner.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_cli.py
