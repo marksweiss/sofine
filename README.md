@@ -283,7 +283,7 @@ Here is the same example from Python:
     data_source_args = [[customer_id, pin, account_id, email], []]
     data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
 
-### Other Action Examples
+### Other Actions 
 
 Finally, let's discuss the other actions besides `get_data`. Note that none of these actions can be chained.
 
@@ -356,6 +356,29 @@ Python:
     data_source_group = 'example'
     schema = runner.adds_keys(data_source, data_source_group)
 
+### get_plugin
+
+The `get_plugin` action lets you get an instance of a plugin object in Python. This lets you access class-scope methods or instance attributes directly.
+
+Python:
+   
+    data_source = 'google_search_results'
+    data_source_group = 'example' 
+    plugin = runner.get_plugin(data_source, data_source_group)
+    schema = plugin.schema
+    
+### get_plugin_module
+
+The `get_plugin_module` action lets you get an instance of a plugin module in Python. This lets you access module-scope methods or variables directly. For exmample, the Google Search Results module implements an additional helper called `get_child_schema` that returns the list of attributes in each of the `retults` JSON objects that it returns for each key passed to it. Because this is nested data, the more interesting attributes are one level down in the data returned, so this helper is useful in this particular case. This is an example of the value of the flexibility of putting additional attributes or functions in your module as needed and accessing them in Python directly.
+
+    data_source = 'google_search_results'
+    data_source_group = 'example' 
+    mod = runner.get_plugin_module(data_source, data_source_group)
+    # The google plugin implements an additional helper method in the module that returns 
+    # the list of attributes in each 'results' object it returns mapped to each key 
+    child_shema = mod.get_child_schema()
+
+
 ## Managing Plugins
 
 Managing plugins is very simple. Pick a directory from which you want to call your plugins. Define the environment variable `SOFINE_PLUGIN_PATH` and assign it to the path to your plugin directory.
@@ -378,7 +401,7 @@ So, formally, the result of a call to a `sofine` pipe is the union of all keys r
 
 ## Developing With the sofine Code Base
 
-All of the above documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications, without ever needing to understand how `sofine` works. It's a library and it works if you follow the rules.
+All of the above documentation covers the very common case of using sofine as a library to manage and call your own plugins.
 
 However, you might want to develop with `sofine` more directly. Perhaps you want to use pieces of the library for other purposes, or fork the library to add features, or even contribute!
 
