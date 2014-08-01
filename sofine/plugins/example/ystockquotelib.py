@@ -35,7 +35,7 @@ class YStockQuoteLib(plugin_base.PluginBase):
     def get_data(self, keys, args):
         """
 * `keys` - `list`. The list of keys to process.
-* `args` - `'list`. Empty for this plugin. 
+* `args` - `list`. Empty for this plugin. 
 
 Calls the Yahoo API to get all available fields for each ticker provided as a key in `keys`."""
         return {ticker : ystockquote.get_all(ticker) for ticker in keys} 
