@@ -12,12 +12,6 @@ import json
 import sys
 
 
-# TODO Real packaging so can install into Python
-# NOTE THAT user plugins directory will be broken until this is done
-#  because plugins now depend on importing sofine.plugins.plugin_base
-# TODO Present at a Python projects meetup to get feedback
-
-
 def get_data(data, data_source, data_source_group, data_source_args):
     """
 * `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. 

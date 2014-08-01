@@ -40,11 +40,7 @@ def get_plugin_conf():
     except:
         pass
 
-    if not plugin_conf:
-        try:
-            plugin_conf = json.load(open(plugin_conf_path + '/example.sofine.conf'))
-        except:
-            pass
+    print plugin_conf
 
     return plugin_conf
 
@@ -55,8 +51,8 @@ PLUGIN_BASE_PATH = '/'.join(inspect.stack()[0][1].split('/')[:-3]) + '/plugins'
 sys.path.insert(0, PLUGIN_BASE_PATH) 
 
 # Check environment variables for custom plugin path and REST port and prefer those if found
-if os.environ.get('SOFINE_PLUGIN_PATH'):
-    CUSTOM_PLUGIN_BASE_PATH = os.environ['SOFINE_PLUGIN_PATH']
+CUSTOM_PLUGIN_BASE_PATH = os.environ.get('SOFINE_PLUGIN_PATH')
+if CUSTOM_PLUGIN_BASE_PATH:
     sys.path.insert(0, CUSTOM_PLUGIN_BASE_PATH) 
 else:
     plugin_conf = get_plugin_conf()
@@ -64,9 +60,16 @@ else:
         CUSTOM_PLUGIN_BASE_PATH = plugin_conf['plugin_path']
         sys.path.insert(0, CUSTOM_PLUGIN_BASE_PATH) 
 
-if os.environ.get('SOFINE_REST_PORT'):
-    REST_PORT = int(os.environ['SOFINE_REST_PORT'])
+if not CUSTOM_PLUGIN_BASE_PATH:
+    print('Plugin Path not defined in SOFINE_PLUGIN_PATH environment variable or "plugin_path" key in "sofine.conf" in sofine root directory')
+
+REST_PORT = os.environ.get('SOFINE_REST_PORT')
+if REST_PORT:
+    REST_PORT = int(REST_PORT)
 else:
     plugin_conf = get_plugin_conf()
     REST_PORT = plugin_conf['rest_port']
+
+if not REST_PORT:
+    print('REST port not defined in SOFINE_REST_PORT environment variable or "rest_port" key in "sofine.conf" in sofine root directory')
 
