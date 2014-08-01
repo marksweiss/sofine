@@ -973,23 +973,16 @@ table {
 <div id="container">
 `
 <h2>Developing sofine</h2>
-<p>The README documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications, without ever needing to understand how <code>sofine</code> works. It's a library and it works if it follows the rules.</p>
-<p>However, you might want to develop with <code>sofine</code> more directly.</p>
+<p>The README documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications.</p>
+<p>However, you might want to develop with <code>sofine</code> more directly. Perhaps you want to just use the simple plugin loading mechanism in <code>sofine/lib/utils/utils.py</code> or want to fork the project to add features or integrate it with another project. Here is how to get started.</p>
 <h3>make Targets</h3>
-<p>To run core unit tests:
-<div class="codehilite"><pre><span class="n">make test</span></pre></div>
-<p>To run unit tests on the example plugins:
-<div class="codehilite"><pre><span class="n">make test_examples</span></pre></div>
-<p>To rebuild the documentation, which is everthing in <code>docs</code> folder in project root ...
-<div class="codehilite"><pre><span class="n">make docs</span></pre></div>
-</h3>
-<p>To support using the plugins in <code>PROJECT_ROOT/sofine/plugins/examples and 
-running the tests in PROJECT_ROOT/tests/*_examples.py</code>:</p>
-<div class="codehilite"><pre><span class="n">easy_install</span> <span class="n">mechanize</span>
-<span class="n">easy_install</span> <span class="n">beautifulsoup4</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="n">ystockquote</span>
+<p>To run core unit tests on OSX/Linux: <code>make test</code>, on Windows: <code>test.bat</code></p>
+<p>To run unit tests on the example plugins on OSX/Linux: <code>make test_examples</code>, on Windows <code>test_examples.bat</code></p>
+<p>To support using the plugins in <code>PROJECT_ROOT/sofine/plugins/examples</code> and running the tests in <code>PROJECT_ROOT/tests/*_examples.py</code>:</p>
+<div class="codehilite"><pre><span class="n">easy_install mechanize</span>
+<span class="n">easy_install beautifulsoup4</span>
+<span class="n">pip install ystockquote</span>
 </pre></div>
-
 
 <h2>Complete Code Documentation</h2>
 <p><strong>Command Runners</strong><br/>
