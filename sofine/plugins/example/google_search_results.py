@@ -81,11 +81,7 @@ class GoogleSearchResults(plugin_base.PluginBase):
 
 Calls Google Search using their AJAX API to send a search query and return JSON.
 """
-        data = {}
-        for k in keys:
-            data[k] = query_google_search(k)
-        return data
-
+        return {k : query_google_search(k) for k in keys}
 
 plugin = GoogleSearchResults 
 

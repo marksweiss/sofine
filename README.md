@@ -183,7 +183,7 @@ It starts with a module scope helper function that you would have to write in an
     
         return ret
 
-Now, here are the 13 additional lines of code you need to make your plugin run in `sofine`. 
+Now, here are the 10 additional lines of code you need to make your plugin run in `sofine`. 
     
     from sofine.plugins import plugin_base as plugin_base
 
@@ -195,12 +195,8 @@ Now, here are the 13 additional lines of code you need to make your plugin run i
             self.schema = ['results']
             self.adds_keys = False
 
-
         def get_data(self, keys, args):
-            data = {}
-            for k in keys:
-                data[k] = query_google_search(k)
-            return data
+            return {k : query_google_search(k) for k in keys}
 
     plugin = GoogleSearchResults
 
