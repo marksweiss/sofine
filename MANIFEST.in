@@ -1,0 +1,11 @@
+include setup.py
+include LICENSE
+include README.md
+include make_docs
+include Makefile
+include *.bat
+include *.html
+include *.conf
+recursive-include docs *.html
+recursive-include sofine *.py
+
