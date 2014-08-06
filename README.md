@@ -24,7 +24,7 @@ To get started, you install the library, create a plugin directory, assign the p
 
 `sofine` ships with a few useful plugins to get you started and give you the idea; you can combine these with your custom plugins with no additional configuration or code. The included plugins are:
 
-* `sofine.plugins.standard.file_source` - Retrieves keys from a JSON file to add to the data set being built. See here TODO for the details.
+* `sofine.plugins.standard.file_source` - Retrieves keys from a JSON file to add to the data set being built. See [here](http://marksweiss.github.io/sofine/docs/sofine/plugins/standard/file_source.m.html) for the details.
 * `example.archive_dot_org_search_results` - Takes a search query and returns results from www.archive.org
 * `example.google_search_results` - Takes a search query and returns results from the Google Search API
 * `example.fidelity` - Takes a userId, pin, accountId and email, logs into Fidelity, scrapes the account portfolio and returns the tickers found as keys and four attributes of data for each ticker
