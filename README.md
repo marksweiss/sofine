@@ -1,10 +1,10 @@
 ## What Problem Does sofine solve?
 
-You need to get data related to a set of keys from many sources: web scrapers, Web APIs, flat files, data stores. Wouldn't it be nice to build those data sets with one command line, REST or Python call? Wouldn't it be great if each data retrieval script you wrote was a reusable plugin that you could combine with any other to retrieve one combined data set over a set of keys?
+You need to get data related to a set of keys from many sources: web scrapers, Web APIs, flat files, data stores. Wouldn't it be nice to build one combine data set over multiple calls with one command line, REST or Python call? Wouldn't it be great if each data retrieval script you wrote was a reusable plugin that you could combine with any other?
 
 You need a "glue API." 
 
-This is the problem `sofine` solves. It's a small enough problem that you could solve it yourself. But `sofine` is minimal to deploy and write plugins for, and has already solved in an optimally flexible way the design decisions you would have to solve on your own if you did so. 
+This is the problem `sofine` solves. It's a small enough problem that you could solve it yourself. But `sofine` is minimal to deploy and write plugins for, and has already solved in an optimally flexible way the design decisions you would have to solve. 
 
 ## Features
 
@@ -16,7 +16,7 @@ This is the problem `sofine` solves. It's a small enough problem that you could 
 
 For fun, here is an example of features 4 and 5, combining a `sofine` pipeline with the fantastic [JSON query tool jq](https://github.com/stedolan/jq) for further filtering.
 
-    echo '{"AAPL":{}}' | python sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example' | jq 'map(recurse(.SOME_KEY) | {SOME_OTHER_KEY}'
+    echo '{"AAPL":{}}' | python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example' | jq 'map(recurse(.results) | {titleNoFormatting}'
 
 ## Overview
 
@@ -34,12 +34,13 @@ Here is what usage looks like ...
 
 From the command line:
 
-    $ echo '{"AAPL":{}}' | python sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example'
+    $ echo '{"AAPL":{}}' | python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example'
 
 REST-fully:
 
-    $ python sofine/rest_runner.py
-    curl -X POST -d '{"AAPL":{}}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-s/google_search_results/SF-g/example
+    $ python $PYTHONPATH/sofine/rest_runner.py
+    
+    $ curl -X POST -d '{"AAPL":{}}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-s/google_search_results/SF-g/example
 
 From Python:
 
@@ -92,15 +93,21 @@ All three calling styles return the same data set. `sofine` data sets map JSON o
     }
     }  
 
-## Getting sofine
+## Installing sofine
 
-    git clone git@github.com:marksweiss/sofine.git
-    cd <CLONED DIRECTORY>
-    python setup.py
+    pip install sofine 
 
-Then, create a plugin directory and assign its path to an environment variable `SOFINE_PLUGIN_PATH`. You probably want to add it to your shell configuration file:
+Then, make sure your `$PYTHONPATH` variable is set and points to the site-packages directory of your Python where pip installed `sofine`.
+
+    export PYTHONPATH=<MY PYTHON SITE-PACKAGES DIRECTORY>
+
+Then, create a plugin directory and assign its path to an environment variable `SOFINE_PLUGIN_PATH`. You probably want to add it to your shell configuration file.
 
     export SOFINE_PLUGIN_PATH=<MY PATH>
+
+`sofine` runs its REST server on port 10000. If you want to use a different port, set the environment variable `SOFINE_REST_PORT`. You probably want to add it to your shell configuration file.
+    
+    export SOFINE_REST_PORT=<MY PORT>
 
 ## How Plugins Work and How to Write Them
 
@@ -113,11 +120,13 @@ All plugins inherit from a base class which defines four attributes:
 
 You must always define `name` and `group`. `name` must match the module name of the plugin module, that is the name you would use in an `import` statement. `group` must match the name of the subdirectory of your plugin directory where the plugin is deployed. `sofine` uses `name` and `group` to load and run your plugin, so they have to be there and they have to be correct.
 
-`schema` and `adds_keys` are optional. They allow users of your plugin to introspect your plugin. `schema` is a list of strings that tells a client of your plugin the set of possible attribute keys that your plugin returns for each key it recieves. For example, if your plugin takes stock tickers as keys and looks up their price, its `schema` declaration might look like this:
+`schema` and `adds_keys` are optional. They allow users of your plugin to introspect your plugin. `schema` is a list of strings that tells a client of your plugin the set of possible attribute keys that your plugin returns for each key it recieves. For example, if your plugin takes stock tickers as keys and looks up a current quote, its `schema` declaration might look like this:
     
     self.schema = ['quote']
 
 `adds_keys` lets users ask your plugin if it adds keys to the data set being built when `sofine` calls it, or if it just adds attributes for the keys it receives. For example, the `ystockquotelib` plugin in the `sofine.plugins.example` group takes a set of stock tikckers as keys and retrieves the available data for each of them from Yahoo! Finance. This plugin has the attribute declaration `self.adds_keys = False`. On the other hand, the `sofine.plugins.fidelity` plugin is a scraper that can log into the Fidelity, go to the portfolio page for the logged in user, scrape all the tickers for the securities in that portfolio, and add those keys and whatever data it finds to the data set being built. This plugin has a value of `True` for `adds_keys`.
+
+NOTE: A common design pattern is to start a chain of calls with a plugin that adds keys, and then pass those keys to one or more plugins that don't add keys but rather retrieve data for that set of keys.
 
 Plugins also have three methods. `get_data` is not implemented in the base class and must be implemented by you in your plugin. This method takes a list of keys and a list of arguments. It must return a dict whose keys are a proper superset of the keys it received (the return set of keys can have more keys than were passed to `get_data` if the plugin adds keys). This dict must have string keys and a dict value for each key. The dict value is the data retrieved for each key. The keys in that dict must be a set of strings that is a proper subset of the set of strings in `self.schema`.
 
@@ -128,7 +137,6 @@ Here is an example of `get_data` from the `sofine` plugin `sofine.plugins.exampl
         * `keys` - `list`. The list of keys to process.
         * `args` - `'list`. Empty for this plugin.
         Calls the Yahoo API to get all available fields for each ticker provided as a key in `keys`."""
-        
         return {ticker : ystockquote.get_all(ticker) for ticker in keys}
 
 The other method you will often need to implement is `parse_args`. If your `get_data` requires no arguments you need not implement `parse_args` and can just use the base class default implementation. But if your `get_data` call requires arguments, you must implement `parse_args`. The method takes an argv style list of alternating arg names and values and is responsible for validating the correctness of argument names and values and returing a tuple with two members. The first member is a boolean `is_valid`. The second is the parsed list of argument values (without the argument names).
@@ -154,11 +162,13 @@ Here is an example from the `sofine` plugin `sofine.plugins.standard.file_source
 
         return is_valid, [opts.path]
 
-The third method is `get_schema`. You will rarely need to implement this. Any plugin that knows the set of attributes it can return for a key doesn't need to implement `get_schema` and can rely on the default. So, for example, a call to an API that returns a know JSON or XML object, a scraper that builds a known object of attributes, or a call to a relational or NoSql data store with a known set of possible fields -- all of these can rely on the default `get_schema`. Note that `get_schema` returns the set of attribute keys you define in `self.schema` namespace qualified with the plugin group and name. For example, if our stock quote plugin mentioned above is named `get_quotes` and it is in the `trading` group, the return value of `get_schema` would be `["trading::get_quotes::quote"]`.
+The third method is `get_schema`. You will rarely need to implement this. Any plugin that knows the set of attributes it can return for a key doesn't need to implement `get_schema` and can rely on the default. Note that `get_schema` returns the set of attribute keys you define in `self.schema` in a namespace qualified with the plugin group and name. For example, if our stock quote plugin mentioned above is named `get_quotes` and it is in the `trading` group, the return value of `get_schema` would be `["trading::get_quotes::quote"]`.
 
 Finally, the last line of your plugin should assign the module-scope variable `plugin` to the name of your plugin class.  For example:
 
     plugin = GoogleSearchResults 
+
+### A Complete Plugin Example
 
 This is a small amount of overhead compared to writing one-off scripts for the return on investment of being able to know where your plugins are, call them with standard syntax, and compose them with each other in any useful combination.
 
@@ -200,7 +210,7 @@ Now, here are the 10 additional lines of code you need to make your plugin run i
 
     plugin = GoogleSearchResults
 
-Now write a unit test for `get_data`, which you can even leave in the same plugin subdirectory as the plugin, and you are done. 
+Now you're ready to write a unit test for `get_data`, which you can even leave in the same plugin subdirectory as the plugin, and you are done. 
 
 Just for fun, here is a second example. This shows you how easy it is to wrap existing Python API wrappers as `sofine` plugins. For a a few lines of additional boilerplate, you can now take any of these and combine them any which way you can.
 
@@ -246,7 +256,7 @@ When calling from the CLI you pass these arguments:
 name of the plugin module being called. Required.
 * `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is 
 the plugins subdirectory where the plugin module is deployed. Required.
-* `[--SF-a|--SF-action]` - The plugin action being called. 
+* `[--SF-a|--SF-action]` - The plugin action being called.
 
 Get data is the default, so action can be ommitted on calls to `get_data`.
 
@@ -260,8 +270,7 @@ Any additional arguments that a call to `get_data` requires should be passed fol
 
 Here are examples of calling get_data:
     
-    TODO: Actual installer and correct path to call sofine
-    python sofine/runner.py '--SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
+    python $PYTHONPATH/sofine/runner.py '--SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
 
 Notice that `--SF-a` is ommitted, which means this is chained call to retrieve data, first from the `fidelity` plugin (which is called first becasue it adds the set of keys returned) and then from the `ystockquotelib` plugin (which adds attributes to the keys it received from `fidelity`).
 
@@ -336,7 +345,7 @@ The `adds_keys` action lets you ask a plugin programmatically whether it adds ke
             new_keys = set(data.keys()) - prev_keys
             logger.log(new_keys)
 
-Here are examples of calling adds_keys
+Here are examples of calling `adds_keys`
 
 CLI:
 
@@ -365,7 +374,7 @@ Python:
     
 ### get_plugin_module
 
-The `get_plugin_module` action lets you get an instance of a plugin module in Python. This lets you access module-scope methods or variables directly. For exmample, the Google Search Results module implements an additional helper called `get_child_schema` that returns the list of attributes in each of the `retults` JSON objects that it returns for each key passed to it. Because this is nested data, the more interesting attributes are one level down in the data returned, so this helper is useful in this particular case. This is an example of the value of the flexibility of putting additional attributes or functions in your module as needed and accessing them in Python directly.
+The `get_plugin_module` action lets you get an instance of a plugin module in Python. This lets you access module-scope methods or variables directly. For exmample, the Google Search Results module implements an additional helper called `get_child_schema` that returns the list of attributes in each of the `results` JSON objects that it returns for each key passed to it. Because this is nested data, the more interesting attributes are one level down in the data returned, so this helper is useful in this particular case.
 
     data_source = 'google_search_results'
     data_source_group = 'example' 
@@ -401,5 +410,5 @@ All of the above documentation covers the very common case of using sofine as a 
 
 However, you might want to develop with `sofine` more directly. Perhaps you want to use pieces of the library for other purposes, or fork the library to add features, or even contribute!
 
-Developer documentation is here: http://marksweiss.github.io/sofine/
+In that case, you'll want the developer documentation: http://marksweiss.github.io/sofine/
 
