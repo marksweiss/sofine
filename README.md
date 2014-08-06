@@ -298,6 +298,20 @@ Here is the same example from Python:
 
 Finally, let's discuss the other actions besides `get_data`. Note that none of these actions can be chained.
 
+### get_data_batch
+
+This is a helper action only available within Python, to support combining plugin calls into one batch call that returns one data set, equivalent to chaining command line or REST plugins in one call.
+
+ import sofine.runner as runner
+    
+    data = {}
+    data_sources = ['fidelity', 'ystockquotelib']
+    data_source_groups = ['example', 'example']
+    data_source_args = [[customer_id, pin, account_id, email], []]
+    data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
+
+Notice that the function takes a list of plugin names, a list of plugin groups, and a list of lists of args. Each of these must put corresponding plugins, groups and args in sequence.
+
 ### parse_args
 
 You should rarely need to call a plugins `parse_args` directly. One use case is to test whether the arguments you plan to pass to `get_data` are valid -- you might want to do this before making a long-running `get_data` call, for example.
@@ -365,7 +379,7 @@ Python:
 
     data_source = 'ystockquotelib'
     data_source_group = 'example'
-    schema = runner.adds_keys(data_source, data_source_group)
+    adds_keys = runner.adds_keys(data_source, data_source_group)
 
 ### get_plugin
 
