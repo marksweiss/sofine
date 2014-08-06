@@ -109,7 +109,7 @@ Then, create a plugin directory and assign its path to an environment variable `
     
     export SOFINE_REST_PORT=<MY PORT>
 
-If you want to use the included `fidelity` and `ystockquotelib` plugins in the `plugins.examples' plugin group, also install the following:
+If you want to use the included `fidelity` and `ystockquotelib` plugins in the `plugins.examples` plugin group, also install the following:
 
     easy_install mechanize
     easy_install beautifulsoup4
