@@ -302,7 +302,7 @@ Finally, let's discuss the other actions besides `get_data`. Note that none of t
 
 This is a helper action only available within Python, to support combining plugin calls into one batch call that returns one data set, equivalent to chaining command line or REST plugins in one call.
 
- import sofine.runner as runner
+    import sofine.runner as runner
     
     data = {}
     data_sources = ['fidelity', 'ystockquotelib']
