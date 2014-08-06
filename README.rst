@@ -510,7 +510,7 @@ From the CLI:
 
 ::
 
-    python sofine/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p "./sofine/tests/fixtures/file_source_test_data.txt"'
+    python $PYTHONPATH/sofine/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p "./sofine/tests/fixtures/file_source_test_data.txt"'
 
 From REST:
 
@@ -543,7 +543,7 @@ CLI:
 
 ::
 
-    python sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a get_schema'
+    python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a get_schema'
 
 REST:
 
@@ -583,7 +583,7 @@ CLI:
 
 ::
 
-    python sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a adds_keys'
+    python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a adds_keys'
 
 REST:
 

@@ -318,7 +318,7 @@ You should rarely need to call a plugins `parse_args` directly. One use case is 
 
 From the CLI:
 
-    python sofine/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p "./sofine/tests/fixtures/file_source_test_data.txt"'
+    python $PYTHONPATH/sofine/runner.py '--SF-s file_source --SF-g standard --SF-a parse_args -p "./sofine/tests/fixtures/file_source_test_data.txt"'
 
 From REST:
 
@@ -341,7 +341,7 @@ There are several use cases for calling `get_schema`, particularly from Python. 
 
 CLI:
 
-    python sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a get_schema'
+    python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a get_schema'
 
 REST:
 
@@ -369,7 +369,7 @@ Here are examples of calling `adds_keys`
 
 CLI:
 
-    python sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a adds_keys'
+    python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a adds_keys'
 
 REST:
 
