@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name = 'sofine',
-    version = '0.1',
+    version = '0.1.2',
     author = 'Mark S. Weiss',
     author_email = 'marksimonweiss@gmail.com',
     maintainer = 'Mark S. Weiss',
@@ -20,12 +20,11 @@ setup(
     license = 'MIT',
     keywords = 'glueAPI data pipelines scraper webAPI',
     url = 'http://packages.python.org/sofine',
-    packages=['sofine'],
+    packages=['sofine', 'sofine.lib', 'sofine.lib.utils', 'sofine.plugins', 'sofine.plugins.example',  'sofine.plugins.mock', 'sofine.plugins.standard', 'sofine.tests'],
     long_description=read('README.rst'),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Topic :: Utilities',
         'License :: OSI Approved :: MIT License'
-    ],
-    install_requires=['mechanize', 'beautifulsoup4', 'ystockquote']
+    ]
 )
