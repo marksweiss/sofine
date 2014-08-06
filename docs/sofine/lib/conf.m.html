@@ -1006,17 +1006,9 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
 
-<span class="c"># Add the plugins direcgory to the system path so the dynamic module load</span>
-<span class="c">#  finds any plugins in their and load_module just works</span>
-<span class="n">PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;/plugins&#39;</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">PLUGIN_BASE_PATH</span><span class="p">)</span> 
-
-
-<span class="n">plugin_conf_path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
-
-<span class="n">plugin_conf</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="sd">&quot;&quot;&quot;The user-defined plugin directory. The idea is that users of sofine simply install the </span>
 <span class="sd">library, configure this value, and then can deploy, version control, write tests for and </span>
@@ -1024,27 +1016,55 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
 <span class="sd">transparently look in to load plugins. This value is defined in the JSON configuration file </span>
 <span class="sd">`sofine.conf` under the key `plugin_path`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 <span class="n">REST_PORT</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="sd">&quot;&quot;&quot;The port for running the sofine REST server under the `localhost` domain. This value </span>
 <span class="sd">is defined in the JSON configuration file `sofine.conf` under the key `rest_port`. The default </span>
 <span class="sd">value is defined in `example.sofine.conf` and will be used if the user doesn&#39;t override it in </span>
 <span class="sd">`sofine.conf`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">plugin_conf_path</span> <span class="o">+</span> <span class="s">&#39;/sofine.conf&#39;</span><span class="p">))</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="k">pass</span>
 
-<span class="k">if</span> <span class="ow">not</span> <span class="n">plugin_conf</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">get_plugin_conf</span><span class="p">():</span>
+    <span class="n">plugin_conf_path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
+
+    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">plugin_conf_path</span> <span class="o">+</span> <span class="s">&#39;/example.sofine.conf&#39;</span><span class="p">))</span>
+        <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">plugin_conf_path</span> <span class="o">+</span> <span class="s">&#39;/sofine.conf&#39;</span><span class="p">))</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="k">pass</span>
 
-<span class="k">if</span> <span class="n">plugin_conf</span><span class="p">:</span>
-    <span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="s">&#39;plugin_path&#39;</span><span class="p">]</span>
+    <span class="k">print</span> <span class="n">plugin_conf</span>
+
+    <span class="k">return</span> <span class="n">plugin_conf</span>
+
+
+<span class="c"># Add the plugins direcgory to the system path so the dynamic module load</span>
+<span class="c">#  finds any plugins in their and load_module just works</span>
+<span class="n">PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;/plugins&#39;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">PLUGIN_BASE_PATH</span><span class="p">)</span> 
+
+<span class="c"># Check environment variables for custom plugin path and REST port and prefer those if found</span>
+<span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_PLUGIN_PATH&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">)</span> 
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">get_plugin_conf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">plugin_conf</span><span class="p">:</span>
+        <span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="s">&#39;plugin_path&#39;</span><span class="p">]</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">)</span> 
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Plugin Path not defined in SOFINE_PLUGIN_PATH environment variable or &quot;plugin_path&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="p">)</span>
+
+<span class="n">REST_PORT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_REST_PORT&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">REST_PORT</span><span class="p">:</span>
+    <span class="n">REST_PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">REST_PORT</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">get_plugin_conf</span><span class="p">()</span>
     <span class="n">REST_PORT</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="s">&#39;rest_port&#39;</span><span class="p">]</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">REST_PORT</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;REST port not defined in SOFINE_REST_PORT environment variable or &quot;rest_port&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1061,11 +1081,6 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
         <p id="conf.CUSTOM_PLUGIN_BASE_PATH" class="name">var <span class="ident">CUSTOM_PLUGIN_BASE_PATH</span></p>
         
   
-      <div class="desc"><p>The user-defined plugin directory. The idea is that users of sofine simply install the 
-library, configure this value, and then can deploy, version control, write tests for and 
-otherwise manage their plugins in a separate directory, which sofine CLI and REST calls 
-transparently look in to load plugins. This value is defined in the JSON configuration file 
-<code>sofine.conf</code> under the key <code>plugin_path</code>.</p></div>
     <div class="source_cont">
 </div>
 
@@ -1082,31 +1097,43 @@ transparently look in to load plugins. This value is defined in the JSON configu
         <p id="conf.REST_PORT" class="name">var <span class="ident">REST_PORT</span></p>
         
   
-      <div class="desc"><p>The port for running the sofine REST server under the <code>localhost</code> domain. This value 
-is defined in the JSON configuration file <code>sofine.conf</code> under the key <code>rest_port</code>. The default 
-value is defined in <code>example.sofine.conf</code> and will be used if the user doesn't override it in 
-<code>sofine.conf</code>.</p></div>
     <div class="source_cont">
 </div>
 
       </div>
-      <div class="item">
-        <p id="conf.plugin_conf" class="name">var <span class="ident">plugin_conf</span></p>
-        
+
+  <h2 id="header-functions">Functions</h2>
+      
+    <div class="item">
+      <div class="name def" id="conf.get_plugin_conf">
+        <p>def <span class="ident">get_plugin_conf</span>(</p><p>)</p>
+      </div>
+      
+
+      
   
     <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-conf.get_plugin_conf', this);">Show source.</a></p>
+    <div id="source-conf.get_plugin_conf" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_plugin_conf</span><span class="p">():</span>
+    <span class="n">plugin_conf_path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
+
+    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">plugin_conf_path</span> <span class="o">+</span> <span class="s">&#39;/sofine.conf&#39;</span><span class="p">))</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">print</span> <span class="n">plugin_conf</span>
+
+    <span class="k">return</span> <span class="n">plugin_conf</span>
+</pre></div>
+
+    </div>
 </div>
 
-      </div>
-      <div class="item">
-        <p id="conf.plugin_conf_path" class="name">var <span class="ident">plugin_conf_path</span></p>
-        
+    </div>
   
-    <div class="source_cont">
-</div>
-
-      </div>
-
 
 
 

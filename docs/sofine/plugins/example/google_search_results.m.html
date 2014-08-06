@@ -1064,11 +1064,7 @@ table {
 
 <span class="sd">Calls Google Search using their AJAX API to send a search query and return JSON.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">data</span>
-
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span> <span class="p">:</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
 
 <span class="n">plugin</span> <span class="o">=</span> <span class="n">GoogleSearchResults</span> 
 </pre></div>
@@ -1230,10 +1226,7 @@ described in the documentation for <code>get_child_schema</code>.</p></div>
 
 <span class="sd">Calls Google Search using their AJAX API to send a search query and return JSON.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span> <span class="p">:</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
 </pre></div>
 
     </div>
@@ -1340,10 +1333,7 @@ described in the documentation for <code>get_child_schema</code>.</p></div>
 <span class="s">eys` - `list`. The list of keys to process.</span>
 <span class="s">rgs` - `&#39;list`. Empty for this plugin.</span>
 <span class="s">s Google Search using their AJAX API to send a search query and return JSON.</span>
-<span class="s">    data = {}</span>
-<span class="s">    for k in keys:</span>
-<span class="s">        data[k] = query_google_search(k)</span>
-<span class="s">    return data</span>
+<span class="s">    return {k : query_google_search(k) for k in keys}</span>
 </pre></div>
 
     </div>
@@ -1383,10 +1373,7 @@ described in the documentation for <code>get_child_schema</code>.</p></div>
 
 <span class="sd">Calls Google Search using their AJAX API to send a search query and return JSON.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span> <span class="p">:</span> <span class="n">query_google_search</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
 </pre></div>
 
     </div>
@@ -1517,10 +1504,7 @@ described in the documentation for <code>get_child_schema</code>.</p></div>
 <span class="s">eys` - `list`. The list of keys to process.</span>
 <span class="s">rgs` - `&#39;list`. Empty for this plugin.</span>
 <span class="s">s Google Search using their AJAX API to send a search query and return JSON.</span>
-<span class="s">    data = {}</span>
-<span class="s">    for k in keys:</span>
-<span class="s">        data[k] = query_google_search(k)</span>
-<span class="s">    return data</span>
+<span class="s">    return {k : query_google_search(k) for k in keys}</span>
 </pre></div>
 
     </div>
