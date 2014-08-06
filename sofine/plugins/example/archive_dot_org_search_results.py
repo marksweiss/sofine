@@ -93,10 +93,7 @@ class ArchiveDotOrgSearchResults(plugin_base.PluginBase):
 Calls archive.org using their CGI query string API to send a search query and
 return JSON.
 """
-        data = {}
-        for k in keys:
-            data[k] = query_archive_dot_org(k)
-        return data
+        return {k : query_archive_dot_org(k) for k in keys}
 
 
 plugin = ArchiveDotOrgSearchResults

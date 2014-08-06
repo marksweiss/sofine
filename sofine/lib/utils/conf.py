@@ -40,8 +40,6 @@ def get_plugin_conf():
     except:
         pass
 
-    print plugin_conf
-
     return plugin_conf
 
 
