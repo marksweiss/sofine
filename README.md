@@ -12,7 +12,7 @@ This is the problem `sofine` solves. It's a small enough problem that you could 
 2. Manage your plugins in any directory with any directory structure you like
 3. Call plugins from the command line, as REST resources or from Python
 4.  Chain as many plugin calls as you want together and get back one JSON data set with all the data collected from all the chained calls
-5. If called from the command line, `sofine` reads data from stdin if it is present, and always outputs to stdout. So `sofine` piped calls, such as the example above, can themselves be composed in larger piped expressions.
+5. If called from the command line, `sofine` reads data from stdin if it is present, and always outputs to stdout. So `sofine` piped calls can themselves be composed in larger piped expressions.
 
 For fun, here is an example of features 4 and 5, combining a `sofine` pipeline with the fantastic [JSON query tool jq](https://github.com/stedolan/jq) for further filtering.
 
