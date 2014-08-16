@@ -3,7 +3,7 @@ What Problem Does sofine solve?
 
 You need to get data related to a set of keys from many sources: web
 scrapers, Web APIs, flat files, data stores. Wouldn't it be nice to
-build one combine data set over multiple calls with one command line,
+build one combined data set over multiple calls with one command line,
 REST or Python call? Wouldn't it be great if each data retrieval script
 you wrote was a reusable plugin that you could combine with any other?
 
@@ -11,23 +11,23 @@ You need a "glue API."
 
 This is the problem ``sofine`` solves. It's a small enough problem that
 you could solve it yourself. But ``sofine`` is minimal to deploy and
-write plugins for, and has already solved in an optimally flexible way
-the design decisions you would have to solve.
+write plugins for, and has already decided in an optimally flexible way
+the same design decisions you would have to make if you wrote this
+yourself.
 
 Features
 --------
 
-1. Do (almost) no more work than if you wrote a one-off data collection
+1. Do (almost) no more work than if you wrote one-off data collection
    scripts
 2. Manage your plugins in any directory with any directory structure you
    like
 3. Call plugins from the command line, as REST resources or from Python
 4. Chain as many plugin calls as you want together and get back one JSON
    data set with all the data collected from all the chained calls
-5. If called from the command line, ``sofine`` reads data from stdin if
-   it is present, and always outputs to stdout. So ``sofine`` piped
-   calls, such as the example above, can themselves be composed in
-   larger piped expressions.
+5. If called from the command line, ``sofine`` reads data from ``stdin``
+   if it is present, and always outputs to ``stdout``. So ``sofine``
+   piped calls can themselves be composed in larger piped expressions.
 
 For fun, here is an example of features 4 and 5, combining a ``sofine``
 pipeline with the fantastic `JSON query tool
@@ -35,7 +35,7 @@ jq <https://github.com/stedolan/jq>`__ for further filtering.
 
 ::
 
-    echo '{"AAPL":{}}' | python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example' | jq 'map(recurse(.results) | {titleNoFormatting}'
+    echo '{"AAPL":[]}' | python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example' | jq 'map(recurse(.results) | {titleNoFormatting}'
 
 Overview
 --------
@@ -71,7 +71,7 @@ From the command line:
 
 ::
 
-    $ echo '{"AAPL":{}}' | python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example'
+    $ echo '{"AAPL":[]}' | python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example | --SF-s google_search_results --SF-g example'
 
 REST-fully:
 
@@ -79,7 +79,7 @@ REST-fully:
 
     $ python $PYTHONPATH/sofine/rest_runner.py
 
-    $ curl -X POST -d '{"AAPL":{}}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-s/google_search_results/SF-g/example
+    $ curl -X POST -d '{"AAPL":[]}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-s/google_search_results/SF-g/example
 
 From Python:
 
@@ -87,58 +87,60 @@ From Python:
 
     import sofine.runner as runner
 
-    data = {"AAPL": {}}
+    data = {"AAPL": []}
     data_sources = ['ystockquotelib', 'google_search_results']
     data_source_groups = ['example', 'example']
     data_source_args = [[], []]
     data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
 
 All three calling styles return the same data set. ``sofine`` data sets
-map JSON objects of data to string keys. So here, we have the key
-"AAPL," with all the attributes retrieved from Yahoo! Finance and the
-Google Search API combined in a JSON object associated with the key.
-Notice that the keys in the attribute data set are namespaced so
-multiple calls can't overwrite data from each other.
+map arrays of single attribute key/attribute value pair JSON objects of
+data to string keys. So here, we have the key "AAPL," with all the
+attributes retrieved from Yahoo! Finance and the Google Search API
+combined in a JSON object associated with the key.
 
 ::
 
     {
-    "AAPL": {
-        "example::google_search_results::results": [
+    "AAPL": 
+        [
             {
-                "GsearchResultClass": "GwebSearch",
-                "cacheUrl": "http://www.google.com/search?q=cache:XhbIlCyrcXMJ:finance.yahoo.com",
-                "content": "View the basic <b>AAPL</b> stock chart on Yahoo! Finance. Change the date range, chart type and compare Apple Inc. against other companies.",
-                "title": "<b>AAPL</b>: Summary for Apple Inc.- Yahoo! Finance",
-                "titleNoFormatting": "AAPL: Summary for Apple Inc.- Yahoo! Finance",
-                "unescapedUrl": "http://finance.yahoo.com/q?s=AAPL",
-                "url": "http://finance.yahoo.com/q%3Fs%3DAAPL",
-                "visibleUrl": "finance.yahoo.com"
+                "results": [
+                {
+                    "GsearchResultClass": "GwebSearch",
+                    "cacheUrl": "http://www.google.com/search?q=cache:XhbIlCyrcXMJ:finance.yahoo.com",
+                    "content": "View the basic <b>AAPL</b> stock chart on Yahoo! Finance. Change the date range, chart type and compare Apple Inc. against other companies.",
+                    "title": "<b>AAPL</b>: Summary for Apple Inc.- Yahoo! Finance",
+                    "titleNoFormatting": "AAPL: Summary for Apple Inc.- Yahoo! Finance",
+                    "unescapedUrl": "http://finance.yahoo.com/q?s=AAPL",
+                    "url": "http://finance.yahoo.com/q%3Fs%3DAAPL",
+                    "visibleUrl": "finance.yahoo.com"
+                },
+                ...
+                ...
+                ]
             },
-            ...
-            ...
-        ],
-        "example::ystockquotelib::avg_daily_volume": "59390100",
-        "example::ystockquotelib::book_value": "20.193",
-        "example::ystockquotelib::change": "+1.349",
-        "example::ystockquotelib::dividend_per_share": "1.7771",
-        "example::ystockquotelib::dividend_yield": "1.82",
-        "example::ystockquotelib::earnings_per_share": "6.20",
-        "example::ystockquotelib::ebitda": "59.128B",
-        "example::ystockquotelib::fifty_day_moving_avg": "93.8151",
-        "example::ystockquotelib::fifty_two_week_high": "99.24",
-        "example::ystockquotelib::fifty_two_week_low": "63.8886",
-        "example::ystockquotelib::market_cap": "592.9B",
-        "example::ystockquotelib::price": "99.02",
-        "example::ystockquotelib::price_book_ratio": "4.84",
-        "example::ystockquotelib::price_earnings_growth_ratio": "1.26",
-        "example::ystockquotelib::price_earnings_ratio": "15.75",
-        "example::ystockquotelib::price_sales_ratio": "3.28",
-        "example::ystockquotelib::short_ratio": "1.70",
-        "example::ystockquotelib::stock_exchange": "\"NasdaqNM\"",
-        "example::ystockquotelib::two_hundred_day_moving_avg": "82.8458",
-        "example::ystockquotelib::volume": "55317688"
-    }
+            {"avg_daily_volume": "59390100"},
+            {"book_value": "20.193"},
+            {"change": "+1.349"},
+            {"dividend_per_share": "1.7771"},
+            {"dividend_yield": "1.82"},
+            {"earnings_per_share": "6.20"},
+            {"ebitda": "59.128B"},
+            {"fifty_day_moving_avg": "93.8151"},
+            {"fifty_two_week_high": "99.24"},
+            {"fifty_two_week_low": "63.8886"},
+            {"market_cap": "592.9B"},
+            {"price": "99.02"},
+            {"price_book_ratio": "4.84"},
+            {"price_earnings_growth_ratio": "1.26"},
+            {"price_earnings_ratio": "15.75"},
+            {"price_sales_ratio": "3.28"},
+            {"short_ratio": "1.70"},
+            {"stock_exchange": "\"NasdaqNM\""},
+            {"two_hundred_day_moving_avg": "82.8458"},
+            {"volume": "55317688"}
+        ]
     }  
 
 Installing sofine
@@ -184,7 +186,30 @@ following:
 How Plugins Work and How to Write Them
 --------------------------------------
 
-All plugins inherit from a base class which defines four attributes:
+Boilerplate
+~~~~~~~~~~~
+
+All plugins inherit from a super class,
+``sofine.plugins.plugin_base.PluginBase``. Your plugin ``__init__``
+method must call the super class ``__init__``.
+
+::
+
+    class ArchiveDotOrgSearchResults(plugin_base.PluginBase):
+        def __init__(self):
+            super(ArchiveDotOrgSearchResults, self).__init__()
+
+The last line of your plugin should assign the module-scope variable
+``plugin`` to the name of your plugin class. For example:
+
+::
+
+    plugin = ArchiveDotOrgResults 
+
+Plugin Attributes
+~~~~~~~~~~~~~~~~~
+
+The base class defines four attributes:
 
 -  ``self.name`` - ``string``. The name of the plugin
 -  ``self.group`` - ``string``. The pluging group of the plugin. This
@@ -197,27 +222,45 @@ All plugins inherit from a base class which defines four attributes:
    keys to the data set being built or only adds attributes to existing
    keys.
 
-You must always define ``name`` and ``group``. ``name`` must match the
-module name of the plugin module, that is the name you would use in an
-``import`` statement. ``group`` must match the name of the subdirectory
-of your plugin directory where the plugin is deployed. ``sofine`` uses
-``name`` and ``group`` to load and run your plugin, so they have to be
-there and they have to be correct.
+You must always define ``name`` and ``group``.
 
-``schema`` and ``adds_keys`` are optional. They allow users of your
-plugin to introspect your plugin. ``schema`` is a list of strings that
-tells a client of your plugin the set of possible attribute keys that
-your plugin returns for each key it recieves. For example, if your
-plugin takes stock tickers as keys and looks up a current quote, its
-``schema`` declaration might look like this:
+``name``
+^^^^^^^^
+
+``name`` must match the module name of the plugin module, that is the
+name you would use in an ``import`` statement.
+
+``group``
+^^^^^^^^^
+
+``group`` must match the name of the subdirectory of your plugin
+directory where the plugin is deployed. ``sofine`` uses ``name`` and
+``group`` to load and run your plugin, so they have to be there and they
+have to be correct.
+
+``schema``
+^^^^^^^^^^
+
+``schema`` is optional. It allows users of your plugin to introspect it.
+
+``schema`` is a list of strings that tells a client of your plugin the
+set of possible attribute keys that your plugin returns for each key it
+recieves. For example, if your plugin takes stock tickers as keys and
+looks up a current quote, its ``schema`` declaration might look like
+this:
 
 ::
 
     self.schema = ['quote']
 
+``adds_keys``
+^^^^^^^^^^^^^
+
 ``adds_keys`` lets users ask your plugin if it adds keys to the data set
 being built when ``sofine`` calls it, or if it just adds attributes for
-the keys it receives. For example, the ``ystockquotelib`` plugin in the
+the keys it receives.
+
+For example, the ``ystockquotelib`` plugin in the
 ``sofine.plugins.example`` group takes a set of stock tikckers as keys
 and retrieves the available data for each of them from Yahoo! Finance.
 This plugin has the attribute declaration ``self.adds_keys = False``. On
@@ -227,19 +270,24 @@ user, scrape all the tickers for the securities in that portfolio, and
 add those keys and whatever data it finds to the data set being built.
 This plugin has a value of ``True`` for ``adds_keys``.
 
-NOTE: A common design pattern is to start a chain of calls with a plugin
-that adds keys, and then pass those keys to one or more plugins that
-don't add keys but rather retrieve data for that set of keys.
+Plugin Methods
+~~~~~~~~~~~~~~
 
-Plugins also have three methods. ``get_data`` is not implemented in the
-base class and must be implemented by you in your plugin. This method
-takes a list of keys and a list of arguments. It must return a dict
-whose keys are a proper superset of the keys it received (the return set
-of keys can have more keys than were passed to ``get_data`` if the
-plugin adds keys). This dict must have string keys and a dict value for
-each key. The dict value is the data retrieved for each key. The keys in
-that dict must be a set of strings that is a proper subset of the set of
-strings in ``self.schema``.
+Plugins also have four methods.
+
+``get_data``
+^^^^^^^^^^^^
+
+``get_data`` is not implemented in the base class and must be
+implemented by you in your plugin.
+
+This method takes a list of keys and a list of arguments. It must return
+a dict whose keys are a proper superset of the keys it received (the
+return set of keys can have more keys than were passed to ``get_data``
+if the plugin adds keys). This dict must have string keys and a dict
+value for each key. The dict value is the data retrieved for each key.
+The keys in that dict must be a set of strings that is a proper subset
+of the set of strings in ``self.schema``.
 
 Here is an example of ``get_data`` from the ``sofine`` plugin
 ``sofine.plugins.example.ystockquotelib``.
@@ -253,13 +301,28 @@ Here is an example of ``get_data`` from the ``sofine`` plugin
         Calls the Yahoo API to get all available fields for each ticker provided as a key in `keys`."""
         return {ticker : ystockquote.get_all(ticker) for ticker in keys}
 
+``get_namespaced_data``
+^^^^^^^^^^^^^^^^^^^^^^^
+
+A wrapper around ``get_data`` provided by ``sofine``, which return the
+same data with attribute keys wrapped in a namespace of the plugin group
+and name. So our example ``quote`` attribute above would look like this
+in the returned data set:
+
+::
+
+    {"trading::get_quotes::quote" : 47.65}
+
+``parse_args``
+^^^^^^^^^^^^^^
+
 The other method you will often need to implement is ``parse_args``. If
 your ``get_data`` requires no arguments you need not implement
 ``parse_args`` and can just use the base class default implementation.
 But if your ``get_data`` call requires arguments, you must implement
-``parse_args``. The method takes an argv style list of alternating arg
-names and values and is responsible for validating the correctness of
-argument names and values and returing a tuple with two members. The
+``parse_args``. The method takes an ``argv``-style list of alternating
+arg names and values and is responsible for validating the correctness
+of argument names and values and returing a tuple with two members. The
 first member is a boolean ``is_valid``. The second is the parsed list of
 argument values (without the argument names).
 
@@ -287,21 +350,24 @@ Here is an example from the ``sofine`` plugin
 
         return is_valid, [opts.path]
 
+``get_schema``
+^^^^^^^^^^^^^^
+
 The third method is ``get_schema``. You will rarely need to implement
 this. Any plugin that knows the set of attributes it can return for a
 key doesn't need to implement ``get_schema`` and can rely on the
-default. Note that ``get_schema`` returns the set of attribute keys you
-define in ``self.schema`` in a namespace qualified with the plugin group
-and name. For example, if our stock quote plugin mentioned above is
-named ``get_quotes`` and it is in the ``trading`` group, the return
-value of ``get_schema`` would be ``["trading::get_quotes::quote"]``.
+default, which returns the set of attribute keys you define.
 
-Finally, the last line of your plugin should assign the module-scope
-variable ``plugin`` to the name of your plugin class. For example:
+``get_namespaced_schema``
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-::
-
-    plugin = GoogleSearchResults 
+``get_namespaced_schema`` returns the set of attribute keys you define
+in ``self.schema`` in a namespace qualified with the plugin group and
+name. For example, if our stock quote plugin mentioned above is named
+``get_quotes`` and it is in the ``trading`` group, the return value of
+``get_schema`` would be ``["trading::get_quotes::quote"]``. You do not
+have to implement this, whether or not you implemented ``get_schema``,
+because ``sofine`` provides it by wrapping ``get_schema``.
 
 A Complete Plugin Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -329,14 +395,14 @@ write in any one-off script to call the API.
         ret = ret.read()
         ret = json.loads(ret)
 
-        if ret: 
+        if ret: 2
             ret = {'results' : ret['responseData']['results']}
         else:
             ret = {'results' : []}
 
         return ret
 
-Now, here are the 10 additional lines of code you need to make your
+Now, here are the 11 additional lines of code you need to make your
 plugin run in ``sofine``.
 
 ::
@@ -346,6 +412,7 @@ plugin run in ``sofine``.
     class GoogleSearchResults(plugin_base.PluginBase):
 
         def __init__(self):
+            super(GoogleSearchResults, self).__init__()
             self.name = 'google_search_results'
             self.group = 'example'
             self.schema = ['results']
@@ -355,10 +422,6 @@ plugin run in ``sofine``.
             return {k : query_google_search(k) for k in keys}
 
     plugin = GoogleSearchResults
-
-Now you're ready to write a unit test for ``get_data``, which you can
-even leave in the same plugin subdirectory as the plugin, and you are
-done.
 
 Just for fun, here is a second example. This shows you how easy it is to
 wrap existing Python API wrappers as ``sofine`` plugins. For a a few
@@ -373,6 +436,7 @@ combine them any which way you can.
     class YStockQuoteLib(plugin_base.PluginBase):
 
         def __init__(self):
+            super(YStockQuoteLib, self).__init__()
             self.name = 'ystockquotelib'
             self.group = 'example'
             self.schema = ['fifty_two_week_low', 'market_cap', 'price', 'short_ratio', 
@@ -395,18 +459,21 @@ How to Call Plugins
 As we saw above in the Introduction section, there are three ways to
 call plugins, from the command line, as REST resources, or in Python.
 When calling plugins to retrieve data, you need to pass three or four
-arguments, ``data``, the plugin name, the plugin group and, depending on
-the call, the plugin action.
+arguments, ``data``, the plugin name, the plugin group and the plugin
+action.
 
-There are four actions, which correspond to the three methods
-``get_data``, ``parse_args`` and ``get_schema``, while ``adds_keys``
-returns the value of the the plugin's ``self.adds_keys``.
+There are six actions, which correspond to the five methods
+``get_data``, ``get_namespaced_data``, ``parse_args``, ``get_schema``
+and ``get_namespaced_schema``, while ``adds_keys`` returns the value of
+the the plugin's ``self.adds_keys``.
 
 ::
 
     get_data
+    get_namespaced_data
     parse_args
     get_schema
+    get_namespaced_schema
     adds_keys
 
 Calling From the Command Line
@@ -445,11 +512,11 @@ Here are examples of calling get\_data:
 
     python $PYTHONPATH/sofine/runner.py '--SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
 
-Notice that ``--SF-a`` is ommitted, which means this is chained call to
-retrieve data, first from the ``fidelity`` plugin (which is called first
-becasue it adds the set of keys returned) and then from the
-``ystockquotelib`` plugin (which adds attributes to the keys it received
-from ``fidelity``).
+Notice that ``--SF-a`` is ommitted, which means this is chained call
+using the default action ``get_data``, first from the ``fidelity``
+plugin (which is called first becasue it adds the set of keys returned)
+and then from the ``ystockquotelib`` plugin (which adds attributes to
+the keys it received from ``fidelity``).
 
 If you wanted to call this REST-fully, it would look nearly the same.
 The syntax to chain calls is expressed by converting the sequence of
@@ -476,6 +543,18 @@ Other Actions
 
 Finally, let's discuss the other actions besides ``get_data``. Note that
 none of these actions can be chained.
+
+get\_namespaced\_data
+~~~~~~~~~~~~~~~~~~~~~
+
+Works identically to ``get_data`` but you must included the ``--SF-a``
+argument in CLI calls or the ``SF-a`` argument in REST calls.
+
+::
+
+    python $PYTHONPATH/sofine/runner.py '--SF-s fidelity --SF-g example --SF-a get_namespaced_data -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example --SF-a get_namespaced_data'
+
+    curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/fidelity/SF-g/example/SF-a/get_namespaced_data/c/<CUSTOMER_ID>/p/<PIN>/a/<ACCOUNT_ID>/e/<EMAIL>/SF-s/ystockquotelib/SF-g/example/SF-a/get_namespaced_data
 
 get\_data\_batch
 ~~~~~~~~~~~~~~~~
@@ -559,6 +638,32 @@ Python:
     data_source_group = 'example'
     schema = runner.get_schema(data_source, data_source_group)
 
+get\_namespaced\_schema
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Works identically to ``get_schema`` but returns the schema fields in
+namespaced form.
+
+CLI:
+
+::
+
+    python $PYTHONPATH/sofine/runner.py '--SF-s ystockquotelib --SF-g example --SF-a get_namespaced_schema'
+
+REST:
+
+::
+
+    curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/ystockquotelib/SF-g/example/SF-a/get_namespaced_schema
+
+Python:
+
+::
+
+    data_source = 'ystockquotelib'
+    data_source_group = 'example'
+    schema = runner.get_namespaced_schema(data_source, data_source_group)
+
 adds\_keys
 ~~~~~~~~~~
 
@@ -599,6 +704,12 @@ Python:
     data_source_group = 'example'
     adds_keys = runner.adds_keys(data_source, data_source_group)
 
+Additional Convenience Methods
+------------------------------
+
+Plugins called from Python also expose two convenience methods that let
+you get a reference to the plugin's module or to the plugin's class.
+
 get\_plugin
 ~~~~~~~~~~~
 
@@ -624,8 +735,8 @@ directly. For exmample, the Google Search Results module implements an
 additional helper called ``get_child_schema`` that returns the list of
 attributes in each of the ``results`` JSON objects that it returns for
 each key passed to it. Because this is nested data, the more interesting
-attributes are one level down in the data returned, so this helper is
-useful in this particular case.
+attributes are one level down in the data returned, which the helper
+tells us about.
 
 ::
 
@@ -641,7 +752,7 @@ Managing Plugins
 
 Managing plugins is very simple. Pick a directory from which you want to
 call your plugins. Define the environment variable
-``SOFINE_PLUGIN_PATH`` and assign it to the path to your plugin
+``SOFINE_PLUGIN_PATH`` and assign to it the path to your plugin
 directory.
 
 Plugins themselves are just Python modules fulfilling the requirements
@@ -655,9 +766,9 @@ match the plugin's ``self.name`` attribute, and the plugin directory
 name must match the plugin's ``self.group`` attribute.
 
 This approach means you can manage your plugin directory without any
-dependencies on ``sofine``. You can manage your plugins directory like
-any other source code repo, and include unit tests for plugins anywhere
-in the plugin directory if you want.
+dependencies on ``sofine``. You can manage your plugins directory as
+their own code repo, and include unit tests or config files in the
+plugin directory, etc.
 
 Appendix: The Data Retrieval Algorithm
 --------------------------------------
@@ -668,9 +779,6 @@ Appendix: The Data Retrieval Algorithm
    data, and add all key attribute data returned to that key in data.
 -  All attributes mapped to a key are JSON objects which themselves
    consist of string keys mapped to legal JSON values.
--  All attribute keys are namespaced with the prefix of the plugin group
-   and plugin name and then the attribute key name, guaranteeing they
-   are unique.
 
 So, formally, the result of a call to a ``sofine`` pipe is the union of
 all keys retrieved by all plugin calls, with each key mapped to the
