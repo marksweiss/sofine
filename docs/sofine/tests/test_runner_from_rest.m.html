@@ -1006,7 +1006,7 @@ table {
 
 
     <span class="k">def</span> <span class="nf">test_rest_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         
@@ -1018,13 +1018,15 @@ table {
 
         <span class="c"># The keys returned match and there are attributes from the call for each key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+                <span class="k">assert</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 
     <span class="k">def</span> <span class="nf">test_rest_runner_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
-        <span class="n">data_source_1</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span> <span class="c"># &#39;ystockquotelib&#39; </span>
+        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">data_source_1</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span>
         <span class="n">data_source_group_1</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_2</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="n">data_source_group_2</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
@@ -1036,11 +1038,15 @@ table {
         <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
-
+        
         <span class="c"># The keys returned match and there are attributes from the call for each key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">post_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="c"># Make a copy because popitem() is destructive and we </span>
+                <span class="c">#  use the ret object below in additional test comparing to schemas</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+                <span class="k">assert</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://localhost:{0}/SF-s/{1}/SF-g/{2}/SF-a/get_schema&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> <span class="n">data_source_1</span><span class="p">,</span> <span class="n">data_source_group_1</span><span class="p">)</span>
@@ -1057,9 +1063,10 @@ table {
         
         <span class="c"># Make a set of all the attribute keys found in the return data</span>
         <span class="n">all_data_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">attr_key</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-                <span class="n">all_data_attrs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">attr_key</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+                <span class="n">all_data_attrs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">schema_1</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">all_data_attrs</span><span class="p">)</span>
@@ -1107,7 +1114,7 @@ table {
 
 
     <span class="k">def</span> <span class="nf">test_rest_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         
@@ -1119,13 +1126,15 @@ table {
 
         <span class="c"># The keys returned match and there are attributes from the call for each key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+                <span class="k">assert</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 
     <span class="k">def</span> <span class="nf">test_rest_runner_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
-        <span class="n">data_source_1</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span> <span class="c"># &#39;ystockquotelib&#39; </span>
+        <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">data_source_1</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span>
         <span class="n">data_source_group_1</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_2</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="n">data_source_group_2</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
@@ -1137,11 +1146,15 @@ table {
         <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
-
+        
         <span class="c"># The keys returned match and there are attributes from the call for each key</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">post_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="c"># Make a copy because popitem() is destructive and we </span>
+                <span class="c">#  use the ret object below in additional test comparing to schemas</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+                <span class="k">assert</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://localhost:{0}/SF-s/{1}/SF-g/{2}/SF-a/get_schema&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> <span class="n">data_source_1</span><span class="p">,</span> <span class="n">data_source_group_1</span><span class="p">)</span>
@@ -1158,9 +1171,10 @@ table {
         
         <span class="c"># Make a set of all the attribute keys found in the return data</span>
         <span class="n">all_data_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">attr_key</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-                <span class="n">all_data_attrs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">attr_key</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+                <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+                <span class="n">all_data_attrs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">schema_1</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">all_data_attrs</span><span class="p">)</span>
@@ -1234,7 +1248,7 @@ table {
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_rest.TestCase.test_rest_runner', this);">Show source.</a></p>
     <div id="source-test_runner_from_rest.TestCase.test_rest_runner" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_rest_runner</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
     
@@ -1245,8 +1259,10 @@ table {
     <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
     <span class="c"># The keys returned match and there are attributes from the call for each key</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+            <span class="k">assert</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </pre></div>
 
     </div>
@@ -1267,8 +1283,8 @@ table {
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_rest.TestCase.test_rest_runner_pipeline', this);">Show source.</a></p>
     <div id="source-test_runner_from_rest.TestCase.test_rest_runner_pipeline" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_rest_runner_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
-    <span class="n">data_source_1</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span> <span class="c"># &#39;ystockquotelib&#39; </span>
+    <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">data_source_1</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span>
     <span class="n">data_source_group_1</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
     <span class="n">data_source_2</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
     <span class="n">data_source_group_2</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
@@ -1279,10 +1295,15 @@ table {
     <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+    
     <span class="c"># The keys returned match and there are attributes from the call for each key</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">post_data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="c"># Make a copy because popitem() is destructive and we </span>
+            <span class="c">#  use the ret object below in additional test comparing to schemas</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+            <span class="k">assert</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">attr</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://localhost:{0}/SF-s/{1}/SF-g/{2}/SF-a/get_schema&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> <span class="n">data_source_1</span><span class="p">,</span> <span class="n">data_source_group_1</span><span class="p">)</span>
     <span class="n">schema_1</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
@@ -1297,9 +1318,10 @@ table {
     
     <span class="c"># Make a set of all the attribute keys found in the return data</span>
     <span class="n">all_data_attrs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="k">for</span> <span class="n">attr_key</span> <span class="ow">in</span> <span class="n">ret</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-            <span class="n">all_data_attrs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">attr_key</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">ret</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">popitem</span><span class="p">()</span>
+            <span class="n">all_data_attrs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">schema_1</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">all_data_attrs</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">schema_2</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>

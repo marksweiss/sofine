@@ -1005,6 +1005,23 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
 
 
+    <span class="k">def</span> <span class="nf">test_runner_main_namespaced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">AAPL</span><span class="se">\&quot;</span><span class="s"> : [], </span><span class="se">\&quot;</span><span class="s">MSFT</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+        
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+    
+    
     <span class="k">def</span> <span class="nf">test_runner_main_pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
         <span class="n">path_2</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_2.txt&#39;</span>
@@ -1037,10 +1054,35 @@ table {
         <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
         <span class="c">#  keys added by file_source</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">attr_keys</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">ak</span> <span class="ow">in</span> <span class="n">attr_keys</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">ak</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>    
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">test_runner_main_namespaced_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+        <span class="n">path_2</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_2.txt&#39;</span>
+        <span class="n">path_3</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_3.txt&#39;</span>
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_2</span><span class="p">)</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_3</span><span class="p">)</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">,</span> <span class="s">&#39;MCO&#39;</span><span class="p">,</span> <span class="s">&#39;TWTR&#39;</span><span class="p">,</span> <span class="s">&#39;IBM&#39;</span><span class="p">,</span> <span class="s">&#39;ORCL&#39;</span><span class="p">]))</span>
+        <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
+        <span class="c">#  keys added by file_source</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>    
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">test_runner_main_get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1050,17 +1092,37 @@ table {
         <span class="n">schema_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">schema_out</span><span class="p">)</span>
         <span class="n">schema_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema_out</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">])</span>
 
-        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : {}}&#39;&quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
         <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
         <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        
         <span class="n">data_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">data_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data_out</span><span class="p">)</span>
-        <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        
+        <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]])</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">schema_attr_keys</span> <span class="o">==</span> <span class="n">data_attr_keys</span><span class="p">)</span>
 
+
+    <span class="k">def</span> <span class="nf">test_runner_main_get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd_get_namespaced_schema</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_schema&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_schema</span> <span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">schema_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">schema_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">schema_out</span><span class="p">)</span>
+        <span class="n">schema_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema_out</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">])</span>
+
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        
+        <span class="n">data_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">data_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data_out</span><span class="p">)</span>
+        <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]])</span>
     
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">schema_attr_keys</span> <span class="o">==</span> <span class="n">data_attr_keys</span><span class="p">)</span>
+
+
     <span class="k">def</span> <span class="nf">test_runner_main_adds_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s file_source --SF-g standard --SF-a adds_keys&#39;&quot;</span>
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
@@ -1129,6 +1191,23 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
 
 
+    <span class="k">def</span> <span class="nf">test_runner_main_namespaced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">AAPL</span><span class="se">\&quot;</span><span class="s"> : [], </span><span class="se">\&quot;</span><span class="s">MSFT</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+        
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+    
+    
     <span class="k">def</span> <span class="nf">test_runner_main_pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
         <span class="n">path_2</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_2.txt&#39;</span>
@@ -1161,10 +1240,35 @@ table {
         <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
         <span class="c">#  keys added by file_source</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="n">attr_keys</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">ak</span> <span class="ow">in</span> <span class="n">attr_keys</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">ak</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>    
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">test_runner_main_namespaced_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+        <span class="n">path_2</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_2.txt&#39;</span>
+        <span class="n">path_3</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_3.txt&#39;</span>
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_2</span><span class="p">)</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_3</span><span class="p">)</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">,</span> <span class="s">&#39;MCO&#39;</span><span class="p">,</span> <span class="s">&#39;TWTR&#39;</span><span class="p">,</span> <span class="s">&#39;IBM&#39;</span><span class="p">,</span> <span class="s">&#39;ORCL&#39;</span><span class="p">]))</span>
+        <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
+        <span class="c">#  keys added by file_source</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>    
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">test_runner_main_get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1174,17 +1278,37 @@ table {
         <span class="n">schema_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">schema_out</span><span class="p">)</span>
         <span class="n">schema_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema_out</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">])</span>
 
-        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : {}}&#39;&quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
         <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
         <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        
         <span class="n">data_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">data_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data_out</span><span class="p">)</span>
-        <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        
+        <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]])</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">schema_attr_keys</span> <span class="o">==</span> <span class="n">data_attr_keys</span><span class="p">)</span>
 
+
+    <span class="k">def</span> <span class="nf">test_runner_main_get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd_get_namespaced_schema</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_schema&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_schema</span> <span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">schema_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">schema_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">schema_out</span><span class="p">)</span>
+        <span class="n">schema_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema_out</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">])</span>
+
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        
+        <span class="n">data_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">data_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data_out</span><span class="p">)</span>
+        <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]])</span>
     
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">schema_attr_keys</span> <span class="o">==</span> <span class="n">data_attr_keys</span><span class="p">)</span>
+
+
     <span class="k">def</span> <span class="nf">test_runner_main_adds_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s file_source --SF-g standard --SF-a adds_keys&#39;&quot;</span>
         <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
@@ -1277,6 +1401,41 @@ table {
   
                   
     <div class="item">
+      <div class="name def" id="test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_get_namespaced_schema">
+        <p>def <span class="ident">test_runner_main_get_namespaced_schema</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_get_namespaced_schema', this);">Show source.</a></p>
+    <div id="source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_get_namespaced_schema" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_main_get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">cmd_get_namespaced_schema</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_schema&#39;&quot;</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_schema</span> <span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">schema_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">schema_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">schema_out</span><span class="p">)</span>
+    <span class="n">schema_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema_out</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">])</span>
+    <span class="n">cmd_get_namespaced_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+    <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+    <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    
+    <span class="n">data_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">data_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data_out</span><span class="p">)</span>
+    <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]])</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">schema_attr_keys</span> <span class="o">==</span> <span class="n">data_attr_keys</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
       <div class="name def" id="test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_get_schema">
         <p>def <span class="ident">test_runner_main_get_schema</span>(</p><p>self)</p>
       </div>
@@ -1293,15 +1452,91 @@ table {
     <span class="n">schema_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">schema_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">schema_out</span><span class="p">)</span>
     <span class="n">schema_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema_out</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">])</span>
-    <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : {}}&#39;&quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">TWTR</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
     <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
     <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
     <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    
     <span class="n">data_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">data_out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data_out</span><span class="p">)</span>
-    <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    
+    <span class="n">data_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data_out</span><span class="p">[</span><span class="s">&#39;TWTR&#39;</span><span class="p">]])</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">schema_attr_keys</span> <span class="o">==</span> <span class="n">data_attr_keys</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_namespaced">
+        <p>def <span class="ident">test_runner_main_namespaced</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_namespaced', this);">Show source.</a></p>
+    <div id="source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_namespaced" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_main_namespaced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">cmd_get_namespaced_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">AAPL</span><span class="se">\&quot;</span><span class="s"> : [], </span><span class="se">\&quot;</span><span class="s">MSFT</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+    <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+    <span class="n">cmd_get_namespaced_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_namespaced_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+    
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_namespaced_pipeline">
+        <p>def <span class="ident">test_runner_main_namespaced_pipeline</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_namespaced_pipeline', this);">Show source.</a></p>
+    <div id="source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_namespaced_pipeline" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_main_namespaced_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+    <span class="n">path_2</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_2.txt&#39;</span>
+    <span class="n">path_3</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_3.txt&#39;</span>
+    <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_2</span><span class="p">)</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s file_source --SF-g standard -p {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path_3</span><span class="p">)</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;--SF-s ystockquotelib_mock --SF-g mock --SF-a get_namespaced_data&#39;&quot;</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">,</span> <span class="s">&#39;MCO&#39;</span><span class="p">,</span> <span class="s">&#39;TWTR&#39;</span><span class="p">,</span> <span class="s">&#39;IBM&#39;</span><span class="p">,</span> <span class="s">&#39;ORCL&#39;</span><span class="p">]))</span>
+    <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
+    <span class="c">#  keys added by file_source</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>    
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1424,10 +1659,10 @@ table {
     <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
     <span class="c">#  keys added by file_source</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">attr_keys</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">ak</span> <span class="ow">in</span> <span class="n">attr_keys</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">ak</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>    
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 </pre></div>
 
     </div>

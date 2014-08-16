@@ -990,7 +990,7 @@ table {
 <span class="k">class</span> <span class="nc">TestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
     
     <span class="k">def</span> <span class="nf">test_runner_mock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1002,9 +1002,28 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="n">actual_keys</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actual_keys</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
-            <span class="k">for</span> <span class="n">attr_key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">attr_key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 
+
+    <span class="k">def</span> <span class="nf">test_runner_mock_namespaced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
+        <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
+        <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_namespaced_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+        
+        <span class="n">actual_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="n">actual_keys</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actual_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+   
 
     <span class="k">def</span> <span class="nf">test_runner_file_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1038,8 +1057,7 @@ table {
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
-        <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]])</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">])</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
@@ -1079,14 +1097,14 @@ table {
 
     
     <span class="k">def</span> <span class="nf">test_get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;AAPL&#39;</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;AAPL&#39;</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
+        <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
 
 
     <span class="k">def</span> <span class="nf">test_runner_get_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1103,6 +1121,43 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;MSFT&#39;</span><span class="p">]))</span> 
 
+
+    <span class="k">def</span> <span class="nf">test_runner_get_namespaced_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data_sources</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;file_source&#39;</span><span class="p">,</span> <span class="s">&#39;ystockquotelib_mock&#39;</span><span class="p">]</span>
+        <span class="n">data_source_groups</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;standard&#39;</span><span class="p">,</span> <span class="s">&#39;mock&#39;</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+        <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
+        <span class="n">ystockquote_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_source_args</span><span class="p">,</span> <span class="n">ystockquote_args</span><span class="p">]</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_namespaced_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;MSFT&#39;</span><span class="p">]))</span> 
+       
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> 
+                            <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;standard::file_source::&#39;</span><span class="p">))</span>
+                            <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">test_runner_get_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data_sources</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;file_source&#39;</span><span class="p">,</span> <span class="s">&#39;ystockquotelib_mock&#39;</span><span class="p">]</span>
+        <span class="n">data_source_groups</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;standard&#39;</span><span class="p">,</span> <span class="s">&#39;mock&#39;</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+        <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
+        <span class="n">ystockquote_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_source_args</span><span class="p">,</span> <span class="n">ystockquote_args</span><span class="p">]</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;MSFT&#39;</span><span class="p">]))</span> 
 
     <span class="c"># Test composing operations where some are an initial source of keys, some</span>
     <span class="c">#  add new keys in an intermediate step, and some just add attributes to keys</span>
@@ -1143,9 +1198,9 @@ table {
         <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
         <span class="c">#  keys added by file_source</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys_1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys_2</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
 
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>  
@@ -1175,7 +1230,7 @@ table {
       <div class="codehilite"><pre><span class="k">class</span> <span class="nc">TestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
     
     <span class="k">def</span> <span class="nf">test_runner_mock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1187,9 +1242,28 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="n">actual_keys</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actual_keys</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
-            <span class="k">for</span> <span class="n">attr_key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">attr_key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 
+
+    <span class="k">def</span> <span class="nf">test_runner_mock_namespaced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
+        <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
+        <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_namespaced_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+        
+        <span class="n">actual_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="n">actual_keys</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actual_keys</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+   
 
     <span class="k">def</span> <span class="nf">test_runner_file_source</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -1223,8 +1297,7 @@ table {
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
-        <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]])</span>
+        <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">])</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
@@ -1264,14 +1337,14 @@ table {
 
     
     <span class="k">def</span> <span class="nf">test_get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;AAPL&#39;</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;AAPL&#39;</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
+        <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
 
 
     <span class="k">def</span> <span class="nf">test_runner_get_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1288,6 +1361,43 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;MSFT&#39;</span><span class="p">]))</span> 
 
+
+    <span class="k">def</span> <span class="nf">test_runner_get_namespaced_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data_sources</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;file_source&#39;</span><span class="p">,</span> <span class="s">&#39;ystockquotelib_mock&#39;</span><span class="p">]</span>
+        <span class="n">data_source_groups</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;standard&#39;</span><span class="p">,</span> <span class="s">&#39;mock&#39;</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+        <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
+        <span class="n">ystockquote_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_source_args</span><span class="p">,</span> <span class="n">ystockquote_args</span><span class="p">]</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_namespaced_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;MSFT&#39;</span><span class="p">]))</span> 
+       
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> 
+                            <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;standard::file_source::&#39;</span><span class="p">))</span>
+                            <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">test_runner_get_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">data_sources</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;file_source&#39;</span><span class="p">,</span> <span class="s">&#39;ystockquotelib_mock&#39;</span><span class="p">]</span>
+        <span class="n">data_source_groups</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;standard&#39;</span><span class="p">,</span> <span class="s">&#39;mock&#39;</span><span class="p">]</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+        <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
+        <span class="n">ystockquote_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_source_args</span><span class="p">,</span> <span class="n">ystockquote_args</span><span class="p">]</span>
+        
+        <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;MSFT&#39;</span><span class="p">]))</span> 
 
     <span class="c"># Test composing operations where some are an initial source of keys, some</span>
     <span class="c">#  add new keys in an intermediate step, and some just add attributes to keys</span>
@@ -1328,9 +1438,9 @@ table {
         <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
         <span class="c">#  keys added by file_source</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys_1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys_2</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
 </pre></div>
 
     </div>
@@ -1410,13 +1520,14 @@ table {
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_py.TestCase.test_get_schema', this);">Show source.</a></p>
     <div id="source-test_runner_from_py.TestCase.test_get_schema" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_get_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;AAPL&#39;</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;AAPL&#39;</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
     <span class="n">schema</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
+    <span class="n">attr_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">]]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">attr_keys</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">schema</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
 </pre></div>
 
     </div>
@@ -1538,6 +1649,46 @@ table {
   
                   
     <div class="item">
+      <div class="name def" id="test_runner_from_py.TestCase.test_runner_get_namespaced_data_batch">
+        <p>def <span class="ident">test_runner_get_namespaced_data_batch</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_py.TestCase.test_runner_get_namespaced_data_batch', this);">Show source.</a></p>
+    <div id="source-test_runner_from_py.TestCase.test_runner_get_namespaced_data_batch" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_get_namespaced_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">data_sources</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;file_source&#39;</span><span class="p">,</span> <span class="s">&#39;ystockquotelib_mock&#39;</span><span class="p">]</span>
+    <span class="n">data_source_groups</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;standard&#39;</span><span class="p">,</span> <span class="s">&#39;mock&#39;</span><span class="p">]</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
+    <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
+    <span class="n">ystockquote_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">file_source_args</span><span class="p">,</span> <span class="n">ystockquote_args</span><span class="p">]</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_namespaced_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+    
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">]))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;AAPL&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;MSFT&#39;</span><span class="p">]))</span> 
+   
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> 
+                        <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;standard::file_source::&#39;</span><span class="p">))</span>
+                        <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
       <div class="name def" id="test_runner_from_py.TestCase.test_runner_mock">
         <p>def <span class="ident">test_runner_mock</span>(</p><p>self)</p>
       </div>
@@ -1549,7 +1700,7 @@ table {
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_py.TestCase.test_runner_mock', this);">Show source.</a></p>
     <div id="source-test_runner_from_py.TestCase.test_runner_mock" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_mock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">{},</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
     <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1560,8 +1711,43 @@ table {
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="n">actual_keys</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actual_keys</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
-        <span class="k">for</span> <span class="n">attr_key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">attr_key</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="test_runner_from_py.TestCase.test_runner_mock_namespaced">
+        <p>def <span class="ident">test_runner_mock_namespaced</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_py.TestCase.test_runner_mock_namespaced', this);">Show source.</a></p>
+    <div id="source-test_runner_from_py.TestCase.test_runner_mock_namespaced" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_mock_namespaced</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;AAPL&quot;</span> <span class="p">:</span> <span class="p">[],</span> <span class="s">&quot;MSFT&quot;</span> <span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib_mock&#39;</span>
+    <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;mock&#39;</span>
+    <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_namespaced_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+    
+    <span class="n">actual_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">expected_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s">&#39;AAPL&#39;</span><span class="p">,</span> <span class="s">&#39;MSFT&#39;</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">expected_keys</span> <span class="o">==</span> <span class="n">actual_keys</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actual_keys</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1615,9 +1801,9 @@ table {
     <span class="c"># Assert that the final output has values from ystockquotelib_mock for </span>
     <span class="c">#  keys added by file_source</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys_1</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys_2</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
 </pre></div>
 
     </div>

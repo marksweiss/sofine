@@ -1001,15 +1001,17 @@ using just the plugin name, plugin group and call args.</p>
 
 <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated array of dicts of attribute keys and values. May be empty. </span>
 <span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
-<span class="sd">and values for existing keys into the dict associated with that key. Also, if this call is invoked from a </span>
-<span class="sd">piped command line call piping to sofine, that will be detected and `data` will be read from `stdin`, </span>
-<span class="sd">overriding whatever value is passed in for this arg.</span>
+<span class="sd">and values for existing keys into the array of attribute key/attribute value (single-entry) dicts </span>
+<span class="sd">associated with that key. Also, if this call is invoked from a piped command line call piping to sofine, </span>
+<span class="sd">that will be detected and `data` will be read from `stdin`, overriding whatever value is passed in for this arg.</span>
 <span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
 <span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
 <span class="sd">* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements </span>
 <span class="sd">referring to argument names and argument values.</span>
+<span class="sd">* `use_namespaced_attrs` - Defaults to False. Prepend all attribute keys from all plugin calls with the plugin name and plugin</span>
+<span class="sd">group to guarantee the key name is unique in the returned data set.</span>
 
 <span class="sd">Main driver function for retrieving data from a plugin. Calls a plugin&#39;s _required_ `get_data` method. </span>
 <span class="sd">Takes a list of data_sources and a list of argument lists to call when calling each data_source. </span>
@@ -1020,15 +1022,14 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">* If this is the first call in the chain, data is empty, so just fill it with the return of this call</span>
 <span class="sd">* If there is already data, add any new keys retrieved and add attribute key/value pairs associated </span>
 <span class="sd">with any new or existing keys </span>
-<span class="sd">* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and</span>
-<span class="sd">do not overwrite other attributes with the same name from other plugins  </span>
-<span class="sd">* So, the set of keys on each call is the union of all previously collected keys</span>
-<span class="sd">* So, the set of attributes associated with each key is the union of all previously collected attribute/value</span>
+<span class="sd">is True. </span>
+<span class="sd">* The set of keys on each call is the union of all previously collected keys</span>
+<span class="sd">* The set of attributes associated with each key is the union of all previously collected attribute/value</span>
 <span class="sd"> pairs collected for that key</span>
 
-<span class="sd">The final output looks like this:</span>
+<span class="sd">Output looks like this:</span>
 <span class="sd">    </span>
-<span class="sd">    {&quot;key_1&quot; : {&quot;plugin_1::attr_name_1&quot; : value, &quot;plugin_1::attr_name_2&quot; : value, &quot;plugin_2::attr_name_1, value},</span>
+<span class="sd">    {&quot;key_1&quot; : [{&quot;attr_name_1&quot; : value}, {&quot;attr_name_2&quot; : value}, {&quot;attr_name_1, value}],</span>
 <span class="sd">    &quot;key_2&quot; : ...</span>
 <span class="sd">    }</span>
 
@@ -1042,46 +1043,111 @@ using just the plugin name, plugin group and call args.</p>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="c"># Namespace the key of the attribute with a prefix of the name of the current plugin</span>
-            <span class="n">namespaced_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="p">:</span> <span class="n">val</span> 
-                                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span>            
-            
+            <span class="c"># Convert returned dict of attributes into a list of individual dicts. This allows all data</span>
+            <span class="c">#  from all plugins to be added to the output without needing namespacing to prevent attributed</span>
+            <span class="c">#  keys from overwriting each other. Namespacing can optionally be turned on by the caller.</span>
+            <span class="n">new_data_list</span> <span class="o">=</span> <span class="p">[{</span><span class="n">name</span> <span class="p">:</span> <span class="n">val</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()]</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">namespaced_attrs</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">new_data_list</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">namespaced_attrs</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data_list</span> 
     
     <span class="k">return</span> <span class="n">data</span>
 
 
+<span class="k">def</span> <span class="nf">get_namespaced_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;As in `get_data`, but each attribute dict in each array of attribute dicts that is the value of each key </span>
+<span class="sd">in the data set is prepended with the plugin name and plugin group. </span>
+
+<span class="sd">Namespaced output looks like this:</span>
+<span class="sd">    </span>
+<span class="sd">    {&quot;key_1&quot; : [{&quot;plugin_group_A::plugin_1::attr_name_1&quot; : value}, </span>
+<span class="sd">                {&quot;plugin_group_A::plugin_1::attr_name_2&quot; : value},</span>
+<span class="sd">                {&quot;plugin_group_B::plugin_1::attr_name_1&quot; : value}],</span>
+<span class="sd">    &quot;key_2&quot; : ...</span>
+<span class="sd">    }</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+    <span class="c"># Take the data returned, get the list of dicts associated with each key, for each attribute key in each</span>
+    <span class="c">#  attribute dict in each list of dicts, creat the namespaced key. Insert a new attribute dict into the list</span>
+    <span class="c">#  over the old one with the namespaced key and the same value</span>
+    <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">attrs</span><span class="p">)):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">attr_key</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">attr_val</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">attr_key</span> <span class="p">:</span> <span class="n">attr_val</span><span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_get_data_batch</span><span class="p">(</span><span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;&quot;&quot;Call to runner.{0}() had different lengths for </span>
+<span class="s">data_sources (len == {1}), </span>
+<span class="s">data source_groups (len == {2}) and </span>
+<span class="s">data_source_args (len == {3)}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fn_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)))</span>
+
+
 <span class="k">def</span> <span class="nf">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated array of dicts of attribute keys and values. May be empty. </span>
 <span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
 <span class="sd">and values for existing keys into the dict associated with that key. </span>
 <span class="sd">* `data_source` - `list`. A list of names of plugins being called.</span>
 <span class="sd">* `data_source_group` - `list`.  A list of names of plugin groups for the plugins being called.</span>
 <span class="sd">* `data_source_args` - `list of list`. A list of lists of args for the plugin calls, in argv format with alternating elements </span>
 <span class="sd">referring to argument names and argument values.</span>
-<span class="sd">    </span>
+
 <span class="sd">Convenience wrapper for users of sofine as a Python library. This function lets a user pass in </span>
 <span class="sd">a list of data sources, a list of plugin groups and a list of lists of arguments for each plugin call. </span>
 <span class="sd">Note that the elements must be in order in each argument: data source name in position 0 must match </span>
 <span class="sd">data source group in position 0 and the list of args for that call in `data_source_args[0]`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-    
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span> <span class="ow">or</span> \
-            <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="ow">or</span> \
-            <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;&quot;&quot;Call to runner.batch_run() had different lengths for </span>
-<span class="s">data_sources (len == {0}), </span>
-<span class="s">data source_groups (len == {1}) and </span>
-<span class="s">data_source_args (len == {2)}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)))</span>
-    
+    <span class="n">_validate_get_data_batch</span><span class="p">(</span><span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">,</span> <span class="s">&#39;get_data_batch&#39;</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_groups</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_args</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
     
     <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">get_namespaced_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;As in `get_data_batch`, but each attribute dict in each array of attribute dicts that is the value of each key </span>
+<span class="sd">in the data set is prepended with the plugin name and plugin group. All plugins called in the batch call will </span>
+<span class="sd">namespace the attributes they contribute to the final data set returned.</span>
+
+<span class="sd">Namespaced output looks like this:</span>
+<span class="sd">    </span>
+<span class="sd">    {&quot;key_1&quot; : [{&quot;plugin_group_A::plugin_1::attr_name_1&quot; : value}, </span>
+<span class="sd">                {&quot;plugin_group_A::plugin_1::attr_name_2&quot; : value},</span>
+<span class="sd">                {&quot;plugin_group_B::plugin_1::attr_name_1&quot; : value}],</span>
+<span class="sd">    &quot;key_2&quot; : ...</span>
+<span class="sd">    }</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">_validate_get_data_batch</span><span class="p">(</span><span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">,</span> <span class="s">&#39;get_namespaced_data_batch&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_namespaced_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_groups</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_args</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<span class="k">def</span> <span class="nf">_get_schema</span><span class="p">(</span><span class="n">get_schema_call</span><span class="p">,</span> <span class="n">parse_args_call</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    
+    <span class="n">schema</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">get_schema_call</span><span class="p">()</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">parse_args_call</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">get_schema_call</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">)</span>
+   
+    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;schema&quot;</span> <span class="p">:</span> <span class="n">schema</span><span class="p">}</span> 
 
 
 <span class="k">def</span> <span class="nf">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1106,16 +1172,15 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">one returned data set.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
-    <span class="n">schema</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">)</span>
-   
-    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;schema&quot;</span> <span class="p">:</span> <span class="n">schema</span><span class="p">}</span> 
+    <span class="k">return</span> <span class="n">_get_schema</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_namespaced_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;As in `get_schema` except that the schema attribute keys returned are prepended with the `data_source` and </span>
+<span class="sd">`data_source_group`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_get_schema</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">get_namespaced_schema</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
@@ -1223,9 +1288,12 @@ using just the plugin name, plugin group and call args.</p>
 <span class="k">def</span> <span class="nf">_run_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;get_data&#39;</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
-    <span class="c"># Only get_data() supports chaining, so just break after one of other actions</span>
+    <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;get_namespaced_data&#39;</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">get_namespaced_data</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;get_schema&#39;</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">get_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;get_namespaced_schema&#39;</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">get_namespaced_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;adds_keys&#39;</span><span class="p">:</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">adds_keys</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s">&#39;parse_args&#39;</span><span class="p">:</span>
@@ -1246,14 +1314,17 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">name of the plugin module being called. Required.</span>
 <span class="sd">* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is </span>
 <span class="sd">the plugins subdirectory where the plugin module is deployed. Required.</span>
-<span class="sd">`[--SF-a|--SF-action]` - The plugin action being called. One of four supported actions that must be part of every plugin:</span>
-<span class="sd">`get_data`: </span>
+<span class="sd">`[--SF-a|--SF-action]` - The plugin action being called. One of five supported actions that must be part of every plugin:</span>
 
-<span class="sd">- retrieves available data for the keys passed to it</span>
+<span class="sd">- `get_data` - retrieves available data for the keys passed to it</span>
+<span class="sd">- `get_namespaced_data` - retrieves available data for the keys passed to it, with the attribute keys associated with each</span>
+<span class="sd">key prepended with the plugin name and plugin group</span>
 <span class="sd">- `adds_keys` - returns a JSON object with the attribute `adds_keys` and a </span>
 <span class="sd">boolean indicating whether the data source adds keys or just gets data for the keys passed to it</span>
 <span class="sd">- `get_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which </span>
 <span class="sd">this data source may add for each key</span>
+<span class="sd">- `get_namespaced_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which </span>
+<span class="sd">this data source may add for each key, with each attribute prepended with the plugin name and plugin group</span>
 <span class="sd">- `parse_args` - returns the values parsed for the arguments passed to the call being </span>
 <span class="sd">made as a JSON object with an attribute `args` and an array of parsed args,</span>
 <span class="sd">and an attribute `is_valid` with a boolean indicating whether parsing succeeded.</span>
@@ -1374,15 +1445,17 @@ attributes to the dicts being built by sofine for each key in <code>data</code>.
       
   
       <div class="desc"><ul>
-<li><code>data</code> - <code>dict</code>. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+<li><code>data</code> - <code>dict</code>. A dict of keys and associated array of dicts of attribute keys and values. May be empty. 
 Any data collected by this call with append new keys and values to <code>data</code>, and append new attribute keys 
-and values for existing keys into the dict associated with that key. Also, if this call is invoked from a 
-piped command line call piping to sofine, that will be detected and <code>data</code> will be read from <code>stdin</code>, 
-overriding whatever value is passed in for this arg.</li>
+and values for existing keys into the array of attribute key/attribute value (single-entry) dicts 
+associated with that key. Also, if this call is invoked from a piped command line call piping to sofine, 
+that will be detected and <code>data</code> will be read from <code>stdin</code>, overriding whatever value is passed in for this arg.</li>
 <li><code>data_source</code> - <code>string</code>. The name of the plugin being called.</li>
 <li><code>data_source_group</code> - <code>string</code>.  The name of the plugin group for the plugin being called.</li>
 <li><code>data_source_args</code> - <code>list</code>. The args for the plugin call, in <code>argv</code> format with alternating elements 
 referring to argument names and argument values.</li>
+<li><code>use_namespaced_attrs</code> - Defaults to False. Prepend all attribute keys from all plugin calls with the plugin name and plugin
+group to guarantee the key name is unique in the returned data set.</li>
 </ul>
 <p>Main driver function for retrieving data from a plugin. Calls a plugin's <em>required</em> <code>get_data</code> method. 
 Takes a list of data_sources and a list of argument lists to call when calling each data_source. 
@@ -1391,15 +1464,14 @@ Can be called directly or from <code>main</code> if this module was instantiated
 <ul>
 <li>If this is the first call in the chain, data is empty, so just fill it with the return of this call</li>
 <li>If there is already data, add any new keys retrieved and add attribute key/value pairs associated 
-with any new or existing keys </li>
-<li>Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and
-do not overwrite other attributes with the same name from other plugins  </li>
-<li>So, the set of keys on each call is the union of all previously collected keys</li>
-<li>So, the set of attributes associated with each key is the union of all previously collected attribute/value
+with any new or existing keys 
+is True. </li>
+<li>The set of keys on each call is the union of all previously collected keys</li>
+<li>The set of attributes associated with each key is the union of all previously collected attribute/value
  pairs collected for that key</li>
 </ul>
-<p>The final output looks like this:</p>
-<div class="codehilite"><pre><span class="p">{</span><span class="s">&quot;key_1&quot;</span> <span class="o">:</span> <span class="p">{</span><span class="s">&quot;plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_1::attr_name_2&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">,</span> <span class="s">&quot;plugin_2::attr_name_1, value},</span>
+<p>Output looks like this:</p>
+<div class="codehilite"><pre><span class="p">{</span><span class="s">&quot;key_1&quot;</span> <span class="o">:</span> <span class="p">[{</span><span class="s">&quot;attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;attr_name_2&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;attr_name_1, value}],</span>
 <span class="s">&quot;key_2&quot;</span> <span class="o">:</span> <span class="p">...</span>
 <span class="p">}</span>
 </pre></div></div>
@@ -1408,15 +1480,17 @@ do not overwrite other attributes with the same name from other plugins  </li>
     <div id="source-runner.get_data" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated array of dicts of attribute keys and values. May be empty. </span>
 <span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
-<span class="sd">and values for existing keys into the dict associated with that key. Also, if this call is invoked from a </span>
-<span class="sd">piped command line call piping to sofine, that will be detected and `data` will be read from `stdin`, </span>
-<span class="sd">overriding whatever value is passed in for this arg.</span>
+<span class="sd">and values for existing keys into the array of attribute key/attribute value (single-entry) dicts </span>
+<span class="sd">associated with that key. Also, if this call is invoked from a piped command line call piping to sofine, </span>
+<span class="sd">that will be detected and `data` will be read from `stdin`, overriding whatever value is passed in for this arg.</span>
 <span class="sd">* `data_source` - `string`. The name of the plugin being called.</span>
 <span class="sd">* `data_source_group` - `string`.  The name of the plugin group for the plugin being called.</span>
 <span class="sd">* `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements </span>
 <span class="sd">referring to argument names and argument values.</span>
+<span class="sd">* `use_namespaced_attrs` - Defaults to False. Prepend all attribute keys from all plugin calls with the plugin name and plugin</span>
+<span class="sd">group to guarantee the key name is unique in the returned data set.</span>
 
 <span class="sd">Main driver function for retrieving data from a plugin. Calls a plugin&#39;s _required_ `get_data` method. </span>
 <span class="sd">Takes a list of data_sources and a list of argument lists to call when calling each data_source. </span>
@@ -1427,15 +1501,14 @@ do not overwrite other attributes with the same name from other plugins  </li>
 <span class="sd">* If this is the first call in the chain, data is empty, so just fill it with the return of this call</span>
 <span class="sd">* If there is already data, add any new keys retrieved and add attribute key/value pairs associated </span>
 <span class="sd">with any new or existing keys </span>
-<span class="sd">* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and</span>
-<span class="sd">do not overwrite other attributes with the same name from other plugins  </span>
-<span class="sd">* So, the set of keys on each call is the union of all previously collected keys</span>
-<span class="sd">* So, the set of attributes associated with each key is the union of all previously collected attribute/value</span>
+<span class="sd">is True. </span>
+<span class="sd">* The set of keys on each call is the union of all previously collected keys</span>
+<span class="sd">* The set of attributes associated with each key is the union of all previously collected attribute/value</span>
 <span class="sd"> pairs collected for that key</span>
 
-<span class="sd">The final output looks like this:</span>
+<span class="sd">Output looks like this:</span>
 <span class="sd">    </span>
-<span class="sd">    {&quot;key_1&quot; : {&quot;plugin_1::attr_name_1&quot; : value, &quot;plugin_1::attr_name_2&quot; : value, &quot;plugin_2::attr_name_1, value},</span>
+<span class="sd">    {&quot;key_1&quot; : [{&quot;attr_name_1&quot; : value}, {&quot;attr_name_2&quot; : value}, {&quot;attr_name_1, value}],</span>
 <span class="sd">    &quot;key_2&quot; : ...</span>
 <span class="sd">    }</span>
 
@@ -1449,14 +1522,14 @@ do not overwrite other attributes with the same name from other plugins  </li>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="c"># Namespace the key of the attribute with a prefix of the name of the current plugin</span>
-            <span class="n">namespaced_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="p">:</span> <span class="n">val</span> 
-                                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()}</span>            
-            
+            <span class="c"># Convert returned dict of attributes into a list of individual dicts. This allows all data</span>
+            <span class="c">#  from all plugins to be added to the output without needing namespacing to prevent attributed</span>
+            <span class="c">#  keys from overwriting each other. Namespacing can optionally be turned on by the caller.</span>
+            <span class="n">new_data_list</span> <span class="o">=</span> <span class="p">[{</span><span class="n">name</span> <span class="p">:</span> <span class="n">val</span><span class="p">}</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">new_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">iteritems</span><span class="p">()]</span>
             <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">namespaced_attrs</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">new_data_list</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">namespaced_attrs</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_data_list</span> 
     
     <span class="k">return</span> <span class="n">data</span>
 </pre></div>
@@ -1476,7 +1549,7 @@ do not overwrite other attributes with the same name from other plugins  </li>
       
   
       <div class="desc"><ul>
-<li><code>data</code> - <code>dict</code>. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+<li><code>data</code> - <code>dict</code>. A dict of keys and associated array of dicts of attribute keys and values. May be empty. 
 Any data collected by this call with append new keys and values to <code>data</code>, and append new attribute keys 
 and values for existing keys into the dict associated with that key. </li>
 <li><code>data_source</code> - <code>list</code>. A list of names of plugins being called.</li>
@@ -1493,32 +1566,152 @@ data source group in position 0 and the list of args for that call in <code>data
     <div id="source-runner.get_data_batch" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. </span>
+<span class="sd">* `data` - `dict`. A dict of keys and associated array of dicts of attribute keys and values. May be empty. </span>
 <span class="sd">Any data collected by this call with append new keys and values to `data`, and append new attribute keys </span>
 <span class="sd">and values for existing keys into the dict associated with that key. </span>
 <span class="sd">* `data_source` - `list`. A list of names of plugins being called.</span>
 <span class="sd">* `data_source_group` - `list`.  A list of names of plugin groups for the plugins being called.</span>
 <span class="sd">* `data_source_args` - `list of list`. A list of lists of args for the plugin calls, in argv format with alternating elements </span>
 <span class="sd">referring to argument names and argument values.</span>
-<span class="sd">    </span>
+
 <span class="sd">Convenience wrapper for users of sofine as a Python library. This function lets a user pass in </span>
 <span class="sd">a list of data sources, a list of plugin groups and a list of lists of arguments for each plugin call. </span>
 <span class="sd">Note that the elements must be in order in each argument: data source name in position 0 must match </span>
 <span class="sd">data source group in position 0 and the list of args for that call in `data_source_args[0]`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-    
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span> <span class="ow">or</span> \
-            <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="ow">or</span> \
-            <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;&quot;&quot;Call to runner.batch_run() had different lengths for </span>
-<span class="s">data_sources (len == {0}), </span>
-<span class="s">data source_groups (len == {1}) and </span>
-<span class="s">data_source_args (len == {2)}&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_groups</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)))</span>
-    
+    <span class="n">_validate_get_data_batch</span><span class="p">(</span><span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">,</span> <span class="s">&#39;get_data_batch&#39;</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_groups</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_args</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
     
     <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_namespaced_data">
+        <p>def <span class="ident">get_namespaced_data</span>(</p><p>data, data_source, data_source_group, data_source_args)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>As in <code>get_data</code>, but each attribute dict in each array of attribute dicts that is the value of each key 
+in the data set is prepended with the plugin name and plugin group. </p>
+<p>Namespaced output looks like this:</p>
+<div class="codehilite"><pre><span class="p">{</span><span class="s">&quot;key_1&quot;</span> <span class="o">:</span> <span class="p">[{</span><span class="s">&quot;plugin_group_A::plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">},</span> 
+            <span class="p">{</span><span class="s">&quot;plugin_group_A::plugin_1::attr_name_2&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&quot;plugin_group_B::plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">}],</span>
+<span class="s">&quot;key_2&quot;</span> <span class="o">:</span> <span class="p">...</span>
+<span class="p">}</span>
+</pre></div></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_namespaced_data', this);">Show source.</a></p>
+    <div id="source-runner.get_namespaced_data" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_namespaced_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;As in `get_data`, but each attribute dict in each array of attribute dicts that is the value of each key </span>
+<span class="sd">in the data set is prepended with the plugin name and plugin group. </span>
+
+<span class="sd">Namespaced output looks like this:</span>
+<span class="sd">    </span>
+<span class="sd">    {&quot;key_1&quot; : [{&quot;plugin_group_A::plugin_1::attr_name_1&quot; : value}, </span>
+<span class="sd">                {&quot;plugin_group_A::plugin_1::attr_name_2&quot; : value},</span>
+<span class="sd">                {&quot;plugin_group_B::plugin_1::attr_name_1&quot; : value}],</span>
+<span class="sd">    &quot;key_2&quot; : ...</span>
+<span class="sd">    }</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
+    <span class="c"># Take the data returned, get the list of dicts associated with each key, for each attribute key in each</span>
+    <span class="c">#  attribute dict in each list of dicts, creat the namespaced key. Insert a new attribute dict into the list</span>
+    <span class="c">#  over the old one with the namespaced key and the same value</span>
+    <span class="k">for</span> <span class="n">attrs</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">attrs</span><span class="p">)):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">attrs</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+            <span class="n">attr_key</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">namespacer</span><span class="p">(</span><span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">attr_val</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">attrs</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">attr_key</span> <span class="p">:</span> <span class="n">attr_val</span><span class="p">}</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_namespaced_data_batch">
+        <p>def <span class="ident">get_namespaced_data_batch</span>(</p><p>data, data_sources, data_source_groups, data_source_args)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>As in <code>get_data_batch</code>, but each attribute dict in each array of attribute dicts that is the value of each key 
+in the data set is prepended with the plugin name and plugin group. All plugins called in the batch call will 
+namespace the attributes they contribute to the final data set returned.</p>
+<p>Namespaced output looks like this:</p>
+<div class="codehilite"><pre><span class="p">{</span><span class="s">&quot;key_1&quot;</span> <span class="o">:</span> <span class="p">[{</span><span class="s">&quot;plugin_group_A::plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">},</span> 
+            <span class="p">{</span><span class="s">&quot;plugin_group_A::plugin_1::attr_name_2&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">},</span>
+            <span class="p">{</span><span class="s">&quot;plugin_group_B::plugin_1::attr_name_1&quot;</span> <span class="o">:</span> <span class="n">value</span><span class="p">}],</span>
+<span class="s">&quot;key_2&quot;</span> <span class="o">:</span> <span class="p">...</span>
+<span class="p">}</span>
+</pre></div></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_namespaced_data_batch', this);">Show source.</a></p>
+    <div id="source-runner.get_namespaced_data_batch" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_namespaced_data_batch</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;As in `get_data_batch`, but each attribute dict in each array of attribute dicts that is the value of each key </span>
+<span class="sd">in the data set is prepended with the plugin name and plugin group. All plugins called in the batch call will </span>
+<span class="sd">namespace the attributes they contribute to the final data set returned.</span>
+
+<span class="sd">Namespaced output looks like this:</span>
+<span class="sd">    </span>
+<span class="sd">    {&quot;key_1&quot; : [{&quot;plugin_group_A::plugin_1::attr_name_1&quot; : value}, </span>
+<span class="sd">                {&quot;plugin_group_A::plugin_1::attr_name_2&quot; : value},</span>
+<span class="sd">                {&quot;plugin_group_B::plugin_1::attr_name_1&quot; : value}],</span>
+<span class="sd">    &quot;key_2&quot; : ...</span>
+<span class="sd">    }</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">_validate_get_data_batch</span><span class="p">(</span><span class="n">data_sources</span><span class="p">,</span> <span class="n">data_source_groups</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">,</span> <span class="s">&#39;get_namespaced_data_batch&#39;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_sources</span><span class="p">)):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">get_namespaced_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_sources</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_groups</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">data_source_args</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="runner.get_namespaced_schema">
+        <p>def <span class="ident">get_namespaced_schema</span>(</p><p>data_source, data_source_group, args=None)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>As in <code>get_schema</code> except that the schema attribute keys returned are prepended with the <code>data_source</code> and 
+<code>data_source_group</code>.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-runner.get_namespaced_schema', this);">Show source.</a></p>
+    <div id="source-runner.get_namespaced_schema" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_namespaced_schema</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;As in `get_schema` except that the schema attribute keys returned are prepended with the `data_source` and </span>
+<span class="sd">`data_source_group`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_get_schema</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">get_namespaced_schema</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1649,16 +1842,7 @@ one returned data set.</p></div>
 <span class="sd">one returned data set.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
-    <span class="n">schema</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="n">parsed_args</span><span class="p">)</span>
-   
-    <span class="k">return</span> <span class="p">{</span><span class="s">&quot;schema&quot;</span> <span class="p">:</span> <span class="n">schema</span><span class="p">}</span> 
+    <span class="k">return</span> <span class="n">_get_schema</span><span class="p">(</span><span class="n">plugin</span><span class="o">.</span><span class="n">get_schema</span><span class="p">,</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1686,16 +1870,19 @@ name of the plugin module being called. Required.</li>
 <li>
 <p><code>[--SF-g|--SF-data-source-group</code>] - The plugin group where the plugin lives. This is 
 the plugins subdirectory where the plugin module is deployed. Required.
-<code>[--SF-a|--SF-action]</code> - The plugin action being called. One of four supported actions that must be part of every plugin:
-<code>get_data</code>: </p>
+<code>[--SF-a|--SF-action]</code> - The plugin action being called. One of five supported actions that must be part of every plugin:</p>
 </li>
 <li>
-<p>retrieves available data for the keys passed to it</p>
+<p><code>get_data</code> - retrieves available data for the keys passed to it</p>
 </li>
+<li><code>get_namespaced_data</code> - retrieves available data for the keys passed to it, with the attribute keys associated with each
+key prepended with the plugin name and plugin group</li>
 <li><code>adds_keys</code> - returns a JSON object with the attribute <code>adds_keys</code> and a 
 boolean indicating whether the data source adds keys or just gets data for the keys passed to it</li>
 <li><code>get_schema</code> - returns a JSON object with the attribute <code>schema</code> and the schema of attributes which 
 this data source may add for each key</li>
+<li><code>get_namespaced_schema</code> - returns a JSON object with the attribute <code>schema</code> and the schema of attributes which 
+this data source may add for each key, with each attribute prepended with the plugin name and plugin group</li>
 <li><code>parse_args</code> - returns the values parsed for the arguments passed to the call being 
 made as a JSON object with an attribute <code>args</code> and an array of parsed args,
 and an attribute <code>is_valid</code> with a boolean indicating whether parsing succeeded.</li>
@@ -1741,14 +1928,17 @@ action will be used to perform that action and return the result.</p>
 <span class="sd">name of the plugin module being called. Required.</span>
 <span class="sd">* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is </span>
 <span class="sd">the plugins subdirectory where the plugin module is deployed. Required.</span>
-<span class="sd">`[--SF-a|--SF-action]` - The plugin action being called. One of four supported actions that must be part of every plugin:</span>
-<span class="sd">`get_data`: </span>
+<span class="sd">`[--SF-a|--SF-action]` - The plugin action being called. One of five supported actions that must be part of every plugin:</span>
 
-<span class="sd">- retrieves available data for the keys passed to it</span>
+<span class="sd">- `get_data` - retrieves available data for the keys passed to it</span>
+<span class="sd">- `get_namespaced_data` - retrieves available data for the keys passed to it, with the attribute keys associated with each</span>
+<span class="sd">key prepended with the plugin name and plugin group</span>
 <span class="sd">- `adds_keys` - returns a JSON object with the attribute `adds_keys` and a </span>
 <span class="sd">boolean indicating whether the data source adds keys or just gets data for the keys passed to it</span>
 <span class="sd">- `get_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which </span>
 <span class="sd">this data source may add for each key</span>
+<span class="sd">- `get_namespaced_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which </span>
+<span class="sd">this data source may add for each key, with each attribute prepended with the plugin name and plugin group</span>
 <span class="sd">- `parse_args` - returns the values parsed for the arguments passed to the call being </span>
 <span class="sd">made as a JSON object with an attribute `args` and an array of parsed args,</span>
 <span class="sd">and an attribute `is_valid` with a boolean indicating whether parsing succeeded.</span>

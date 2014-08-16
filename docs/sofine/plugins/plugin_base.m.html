@@ -1039,7 +1039,7 @@ base class. For example implementations, see any of the plugins under <code>sofi
 <span class="sd">in the `standard` group, need to overload this method to set their schema property based </span>
 <span class="sd">on the data they retrieve.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_namespaced_schema</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span>
 
 
     <span class="k">def</span> <span class="nf">get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1115,7 +1115,7 @@ base class. For example implementations, see any of the plugins under <code>sofi
 <span class="sd">in the `standard` group, need to overload this method to set their schema property based </span>
 <span class="sd">on the data they retrieve.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_namespaced_schema</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">schema</span>
 
 
     <span class="k">def</span> <span class="nf">get_namespaced_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1279,7 +1279,7 @@ on the data they retrieve.</p></div>
 <span class="s"> should suffice for any plugin that knows its schema. Dynamic plugins, like `file_source` </span>
 <span class="s">he `standard` group, need to overload this method to set their schema property based </span>
 <span class="s">he data they retrieve.</span>
-<span class="s">    return self.get_namespaced_schema()</span>
+<span class="s">    return self.schema</span>
 </pre></div>
 
     </div>
