@@ -22,12 +22,10 @@ def _get_data(c, customer_id, p, password, a, account_id, e, email):
 
 def _store_data(insert_data, db_password):
     import psycopg2
-
     
     def report_db_error(e):
         print('Error code: {0}, Error: {1}, Dianostic severity: {2}, Diagnostic message: {3}'.format(
             e.pgcode, e.pgerror, e.diag.severity, e.diag.message_primary))
-
     
     db_name = 'sofine_portfolio'
     db_user = 'markweiss'

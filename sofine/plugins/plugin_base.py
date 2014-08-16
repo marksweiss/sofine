@@ -53,7 +53,7 @@ This should suffice for any plugin that knows its schema. Dynamic plugins, like 
 in the `standard` group, need to overload this method to set their schema property based 
 on the data they retrieve.
 """
-        return self.get_namespaced_schema()
+        return self.schema
 
 
     def get_namespaced_schema(self):

@@ -23,7 +23,7 @@ class TestCase(unittest.TestCase):
 
 
     def test_rest_runner(self):
-        post_data = {"AAPL" : {}, "MSFT" : {}}
+        post_data = {"AAPL" : [], "MSFT" : []}
         data_source = 'archive_dot_org_search_results'
         data_source_group = 'example'
         
@@ -35,13 +35,15 @@ class TestCase(unittest.TestCase):
 
         # The keys returned match and there are attributes from the call for each key
         self.assertTrue(set(ret.keys()) == set(['AAPL', 'MSFT']))
-        for k in ret.keys():
-            self.assertTrue(ret[k].keys())
+        for attrs in ret.values():
+            for attr in attrs:
+                attr = attr.popitem()
+                assert(attr[0] and attr[1])
 
 
     def test_rest_runner_pipeline(self):
-        post_data = {"AAPL" : {}, "MSFT" : {}}
-        data_source_1 = 'google_search_results' # 'ystockquotelib' 
+        post_data = {"AAPL" : [], "MSFT" : []}
+        data_source_1 = 'google_search_results'
         data_source_group_1 = 'example'
         data_source_2 = 'archive_dot_org_search_results'
         data_source_group_2 = 'example'
@@ -53,11 +55,15 @@ class TestCase(unittest.TestCase):
         ret = urllib2.urlopen(url, json.dumps(post_data))
         ret = ret.read()
         ret = json.loads(ret)
-
+        
         # The keys returned match and there are attributes from the call for each key
         self.assertTrue(set(ret.keys()) == set(post_data.keys()))
-        for k in ret.keys():
-            self.assertTrue(ret[k].keys())
+        for attrs in ret.values():
+            for attr in attrs:
+                # Make a copy because popitem() is destructive and we 
+                #  use the ret object below in additional test comparing to schemas
+                attr = dict(attr).popitem()
+                assert(attr[0] and attr[1])
 
         url = 'http://localhost:{0}/SF-s/{1}/SF-g/{2}/SF-a/get_schema'.format(
                 conf.REST_PORT, data_source_1, data_source_group_1)
@@ -74,9 +80,10 @@ class TestCase(unittest.TestCase):
         
         # Make a set of all the attribute keys found in the return data
         all_data_attrs = set()
-        for k in ret.keys():
-            for attr_key in ret[k]:
-                all_data_attrs.add(attr_key)
+        for attrs in ret.values():
+            for attr in attrs:
+                attr = attr.popitem()
+                all_data_attrs.add(attr[0])
 
         for k in schema_1['schema']:
             self.assertTrue(k in all_data_attrs)
@@ -86,4 +93,5 @@ class TestCase(unittest.TestCase):
 
 if __name__ == '__main__':  
     unittest.main()
+
 

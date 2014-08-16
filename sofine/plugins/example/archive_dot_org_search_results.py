@@ -79,6 +79,7 @@ class ArchiveDotOrgSearchResults(plugin_base.PluginBase):
 * `self.schema = ['docs']`
 * `self.adds_keys = False`
 """
+        super(ArchiveDotOrgSearchResults, self).__init__()
         self.name = 'archive_dot_org_search_results'
         self.group = 'example'
         self.schema = ['docs']

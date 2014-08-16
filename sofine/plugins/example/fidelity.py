@@ -211,6 +211,7 @@ class FidelityPortfolioScraper(plugin_base.PluginBase):
                   'change_since_purchase_pct', 'quantity']`
 * `self.adds_keys = True`
 """
+        super(FidelityPortfolioScraper, self).__init__()
         self.name = 'fidelity'
         self.group = 'example'
         self.schema = ['change_since_purchase', 'description', 

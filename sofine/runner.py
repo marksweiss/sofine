@@ -14,15 +14,17 @@ import sys
 
 def get_data(data, data_source, data_source_group, data_source_args):
     """
-* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+* `data` - `dict`. A dict of keys and associated array of dicts of attribute keys and values. May be empty. 
 Any data collected by this call with append new keys and values to `data`, and append new attribute keys 
-and values for existing keys into the dict associated with that key. Also, if this call is invoked from a 
-piped command line call piping to sofine, that will be detected and `data` will be read from `stdin`, 
-overriding whatever value is passed in for this arg.
+and values for existing keys into the array of attribute key/attribute value (single-entry) dicts 
+associated with that key. Also, if this call is invoked from a piped command line call piping to sofine, 
+that will be detected and `data` will be read from `stdin`, overriding whatever value is passed in for this arg.
 * `data_source` - `string`. The name of the plugin being called.
 * `data_source_group` - `string`.  The name of the plugin group for the plugin being called.
 * `data_source_args` - `list`. The args for the plugin call, in `argv` format with alternating elements 
 referring to argument names and argument values.
+* `use_namespaced_attrs` - Defaults to False. Prepend all attribute keys from all plugin calls with the plugin name and plugin
+group to guarantee the key name is unique in the returned data set.
 
 Main driver function for retrieving data from a plugin. Calls a plugin's _required_ `get_data` method. 
 Takes a list of data_sources and a list of argument lists to call when calling each data_source. 
@@ -33,15 +35,14 @@ This method operates based on the core data aggregation semantics of the library
 * If this is the first call in the chain, data is empty, so just fill it with the return of this call
 * If there is already data, add any new keys retrieved and add attribute key/value pairs associated 
 with any new or existing keys 
-* Attribute key names are namespaced with the plugin name and plugin group to guarantee they are unique and
-do not overwrite other attributes with the same name from other plugins  
-* So, the set of keys on each call is the union of all previously collected keys
-* So, the set of attributes associated with each key is the union of all previously collected attribute/value
+is True. 
+* The set of keys on each call is the union of all previously collected keys
+* The set of attributes associated with each key is the union of all previously collected attribute/value
  pairs collected for that key
 
-The final output looks like this:
+Output looks like this:
     
-    {"key_1" : {"plugin_1::attr_name_1" : value, "plugin_1::attr_name_2" : value, "plugin_2::attr_name_1, value},
+    {"key_1" : [{"attr_name_1" : value}, {"attr_name_2" : value}, {"attr_name_1, value}],
     "key_2" : ...
     }
 
@@ -55,46 +56,111 @@ The final output looks like this:
 
     if len(new_data.keys()) > 0:
         for k in new_data.keys():
-            # Namespace the key of the attribute with a prefix of the name of the current plugin
-            namespaced_attrs = {utils.namespacer(data_source_group, data_source, name) : val 
-                                for name, val in new_data[k].iteritems()}            
-            
+            # Convert returned dict of attributes into a list of individual dicts. This allows all data
+            #  from all plugins to be added to the output without needing namespacing to prevent attributed
+            #  keys from overwriting each other. Namespacing can optionally be turned on by the caller.
+            new_data_list = [{name : val} for name, val in new_data[k].iteritems()]
             if k in data:
-                data[k].update(namespaced_attrs)
+                data[k] += new_data_list
             else:
-                data[k] = namespaced_attrs
+                data[k] = new_data_list 
     
     return data
 
 
+def get_namespaced_data(data, data_source, data_source_group, data_source_args):
+    """As in `get_data`, but each attribute dict in each array of attribute dicts that is the value of each key 
+in the data set is prepended with the plugin name and plugin group. 
+
+Namespaced output looks like this:
+    
+    {"key_1" : [{"plugin_group_A::plugin_1::attr_name_1" : value}, 
+                {"plugin_group_A::plugin_1::attr_name_2" : value},
+                {"plugin_group_B::plugin_1::attr_name_1" : value}],
+    "key_2" : ...
+    }
+"""
+    data = get_data(data, data_source, data_source_group, data_source_args)
+    # Take the data returned, get the list of dicts associated with each key, for each attribute key in each
+    #  attribute dict in each list of dicts, creat the namespaced key. Insert a new attribute dict into the list
+    #  over the old one with the namespaced key and the same value
+    for attrs in data.values():
+        for j in range(0, len(attrs)):
+            attr = dict(attrs[j])
+            attr_key = utils.namespacer(data_source_group, data_source, attr.keys()[0])
+            attr_val = attr.values()[0]
+            attrs[j] = {attr_key : attr_val}
+    
+    return data
+
+
+def _validate_get_data_batch(data_sources, data_source_groups, data_source_args, fn_name):
+    if len(data_sources) != len(data_source_args) or \
+            len(data_sources) != len(data_source_groups) or \
+            len(data_source_groups) != len(data_source_args):
+        raise ValueError("""Call to runner.{0}() had different lengths for 
+data_sources (len == {1}), 
+data source_groups (len == {2}) and 
+data_source_args (len == {3)}""".format(fn_name, len(data_sources), len(data_source_groups), len(data_source_args)))
+
+
 def get_data_batch(data, data_sources, data_source_groups, data_source_args):
     """
-* `data` - `dict`. A dict of keys and associated dicts of attribute keys and values. May be empty. 
+* `data` - `dict`. A dict of keys and associated array of dicts of attribute keys and values. May be empty. 
 Any data collected by this call with append new keys and values to `data`, and append new attribute keys 
 and values for existing keys into the dict associated with that key. 
 * `data_source` - `list`. A list of names of plugins being called.
 * `data_source_group` - `list`.  A list of names of plugin groups for the plugins being called.
 * `data_source_args` - `list of list`. A list of lists of args for the plugin calls, in argv format with alternating elements 
 referring to argument names and argument values.
-    
+
 Convenience wrapper for users of sofine as a Python library. This function lets a user pass in 
 a list of data sources, a list of plugin groups and a list of lists of arguments for each plugin call. 
 Note that the elements must be in order in each argument: data source name in position 0 must match 
 data source group in position 0 and the list of args for that call in `data_source_args[0]`.
 """
-    
-    if len(data_sources) != len(data_source_args) or \
-            len(data_sources) != len(data_source_groups) or \
-            len(data_source_groups) != len(data_source_args):
-        raise ValueError("""Call to runner.batch_run() had different lengths for 
-data_sources (len == {0}), 
-data source_groups (len == {1}) and 
-data_source_args (len == {2)}""".format(len(data_sources), len(data_source_groups), len(data_source_args)))
-    
+    _validate_get_data_batch(data_sources, data_source_groups, data_source_args, 'get_data_batch')
+
     for j in range(0, len(data_sources)):
         data = get_data(data, data_sources[j], data_source_groups[j], data_source_args[j])
     
     return data
+
+
+def get_namespaced_data_batch(data, data_sources, data_source_groups, data_source_args):
+    """As in `get_data_batch`, but each attribute dict in each array of attribute dicts that is the value of each key 
+in the data set is prepended with the plugin name and plugin group. All plugins called in the batch call will 
+namespace the attributes they contribute to the final data set returned.
+
+Namespaced output looks like this:
+    
+    {"key_1" : [{"plugin_group_A::plugin_1::attr_name_1" : value}, 
+                {"plugin_group_A::plugin_1::attr_name_2" : value},
+                {"plugin_group_B::plugin_1::attr_name_1" : value}],
+    "key_2" : ...
+    }
+"""
+    _validate_get_data_batch(data_sources, data_source_groups, data_source_args, 'get_namespaced_data_batch')
+
+    for j in range(0, len(data_sources)):
+        data = get_namespaced_data(data, data_sources[j], data_source_groups[j], data_source_args[j])
+    
+    return data
+
+
+def _get_schema(get_schema_call, parse_args_call, data_source, data_source_group, args):
+    plugin = utils.load_plugin(data_source, data_source_group)
+    
+    schema = None
+    if not args:
+        schema = get_schema_call() 
+    else:
+        is_valid, parsed_args = parse_args_call(args)
+        if not is_valid:
+            raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
+        schema = get_schema_call(parsed_args)
+   
+    return {"schema" : schema} 
 
 
 def get_schema(data_source, data_source_group, args=None):
@@ -119,16 +185,15 @@ all data sources guarantee they will return the same set of attribute keys for e
 one returned data set.
 """
     plugin = utils.load_plugin(data_source, data_source_group)
-    schema = None
-    if not args:
-        schema = plugin.get_schema()
-    else:
-        is_valid, parsed_args = plugin.parse_args(args)
-        if not is_valid:
-            raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
-        schema = plugin.get_schema(parsed_args)
-   
-    return {"schema" : schema} 
+    return _get_schema(plugin.get_schema, plugin.parse_args, data_source, data_source_group, args)
+
+
+def get_namespaced_schema(data_source, data_source_group, args=None):
+    """As in `get_schema` except that the schema attribute keys returned are prepended with the `data_source` and 
+`data_source_group`.
+"""
+    plugin = utils.load_plugin(data_source, data_source_group)
+    return _get_schema(plugin.get_namespaced_schema, plugin.parse_args, data_source, data_source_group, args)
 
 
 def parse_args(data_source, data_source_group, data_source_args):
@@ -236,9 +301,12 @@ def _parse_runner_args(args):
 def _run_action(action, ret, data_source, data_source_group, data_source_args):
     if action == 'get_data':
         ret = get_data(ret, data_source, data_source_group, data_source_args)
-    # Only get_data() supports chaining, so just break after one of other actions
+    if action == 'get_namespaced_data':
+        ret = get_namespaced_data(ret, data_source, data_source_group, data_source_args)
     elif action == 'get_schema':
         ret = get_schema(data_source, data_source_group, data_source_args)
+    elif action == 'get_namespaced_schema':
+        ret = get_namespaced_schema(data_source, data_source_group, data_source_args)
     elif action == 'adds_keys':
         ret = adds_keys(data_source, data_source_group)
     elif action == 'parse_args':
@@ -259,14 +327,17 @@ There is a short form and long form of each command:
 name of the plugin module being called. Required.
 * `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is 
 the plugins subdirectory where the plugin module is deployed. Required.
-`[--SF-a|--SF-action]` - The plugin action being called. One of four supported actions that must be part of every plugin:
-`get_data`: 
+`[--SF-a|--SF-action]` - The plugin action being called. One of five supported actions that must be part of every plugin:
 
-- retrieves available data for the keys passed to it
+- `get_data` - retrieves available data for the keys passed to it
+- `get_namespaced_data` - retrieves available data for the keys passed to it, with the attribute keys associated with each
+key prepended with the plugin name and plugin group
 - `adds_keys` - returns a JSON object with the attribute `adds_keys` and a 
 boolean indicating whether the data source adds keys or just gets data for the keys passed to it
 - `get_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which 
 this data source may add for each key
+- `get_namespaced_schema` - returns a JSON object with the attribute `schema` and the schema of attributes which 
+this data source may add for each key, with each attribute prepended with the plugin name and plugin group
 - `parse_args` - returns the values parsed for the arguments passed to the call being 
 made as a JSON object with an attribute `args` and an array of parsed args,
 and an attribute `is_valid` with a boolean indicating whether parsing succeeded.

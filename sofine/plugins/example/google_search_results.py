@@ -68,6 +68,7 @@ class GoogleSearchResults(plugin_base.PluginBase):
 * `self.schema = ['results']`
 * `self.adds_keys = False`
 """
+        super(GoogleSearchResults, self).__init__()
         self.name = 'google_search_results'
         self.group = 'example'
         self.schema = ['results']

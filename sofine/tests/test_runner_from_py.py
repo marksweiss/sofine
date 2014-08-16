@@ -7,7 +7,7 @@ import sofine.lib.utils.utils as utils
 class TestCase(unittest.TestCase):
     
     def test_runner_mock(self):
-        data = {"AAPL" : {}, "MSFT" : {}}
+        data = {"AAPL" : [], "MSFT" : []}
         data_source = 'ystockquotelib_mock'
         data_source_group = 'mock'
         data_source_args = []
@@ -19,9 +19,28 @@ class TestCase(unittest.TestCase):
         self.assertTrue(expected_keys == actual_keys)
         for k in actual_keys:
             self.assertTrue(len(data[k]))
-            for attr_key in data[k]:
-                self.assertTrue(data[k][attr_key] is not None)
+            for attr in data[k]:
+                for k,v in attr.iteritems():
+                    self.assertTrue(k is not None and v is not None)
 
+
+    def test_runner_mock_namespaced(self):
+        data = {"AAPL" : [], "MSFT" : []}
+        data_source = 'ystockquotelib_mock'
+        data_source_group = 'mock'
+        data_source_args = []
+        data = runner.get_namespaced_data(data, data_source, data_source_group, data_source_args)
+        
+        actual_keys = set(data.keys())
+        expected_keys = set(['AAPL', 'MSFT'])
+
+        self.assertTrue(expected_keys == actual_keys)
+        for k in actual_keys:
+            self.assertTrue(len(data[k]))
+            for attr in data[k]:
+                for k,v in attr.iteritems():
+                    self.assertTrue(k is not None and k.startswith('mock::ystockquotelib_mock::') and v is not None)
+   
 
     def test_runner_file_source(self):
         data = {}
@@ -55,8 +74,7 @@ class TestCase(unittest.TestCase):
         data_source_args = ['-p', path]
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
-        expected_keys = set(
-                [utils.namespacer(data_source_group, data_source, key) for key in ['AAPL', 'MSFT']])
+        expected_keys = set(['AAPL', 'MSFT'])
         
         self.assertTrue(expected_keys == set(data.keys()))
 
@@ -96,14 +114,14 @@ class TestCase(unittest.TestCase):
 
     
     def test_get_schema(self):
-        data = {'AAPL' : {}}
+        data = {'AAPL' : []}
         data_source = 'ystockquotelib_mock'
         data_source_group = 'mock'
         args = []
         data = runner.get_data(data, data_source, data_source_group, args)
         schema = runner.get_schema(data_source, data_source_group)
-
-        self.assertTrue(set(data['AAPL'].keys()) == set(schema['schema']))
+        attr_keys = [attr.keys()[0] for attr in data['AAPL']]
+        self.assertTrue(set(attr_keys) == set(schema['schema']))
 
 
     def test_runner_get_data_batch(self):
@@ -120,6 +138,43 @@ class TestCase(unittest.TestCase):
         self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
         self.assertTrue(len(data['AAPL']) and len(data['MSFT'])) 
 
+
+    def test_runner_get_namespaced_data_batch(self):
+        data = {}
+        data_sources = ['file_source', 'ystockquotelib_mock']
+        data_source_groups = ['standard', 'mock']
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
+        file_source_args = ['-p', path]
+        ystockquote_args = []
+        data_source_args = [file_source_args, ystockquote_args]
+        
+        data = runner.get_namespaced_data_batch(data, data_sources, data_source_groups, data_source_args)
+        
+        self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
+        self.assertTrue(len(data['AAPL']) and len(data['MSFT'])) 
+       
+        for k in data.keys():
+            self.assertTrue(len(data[k]))
+            for attr in data[k]:
+                for k,v in attr.iteritems():
+                    self.assertTrue(k is not None and 
+                            (k.startswith('mock::ystockquotelib_mock::') or k.startswith('standard::file_source::'))
+                            and v is not None)
+
+
+    def test_runner_get_data_batch(self):
+        data = {}
+        data_sources = ['file_source', 'ystockquotelib_mock']
+        data_source_groups = ['standard', 'mock']
+        path = './sofine/tests/fixtures/file_source_test_data.txt'
+        file_source_args = ['-p', path]
+        ystockquote_args = []
+        data_source_args = [file_source_args, ystockquote_args]
+        
+        data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
+        
+        self.assertTrue(set(data.keys()) == set(['AAPL', 'MSFT']))
+        self.assertTrue(len(data['AAPL']) and len(data['MSFT'])) 
 
     # Test composing operations where some are an initial source of keys, some
     #  add new keys in an intermediate step, and some just add attributes to keys
@@ -160,9 +215,9 @@ class TestCase(unittest.TestCase):
         # Assert that the final output has values from ystockquotelib_mock for 
         #  keys added by file_source
         for k in file_source_keys_1:
-            self.assertTrue(len(data[k].keys()))
+            self.assertTrue(len(data[k]))
         for k in file_source_keys_2:
-            self.assertTrue(len(data[k].keys()))
+            self.assertTrue(len(data[k]))
 
 
 if __name__ == '__main__':  

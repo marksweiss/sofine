@@ -20,6 +20,7 @@ class YStockQuoteLib(plugin_base.PluginBase):
                        'price_earnings_ratio', 'book_value']`
 * `self.adds_keys = False`
 """
+        super(YStockQuoteLib, self).__init__()
         self.name = 'ystockquotelib'
         self.group = 'example'
         self.schema = ['fifty_two_week_low', 'market_cap', 'price', 'short_ratio', 

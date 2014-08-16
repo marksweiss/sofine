@@ -43,6 +43,7 @@ it's schema property is [].
 
 This plugin adds keys from it's file.
 """     
+        super(FileSource, self).__init__()
         self.name = 'file_source'
         self.group = 'standard'
         self.schema = []

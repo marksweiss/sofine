@@ -1,0 +1,11 @@
+v. 0.2
+- Breaking change with 0.1.3 - data now returns as a JSON object mapping string keys to arrays of single key/value pair JSON objects. This allows returning any attribute keys, including atribute keys with clashing names, without overwriting any data, and without needing to namespace the keys
+- Breaking change with 0.1.3 - get_data no longer returns data with namespaced attribute key names by default
+- Breaking change wiht 0.1.3 - get_schema no longer returns attribute key names namespaced by default
+- Added new action, get_namespaced_data, to retrieve data with namespaced attribute key names
+- Added new action, get_namespaced_schema, to retrieve attribute key names namespaced
+- Added tests for the new methods
+- Modified plugins to call their super class, PluginBase, to fix a bug where they weren't inheriting super class instance attributes
+- Modified Makefile to add a make deploy target, which deletes the previous package version from the project directory and PYTHONPATH, builds a new package, and deploys the package to PYTHONPATH. This is necessary for development, because import paths only resolve from PYTHONPATH, not running the code directly from the project directory. So now make test runs make deploy first.
+- Extensively modified README. Reorganized and improved language, added examples, and added descriptions of the new actions.
+- Added these RELEASE NOTES for the first time

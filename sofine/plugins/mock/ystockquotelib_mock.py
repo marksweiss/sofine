@@ -4,6 +4,7 @@ from sofine.plugins import plugin_base as plugin_base
 class YstockquoteLibMock(plugin_base.PluginBase):
 
     def __init__(self):
+        super(YstockquoteLibMock, self).__init__()
         self.name = 'ystockquotelib_mock'
         self.group = 'mock'
         self.schema = ['fifty_two_week_low', 'market_cap', 'price', 'short_ratio', 
