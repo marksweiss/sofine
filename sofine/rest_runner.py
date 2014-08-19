@@ -50,11 +50,10 @@ def _parse_args_from_path(path):
     # Parse global arguments that must precede call arguments.
     # NOTE: TODO There is no validation here and the user must construct paths that match
     #  the documentation or all bets are off
-    data_format = None
+    data_format = conf.DEFAULT_DATA_FORMAT
     if len(args):
         global_arg_call = args[0]
         data_format = runner._parse_global_call_args(global_arg_call)
-        runner.DATA_FORMAT_PLUGIN = utils.load_plugin_module(data_format) 
 
     # Build the pipeline of sofine calls from the remaining arguments
     calls = []
@@ -78,7 +77,7 @@ def _parse_args_from_path(path):
     if len(call):
         calls.append(list(call))
     
-    return calls
+    return data_format, calls
 
 
 def _get_traceback():
@@ -120,9 +119,14 @@ the local file system.
 """
     ret = {} 
     status = '200 OK'
+    # TODO THIS IS A BUG FOR ANY FORMAT OTHER THAN JSON
+    # Can support CSV and other text formats with known Content-type mappings but 
+    #  need a strategy for binary and other formats without a Content-type
     headers = [('Content-type', 'application/json')]
     
-    calls = _parse_args_from_path(environ.get('PATH_INFO'))
+    data_format, calls = _parse_args_from_path(environ.get('PATH_INFO'))
+
+    data_format_plugin = utils.load_plugin_module(data_format)
 
     method = environ['REQUEST_METHOD']
     # This is a POST call to get_data. Get any data from the POST body, and support
@@ -132,12 +136,13 @@ the local file system.
             # Get ret, which initializes to any data provided in the POST body 
             ret_len = int(environ['CONTENT_LENGTH'])
             ret = environ['wsgi.input'].read(ret_len)
-            ret = json.loads(ret)
+            ret = data_format_plugin.deserialize(ret)
                 
             for call in calls:
                 ret = _run_action(ret, call)
 
             status = '200 OK'
+            # TODO THIS IS A BUG FOR ANY FORMAT OTHER THAN JSON
             headers = [('Content-type', 'application/json')]
         except:
             ret = _get_traceback()
@@ -160,7 +165,7 @@ the local file system.
         ret = status + '. Only the POST and GET verbs are allowed'
 
     start_response(status, headers)
-    return [json.dumps(ret)]
+    return [data_format_plugin.serialize(ret)]
 
 
 if __name__ == '__main__':
