@@ -79,7 +79,7 @@ def _get_traceback():
 
 def _run_action(ret, call):
     data_source, data_source_group, action, data_source_args = \
-            runner._parse_runner_args(call)
+            runner._parse_runner_call_args(call)
     return runner._run_action(action, ret, data_source, data_source_group, data_source_args)
 
 

@@ -8,7 +8,6 @@ using just the plugin name, plugin group and call args.
 import sofine.lib.utils.utils as utils
 import sofine.lib.utils.conf as conf
 from optparse import OptionParser
-import json
 import sys
 
 
@@ -238,7 +237,7 @@ Convenience function for clients to get an instance of a plugin module.
 This lets plugin implementers expose free functions in the module and have client 
 code be able to access them.
 """
-    return utils.load_plugin_module(data_source, data_source_group)
+    return utils.load_plugin_module(data_source)
 
 
 def get_plugin(data_source, data_source_group):
@@ -253,45 +252,56 @@ code be able to access them.
     return utils.load_plugin(data_source, data_source_group)
 
 
-def _parse_runner_args(args):
+def _parse_runner_arg(args, arg_flags):
+    ret = None
+            
+    def try_arg_flag(arg_flag):
+        e = ''
+        i = -1
+        try:
+            i = args.index(arg_flag)
+        except ValueError:
+            e = 'Required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
+        if i == len(args) - 1:
+            e = 'Value for required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
+
+        return e, i
+
+    # Try twice if necessary, for each of the two forms of the arg flag
+    err, idx = try_arg_flag(arg_flags[0])
+    if err:
+        err, idx = try_arg_flag(arg_flags[1])
+    # Flag was found, value for it parsed, and flag and value removed from args
+    if not err:
+        ret = args[idx + 1]
+        del args[idx + 1]
+        del args[idx]
+
+    return err, ret
+
+
+def _parse_global_call_args(args):
+    # Default output to JSON
+    output_format = None 
+    err, output_format = _parse_runner_arg(args, ['--SF-o', '--SF-output-format'])
+    if err:
+        output_format = 'json'
+    
+    return output_format
+
+
+def _parse_runner_call_args(args):
     data_source = None
     data_source_group = None
     action = None
-
-    def parse_runner_arg(args, arg_flags):
-        ret = None
-            
-        def try_arg_flag(arg_flag):
-            e = ''
-            i = -1
-            try:
-                i = args.index(arg_flag)
-            except ValueError:
-                e = 'Required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
-            if i == len(args) - 1:
-                e = 'Value for required argument {0} not found in command line argument list passed to runner.main()'.format(arg_flag)
-
-            return e, i
-
-        # Try twice if necessary, for each of the two forms of the arg flag
-        err, idx = try_arg_flag(arg_flags[0])
-        if err:
-            err, idx = try_arg_flag(arg_flags[1])
-        # Flag was found, value for it parsed, and flag and value removed from args
-        if not err:
-            ret = args[idx + 1]
-            del args[idx + 1]
-            del args[idx]
-
-        return err, ret
       
     # Parse for both versions of required flags and raise error if not found
-    err, data_source = parse_runner_arg(args, ['--SF-s', '--SF-data-source'])
+    err, data_source = _parse_runner_arg(args, ['--SF-s', '--SF-data-source'])
     if err: raise ValueError(err)
-    err, data_source_group = parse_runner_arg(args, ['--SF-g','--SF-data-source-group'])
+    err, data_source_group = _parse_runner_arg(args, ['--SF-g','--SF-data-source-group'])
     if err: raise ValueError(err)
     # For optional argument, don't throw if not found, just set default value
-    err, action = parse_runner_arg(args, ['--SF-a', '--SF-action'])
+    err, action = _parse_runner_arg(args, ['--SF-a', '--SF-action'])
     if err:
         action = 'get_data'
 
@@ -369,25 +379,33 @@ An example get_schema call:
     PATH/runner.py \'--SF-s fidelity --SF-g examples --SF-a get_schema \\
     -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL\'
 """
-   
-    # If input passed from stdin, set initial data in chain of calls to that.
-    # Thus supports composing sofine piped chains with preceding outer piped
-    #  command line statements that include sofine pipes within them
     ret = {}
-    if utils.has_stdin():
-        ret = sys.stdin.read()
-        ret = json.loads(ret)
 
-    # Get each piped data source and set of args to call it from the CLI
+    # Get any global args and each piped data source and set of args to call it from the CLI
     # CLI syntax is split on pipes
     calls = ' '.join(argv).split('|')
+    
+    if len(calls):
+        # Parse global args, which appear before any calls. Right now only output format
+        #  is only global arg, and it will be applied to all actions, even when that makes less sense
+        global_arg_call = calls[0]
+        data_format = _parse_global_call_args(global_arg_call)
+        data_format_plugin = utils.load_plugin_module(data_format)      
+
+        # If input passed from stdin, set initial data in chain of calls to that.
+        # Thus supports composing sofine piped chains with preceding outer piped
+        #  command line statements that include sofine pipes within them
+        if utils.has_stdin():
+            ret = sys.stdin.read()
+            ret = data_format_plugin.deserialize(ret)
+
     for call in calls:
         call = call.strip()
         data_source, data_source_group, action, data_source_args = \
-                _parse_runner_args(call.split())
+                _parse_runner_call_args(call.split())
         ret = _run_action(action, ret, data_source, data_source_group, data_source_args)
 
-    print json.dumps(ret)
+    print data_format_plugin.serialize(ret)
 
 
 if __name__ == '__main__':

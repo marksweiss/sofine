@@ -8,6 +8,52 @@ import imp
 import sofine.lib.utils.conf as conf
 
 
+def _load_plugin_module(module_name):
+    module = None
+    module_file = None
+    try:
+        module_file, module_path, desc = imp.find_module(module_name)
+        module = imp.load_source(module_name, module_path, module_file)
+    finally:
+        if module_file:
+            module_file.close()
+
+    return module
+
+
+def load_plugin_module(plugin_name, plugin_group=None):
+    """
+* `module_name` - `string`. The name of the plugin to load
+* `plugin_group` - `string`. The name of the plugin directory of the plugin to load 
+   
+Loads a plugin from either the sofine default plugin directory or the plugin directory 
+configured by the user in the `plugin_path` key of the `sofine.conf` file in the 
+sofine project root. Loading first looks in the `plugin_path` and then in the sofine 
+default plugin directory.
+
+A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. 
+
+Returns an instance of the plugin module, not the plugin itself. This allows clients 
+to declare module scope variables in plugins and use this method (wrapped in 
+`runner`) to get an instance of the module to access the variables.
+"""
+    # conf only loads the base path, without plugin_group subdirectory
+    # So always dynamically load the full plugin plath into sys.path
+    #  if the call included a plugin_group, otherwise the call to load
+    #  the plugin will fail
+    base_plugin_path = conf.PLUGIN_BASE_PATH
+    if plugin_group:
+        base_plugin_path += ('/' + plugin_group)
+    sys.path.insert(0, base_plugin_path)
+    if conf.CUSTOM_PLUGIN_BASE_PATH:
+        custom_plugin_base_path = conf.CUSTOM_PLUGIN_BASE_PATH
+        if plugin_group:
+            custom_plugin_base_path += ('/' + plugin_group)
+        sys.path.insert(0, custom_plugin_base_path)
+
+    return _load_plugin_module(plugin_name)
+
+
 def load_plugin(plugin_name, plugin_group):
     """
 * `plugin_name` - `string`. The name of the plugin to load
@@ -28,38 +74,6 @@ class type is returned.
     #  this call constructs and returns an instance of the plugin at this
     #  module_name and plugin_group.
     return load_plugin_module(plugin_name, plugin_group).plugin()
-
-
-def load_plugin_module(module_name, plugin_group):
-    """
-* `module_name` - `string`. The name of the plugin to load
-* `plugin_group` - `string`. The name of the plugin directory of the plugin to load 
-   
-Loads a plugin from either the sofine default plugin directory or the plugin directory 
-configured by the user in the `plugin_path` key of the `sofine.conf` file in the 
-sofine project root. Loading first looks in the `plugin_path` and then in the sofine 
-default plugin directory.
-
-A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. 
-
-Returns an instance of the plugin module, not the plugin itself. This allows clients 
-to declare module scope variables in plugins and use this method (wrapped in 
-`runner`) to get an instance of the module to access the variables.
-"""
-    sys.path.insert(0, conf.PLUGIN_BASE_PATH + '/' + plugin_group)
-    if conf.CUSTOM_PLUGIN_BASE_PATH:
-        sys.path.insert(0, conf.CUSTOM_PLUGIN_BASE_PATH + '/' + plugin_group)
-
-    module = None
-    module_file = None
-    try:
-        module_file, module_path, desc = imp.find_module(module_name)
-        module = imp.load_source(module_name, module_path, module_file)
-    finally:
-        if module_file:
-            module_file.close()
-
-    return module
 
 
 def has_stdin():
