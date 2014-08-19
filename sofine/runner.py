@@ -11,6 +11,12 @@ from optparse import OptionParser
 import sys
 
 
+DATA_FORMAT_PLUGIN = None
+"""Module-scope reference to the plugin module determining the format for deserialization 
+of input data and the serialization of output data.  Module-scope so `rest_runner.py` can
+set it"""
+
+
 def get_data(data, data_source, data_source_group, data_source_args):
     """
 * `data` - `dict`. A dict of keys and associated array of dicts of attribute keys and values. May be empty. 
@@ -390,14 +396,14 @@ An example get_schema call:
         #  is only global arg, and it will be applied to all actions, even when that makes less sense
         global_arg_call = calls[0]
         data_format = _parse_global_call_args(global_arg_call)
-        data_format_plugin = utils.load_plugin_module(data_format)      
+        DATA_FORMAT_PLUGIN = utils.load_plugin_module(data_format)      
 
         # If input passed from stdin, set initial data in chain of calls to that.
         # Thus supports composing sofine piped chains with preceding outer piped
         #  command line statements that include sofine pipes within them
         if utils.has_stdin():
             ret = sys.stdin.read()
-            ret = data_format_plugin.deserialize(ret)
+            ret = DATA_FORMAT_PLUGIN.deserialize(ret)
 
     for call in calls:
         call = call.strip()
@@ -405,7 +411,7 @@ An example get_schema call:
                 _parse_runner_call_args(call.split())
         ret = _run_action(action, ret, data_source, data_source_group, data_source_args)
 
-    print data_format_plugin.serialize(ret)
+    print DATA_FORMAT_PLUGIN.serialize(ret)
 
 
 if __name__ == '__main__':

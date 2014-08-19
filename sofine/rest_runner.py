@@ -31,6 +31,7 @@ and capture the return value, and package that for return as HTTP response.
 
 import sofine.runner as runner
 import sofine.lib.utils.conf as conf
+import sofine.lib.utils.utils as utils
 from cgi import parse_qs, escape
 from sys import exc_info
 from traceback import format_tb
@@ -41,11 +42,21 @@ import json
 #  which is the best basic DIY wsgi tutorial I found
 
 
-def _parse_calls_from_path(path): 
+def _parse_args_from_path(path): 
     # Put each new list of args making up a call into calls. Then loop
     #  through calls to make each call and append to ret. Just like CLI impl.
     args = path[1:].split('/')
 
+    # Parse global arguments that must precede call arguments.
+    # NOTE: TODO There is no validation here and the user must construct paths that match
+    #  the documentation or all bets are off
+    data_format = None
+    if len(args):
+        global_arg_call = args[0]
+        data_format = runner._parse_global_call_args(global_arg_call)
+        runner.DATA_FORMAT_PLUGIN = utils.load_plugin_module(data_format) 
+
+    # Build the pipeline of sofine calls from the remaining arguments
     calls = []
     call = [] 
     count = 0
@@ -111,7 +122,7 @@ the local file system.
     status = '200 OK'
     headers = [('Content-type', 'application/json')]
     
-    calls = _parse_calls_from_path(environ.get('PATH_INFO'))
+    calls = _parse_args_from_path(environ.get('PATH_INFO'))
 
     method = environ['REQUEST_METHOD']
     # This is a POST call to get_data. Get any data from the POST body, and support
