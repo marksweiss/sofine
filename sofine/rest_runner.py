@@ -35,26 +35,31 @@ import sofine.lib.utils.utils as utils
 from cgi import parse_qs, escape
 from sys import exc_info
 from traceback import format_tb
-import json
 
 
 # Borrows from here: http://lucumr.pocoo.org/2007/5/21/getting-started-with-wsgi/
 #  which is the best basic DIY wsgi tutorial I found
 
 
-def _parse_args_from_path(path): 
-    # Put each new list of args making up a call into calls. Then loop
-    #  through calls to make each call and append to ret. Just like CLI impl.
-    args = path[1:].split('/')
-
+def _parse_global_call_args_from_path(path):
     # Parse global arguments that must precede call arguments.
     # NOTE: TODO There is no validation here and the user must construct paths that match
     #  the documentation or all bets are off
+    args = path[1:].split('/')
+    
     data_format = conf.DEFAULT_DATA_FORMAT
     if len(args):
         global_arg_call = args[0]
         data_format = runner._parse_global_call_args(global_arg_call)
 
+    return data_format
+
+
+def _parse_call_args_from_path(path): 
+    # Put each new list of args making up a call into calls. Then loop
+    #  through calls to make each call and append to ret. Just like CLI impl.
+    
+    args = path[1:].split('/')
     # Build the pipeline of sofine calls from the remaining arguments
     calls = []
     call = [] 
@@ -77,7 +82,7 @@ def _parse_args_from_path(path):
     if len(call):
         calls.append(list(call))
     
-    return data_format, calls
+    return calls
 
 
 def _get_traceback():
@@ -118,15 +123,13 @@ is NOT supported, for security reasons. Allowing it would allow HTTP calls acces
 the local file system.
 """
     ret = {} 
-    status = '200 OK'
-    # TODO THIS IS A BUG FOR ANY FORMAT OTHER THAN JSON
-    # Can support CSV and other text formats with known Content-type mappings but 
-    #  need a strategy for binary and other formats without a Content-type
-    headers = [('Content-type', 'application/json')]
+    status = ''
+    headers = None 
     
-    data_format, calls = _parse_args_from_path(environ.get('PATH_INFO'))
-
+    data_format = _parse_global_call_args_from_path(environ.get('PATH_INFO'))
     data_format_plugin = utils.load_plugin_module(data_format)
+    
+    calls = _parse_call_args_from_path(environ.get('PATH_INFO'))
 
     method = environ['REQUEST_METHOD']
     # This is a POST call to get_data. Get any data from the POST body, and support
@@ -142,8 +145,7 @@ the local file system.
                 ret = _run_action(ret, call)
 
             status = '200 OK'
-            # TODO THIS IS A BUG FOR ANY FORMAT OTHER THAN JSON
-            headers = [('Content-type', 'application/json')]
+            headers = [('Content-type', data_format_plugin.get_content_type())]
         except:
             ret = _get_traceback()
             status = '404 Not Found'
@@ -154,15 +156,17 @@ the local file system.
             # The query GET methods don't support chaining. _parse_calls_from_path()
             #  returns a list of calls. So here just get the first call.
             ret = _run_action(ret, calls[0])
+            status = '200 OK'
+            headers = [('Content-type', data_format_plugin.get_content_type())]
         except:
             ret = _get_traceback()
             status = '404 Not Found'
             headers = [('Content-type', 'text/plain')]
     # Only POST and GET are allowed
     else:
+        ret = status + '. Only the POST and GET verbs are allowed'
         status = '405 Method Not Allowed'
         headers = [('Content-type', 'text/plain')]
-        ret = status + '. Only the POST and GET verbs are allowed'
 
     start_response(status, headers)
     return [data_format_plugin.serialize(ret)]
