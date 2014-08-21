@@ -18,18 +18,18 @@ def set_line_terminator(s):
     lineterminator = s
 
 
-quoting = csv.QUOTE_NONE
+quoting = csv.QUOTE_MINIMAL
 def set_quoating_none():
-    quoting_policy = csv.QUOTE_NONE
+    quoting = csv.QUOTE_NONE
 
 def set_quoting_all():
-    quoting_policy = csv.QUOTE_ALL
+    quoting = csv.QUOTE_ALL
 
 def set_quoting_minimal():
-    quoting_policy = csv.MINIMAL
+    quoting = csv.MINIMAL
 
 def set_quoting_nonnumeric():
-    quoting_policy = csv.NONNUMERIC
+    quoting = csv.NONNUMERIC
 
 
 quotechar = '"'
@@ -42,33 +42,41 @@ def deserialize(data):
     schema = []
   
     in_strm = cStringIO.StringIO(data) 
-    reader = csv.reader(in_strm, encoding="utf-8", delimiter=delimiter,
-                        lineterminator=lineterminator, quoting=quoting, quotechar=quotechar)
+    reader = csv.reader(in_strm, delimiter=delimiter, lineterminator=lineterminator, 
+                        quoting=quoting, quotechar=quotechar)
 
     for row in reader:
+        if not len(row):
+            continue
+
         # 0th elem in CSV row is data row key
         key = row[0]
+        key.encode('utf-8')
         # Remaining data in CSV row are the attribute key/vals. Convert to array of key/val dicts
-        ret[key] = [{row[j] : row[j + 1]} for j in range(1, len(row) - 1)]
+        ret[key] = []
+        # Curious off by 1 thing here. We skipped the key in 0th position
+        #  and we are looking ahead by 1, so this is the rare time -2 is correct
+        ret[key] = [{row[j].encode('utf-8') : row[j + 1].encode('utf-8')}
+                    for j in range(1, len(row) - 2)]
    
-    in_data_strm.close()
+    in_strm.close()
     
     return ret
 
 
 def serialize(data):
     out_strm = cStringIO.StringIO()
-    writer = csv.writer(out_strm, encoding="utf-8", delimiter=delimiter,
-                        lineterminator=lineterminator, quoting=quoting, quotechar=quotechar)
+    writer = csv.writer(out_strm, delimiter=delimiter, lineterminator=lineterminator,
+                        quoting=quoting, quotechar=quotechar)
     
     # Flatten each key -> [attrs] 'row' in data into a CSV row with
     #  key in the 0th position, and the attr values in an array in fields 1 .. N
     for key, attrs in data.iteritems():
         row = []
-        row.append(str(key))
+        row.append(str(key).encode('utf-8'))
         for attr in attrs:
-            row.append(str(attr.keys()[0]))
-            row.append(str(attr.values()[0]))
+            row.append(str(attr.keys()[0]).encode('utf-8'))
+            row.append(str(attr.values()[0]).encode('utf-8'))
         writer.writerow(row)
 
     ret = out_strm.getvalue()

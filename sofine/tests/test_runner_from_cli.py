@@ -3,7 +3,9 @@ import sys
 import subprocess
 import inspect
 import json
+import csv
 import sofine.runner as runner
+import sofine.lib.utils.utils as utils
 
 
 class RunnerFromCliTestCase(unittest.TestCase):
@@ -38,7 +40,39 @@ class RunnerFromCliTestCase(unittest.TestCase):
                 for k,v in attr.iteritems():
                     self.assertTrue(k is not None and k.startswith('mock::ystockquotelib_mock::') and v is not None)
     
-    
+
+    def test_runner_main_formats(self):
+        cmd_get_data = "echo '{\"AAPL\" : [], \"MSFT\" : []}'"
+        cmd_get_data += " | "
+        cmd_get_data += "python ./sofine/runner.py '--SF-d format_json --SF-s ystockquotelib_mock --SF-g mock'"
+        proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        json_out = proc.stdout.read()
+        
+        # TEMP DEBUG
+        #print json_out
+        
+        
+   
+        cmd_get_data = "echo 'AAPL,\nMSFT,'"
+        cmd_get_data += " | "
+        cmd_get_data += "python ./sofine/runner.py '--SF-d format_csv --SF-s ystockquotelib_mock --SF-g mock'"
+        proc2 = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        csv_out = proc2.stdout.read()
+
+        # Added bonus, also test the deserialize methods in the plugins
+        #  as well as that the data returned is identical in CSV and JSON data format
+        csv_plugin = utils.load_plugin_module('format_csv')
+        json_plugin = utils.load_plugin_module('format_json')
+        
+        # TEMP DEBUG
+        #print csv_out
+        print json_plugin.deserialize(json_out)
+        print csv_plugin.deserialize(csv_out)
+
+        self.assertTrue(json_plugin.deserialize(json_out) == 
+                        csv_plugin.deserialize(csv_out))
+
+
     def test_runner_main_pipe(self):
         path = './sofine/tests/fixtures/file_source_test_data.txt'
         path_2 = './sofine/tests/fixtures/file_source_test_data_2.txt'

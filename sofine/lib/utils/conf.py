@@ -26,7 +26,7 @@ transparently look in to load plugins. This value is defined in the JSON configu
 `sofine.conf` under the key `plugin_path`.
 """
 
-DEFAULT_DATA_FORMAT = 'json'
+DEFAULT_DATA_FORMAT = 'format_json'
 """The default data format for deserializing input and serializing output. If the client call 
 does not specify a data format using the `--SF-d|--SF-data-format` argument, then JSON will be used."""
 

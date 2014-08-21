@@ -282,12 +282,12 @@ def _parse_runner_arg(args, arg_flags):
 
 def _parse_global_call_args(args):
     # Default output to JSON
-    output_format = None 
-    err, output_format = _parse_runner_arg(args, ['--SF-d', '--SF-data-format'])
+    data_format = None 
+    err, data_format = _parse_runner_arg(args, ['--SF-d', '--SF-data-format'])
     if err:
-        output_format = conf.DEFAULT_DATA_FORMAT 
+        data_format = conf.DEFAULT_DATA_FORMAT 
     
-    return output_format
+    return data_format
 
 
 def _parse_runner_call_args(args):
@@ -388,7 +388,8 @@ An example get_schema call:
     if len(calls):
         # Parse global args, which appear before any calls. Right now only output format
         #  is only global arg, and it will be applied to all actions, even when that makes less sense
-        global_arg_call = calls[0]
+        
+        global_arg_call = calls[0].strip().split()
         data_format = _parse_global_call_args(global_arg_call)
         data_format_plugin = utils.load_plugin_module(data_format)      
 
@@ -400,9 +401,9 @@ An example get_schema call:
             ret = data_format_plugin.deserialize(ret)
 
     for call in calls:
-        call = call.strip()
+        call = call.strip().split()
         data_source, data_source_group, action, data_source_args = \
-                _parse_runner_call_args(call.split())
+                _parse_runner_call_args(call)
         ret = _run_action(action, ret, data_source, data_source_group, data_source_args)
 
     print data_format_plugin.serialize(ret)
