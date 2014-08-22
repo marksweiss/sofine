@@ -1,6 +1,6 @@
 import csv
-import cStringIO
 import sys
+from io import BytesIO
 
 # TODO Document only supported CSV format
 # - No column headers
@@ -13,7 +13,7 @@ def set_delimiter(c):
     delimiter = c
 
 
-lineterminator = '\n'
+lineterminator = '|'
 def set_line_terminator(s):
     lineterminator = s
 
@@ -40,9 +40,10 @@ def set_quote_char(c):
 def deserialize(data):
     ret = {}
     schema = []
-  
-    in_strm = cStringIO.StringIO(data) 
-    reader = csv.reader(in_strm, delimiter=delimiter, lineterminator=lineterminator, 
+   
+    # Note this hack with lineterminator. The alternative to manually splitting lines is
+    #  to put 'data' into a StringIO, because csv.reader needs an iterable
+    reader = csv.reader(data.split(lineterminator), delimiter=delimiter, lineterminator='', 
                         quoting=quoting, quotechar=quotechar)
 
     for row in reader:
@@ -52,31 +53,30 @@ def deserialize(data):
         # 0th elem in CSV row is data row key
         key = row[0]
         key.encode('utf-8')
-        # Remaining data in CSV row are the attribute key/vals. Convert to array of key/val dicts
-        ret[key] = []
-        # Curious off by 1 thing here. We skipped the key in 0th position
-        #  and we are looking ahead by 1, so this is the rare time -2 is correct
-        ret[key] = [{row[j].encode('utf-8') : row[j + 1].encode('utf-8')}
-                    for j in range(1, len(row) - 2)]
-   
-    in_strm.close()
-    
+        
+        attr_row = row[1:]
+        ret[key] = [{attr_row[j].encode('utf-8') : attr_row[j + 1].encode('utf-8')}
+                    for j in range(0, len(attr_row) - 1, 2)]
+  
     return ret
 
 
 def serialize(data):
-    out_strm = cStringIO.StringIO()
-    writer = csv.writer(out_strm, delimiter=delimiter, lineterminator=lineterminator,
+    # Python docs cryptically say the csv Writer should set the 'b' flag on its
+    #  File writer "on platforms that support it." Googling finds that to make this work
+    #  with streams you should use BytesIO. StringIO also works (at least for ASCII).
+    out_strm = BytesIO()
+    writer = csv.writer(out_strm, delimiter=delimiter, lineterminator='|',
                         quoting=quoting, quotechar=quotechar)
     
     # Flatten each key -> [attrs] 'row' in data into a CSV row with
     #  key in the 0th position, and the attr values in an array in fields 1 .. N
     for key, attrs in data.iteritems():
         row = []
-        row.append(str(key).encode('utf-8'))
+        row.append(key)
         for attr in attrs:
-            row.append(str(attr.keys()[0]).encode('utf-8'))
-            row.append(str(attr.values()[0]).encode('utf-8'))
+            row.append(attr.keys()[0])
+            row.append(attr.values()[0])
         writer.writerow(row)
 
     ret = out_strm.getvalue()

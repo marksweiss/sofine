@@ -91,3 +91,27 @@ appended to the attributes associated with the keys in the data set built by a s
 """
     return plugin_group + '::' + plugin + '::' + name
 
+
+def get_attr_keys(data):
+    """Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys 
+in a sofine data set, to return the key from each dict in each list.
+* `data` - `dict of string -> list of dict`. The data type of the attributes associated with a key in a 
+returned data set."""
+    out = []
+    for attrs in data.values():
+        for attr in attrs:
+            out.append(attr.keys()[0])
+    return out
+
+
+def get_attr_values(data):
+    """Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys 
+in a sofine data set, to return the value from each dict in each list.
+* `data` - `dict of string -> list of dict`. The data type of the attributes associated with a key in a 
+returned data set."""
+    out = []
+    for attrs in data.values():
+        for attr in attrs:
+            out.append(attr.values()[0])
+    return out
+

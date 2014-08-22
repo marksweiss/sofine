@@ -46,14 +46,9 @@ class RunnerFromCliTestCase(unittest.TestCase):
         cmd_get_data += " | "
         cmd_get_data += "python ./sofine/runner.py '--SF-d format_json --SF-s ystockquotelib_mock --SF-g mock'"
         proc = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        json_out = proc.stdout.read()
+        json_out = proc.stdout.read().strip()
         
-        # TEMP DEBUG
-        #print json_out
-        
-        
-   
-        cmd_get_data = "echo 'AAPL,\nMSFT,'"
+        cmd_get_data = "echo 'AAPL|MSFT|'"
         cmd_get_data += " | "
         cmd_get_data += "python ./sofine/runner.py '--SF-d format_csv --SF-s ystockquotelib_mock --SF-g mock'"
         proc2 = subprocess.Popen(cmd_get_data, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -61,16 +56,29 @@ class RunnerFromCliTestCase(unittest.TestCase):
 
         # Added bonus, also test the deserialize methods in the plugins
         #  as well as that the data returned is identical in CSV and JSON data format
-        csv_plugin = utils.load_plugin_module('format_csv')
         json_plugin = utils.load_plugin_module('format_json')
-        
-        # TEMP DEBUG
-        #print csv_out
-        print json_plugin.deserialize(json_out)
-        print csv_plugin.deserialize(csv_out)
+        json_out = json_plugin.deserialize(json_out)
+        csv_plugin = utils.load_plugin_module('format_csv')
+        csv_out = csv_plugin.deserialize(csv_out)
 
-        self.assertTrue(json_plugin.deserialize(json_out) == 
-                        csv_plugin.deserialize(csv_out))
+        # NOTE: These two data formats are NOT isomorphic, because CSV has no notion of 
+        #  types other thans sting, it is a pure text format. JSON is a data type with the 
+        #  typed literals, with the same type support as JavaScript. As a result, roundtripping
+        #  data through CSV gives you back a Python dict with all keys and all values as 
+        #  strings, whatever type they were previously
+        # So we need to stringify all the keys and values in the deserialized JSON and then
+        #  comapre the CSV deserialization. This tells us the outputs are as "equivalent" as
+        #  we can assert, given the loss of types in the CSV conversion
+        json_keys = set([str(k) for k in json_out.keys()])
+        json_attr_keys = set([str(k) for k in utils.get_attr_keys(json_out)])
+        json_attr_vals = set([str(v) for v in utils.get_attr_values(json_out)])
+        csv_keys = set(csv_out.keys())
+        csv_attr_keys = set(utils.get_attr_keys(csv_out))
+        csv_attr_vals = set(utils.get_attr_values(csv_out))
+
+        self.assertTrue(json_keys == csv_keys and 
+                        json_attr_keys == csv_attr_keys and 
+                        json_attr_vals == csv_attr_vals)
 
 
     def test_runner_main_pipe(self):
