@@ -88,8 +88,8 @@ else:
         CUSTOM_DATA_FORMAT_PLUGIN_PATH = plugin_conf['output_format_plugin_path']
         sys.path.insert(0, CUSTOM_DATA_FORMAT_PLUGIN_PATH) 
 
-if not CUSTOM_DATA_FORMAT_PLUGIN_PATH:
-    print('Data Format Plugin Path not defined in SOFINE_DATA_FORMAT_PLUGIN_PATH environment variable or "data_format_plugin_path" key in "sofine.conf" in sofine root directory', file=sys.stderr)
+#if not CUSTOM_DATA_FORMAT_PLUGIN_PATH:
+#    print('Data Format Plugin Path not defined in SOFINE_DATA_FORMAT_PLUGIN_PATH environment variable or "data_format_plugin_path" key in "sofine.conf" in sofine root directory', file=sys.stderr)
 
 
 REST_PORT = os.environ.get('SOFINE_REST_PORT')

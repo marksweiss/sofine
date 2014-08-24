@@ -4,3 +4,4 @@
 *.swo
 dist/
 *.egg-info
+.idea/

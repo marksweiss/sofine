@@ -2,21 +2,23 @@ import unittest
 import sys
 sys.path.insert(0, '..')
 import sofine.runner as runner
+import sofine.lib.utils.utils as utils
 
 class TestCase(unittest.TestCase):
     
     def test_runner_get_data_ystockquote(self):
         key = 'AAPL'
-        data = {key : {}}
+        data = {key : []}
         data_source = 'ystockquotelib'
         data_source_group = 'example'
         data_source_args = []
+        
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         self.assertTrue(data[key])
         
         key2 = 'MSFT'
-        data = {key : {}, key2 : {}}
+        data = {key : [], key2 : []}
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         # Assert that we have data for each key
@@ -26,7 +28,7 @@ class TestCase(unittest.TestCase):
     
     def test_runner_get_data_archive_dot_org(self):
         key = 'AAPL'
-        data = {key : {}}
+        data = {key : []}
         data_source = 'archive_dot_org_search_results'
         data_source_group = 'example'
         data_source_args = []
@@ -35,7 +37,7 @@ class TestCase(unittest.TestCase):
         self.assertTrue(data[key])
         
         key2 = 'MSFT'
-        data = {key : {}, key2 : {}}
+        data = {key : [], key2 : []}
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         # Assert that we have data for each key
@@ -45,7 +47,7 @@ class TestCase(unittest.TestCase):
 
     def test_runner_get_data_google_search_results(self):
         key = 'AAPL'
-        data = {key : {}}
+        data = {key : []}
         data_source = 'google_search_results'
         data_source_group = 'example'
         data_source_args = []
@@ -54,7 +56,7 @@ class TestCase(unittest.TestCase):
         self.assertTrue(data[key])
         
         key2 = 'MSFT'
-        data = {key : {}, key2 : {}}
+        data = {key : [], key2 : []}
         data = runner.get_data(data, data_source, data_source_group, data_source_args)
         
         # Assert that we have data for each key
@@ -64,7 +66,7 @@ class TestCase(unittest.TestCase):
     
     def test_schema_ystockquote(self):
         key = 'AAPL'
-        data = {key : {}}
+        data = {key : []}
         data_source = 'ystockquotelib'
         data_source_group = 'example'
         data_source_args = []
@@ -75,7 +77,8 @@ class TestCase(unittest.TestCase):
         #  one element. ystockquotelib doesn't guarantee returning all keys
         #  found in schema as attribute keys for every key passed to it,
         #  but it does guarantee those keys will be a subset of the keys in schema.
-        self.assertTrue(set(data[key].keys()) & set(expected_attributes['schema']))
+        data_keys = utils.get_attr_keys(data)
+        self.assertTrue(set(data_keys) & set(expected_attributes['schema']))
 
 
     def test_runner_get_data_batch(self):

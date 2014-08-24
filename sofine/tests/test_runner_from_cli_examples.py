@@ -5,6 +5,7 @@ import inspect
 import json
 sys.path.insert(0, '..')
 import sofine.runner as runner
+import sofine.lib.utils.utils as utils
 
 
 # Hack to fill in the sensitive values from the command line
@@ -59,12 +60,14 @@ class RunnerFromCliExamplesTestCase(unittest.TestCase):
         # Assert from fidelity is there for at least some of the keys
         # Note that there won't be fidelity data for the keys added by the file_source
         #  and that adds two keys, so we test that we have n-2 keys with fidelity schema fields
+        expected = runner.get_schema('fidelity', 'example')['schema']
+        expected += runner.get_schema('ystockquotelib', 'example')['schema']
         count = 0
-        expected = runner.get_schema('fidelity', 'example')
         for key in out.keys():
-            if set(out[key].keys()) & set(expected['schema']):
+            out_attr_keys = utils.get_attr_keys(out)
+            if set(out_attr_keys) & set(expected):
                 count += 1
-        self.assertTrue(count == len(out.keys()) - 2)
+        self.assertTrue(count == len(out.keys()))
 
         # Assert keys and data from keys added by file_source and retrieved by ystockquotelib are there
         file_source_args = ['-p', path]
@@ -72,13 +75,13 @@ class RunnerFromCliExamplesTestCase(unittest.TestCase):
         for k in file_source_keys['schema']:
             self.assertTrue(k in out)
         for k in file_source_keys['schema']:
-            self.assertTrue(len(out[k].keys()))
+            self.assertTrue(len(out[k]))
 
 
 # NOTE: This runs as unittest but requires extra args from the command line (to
 #  not embed sensitive ids here or in config files etc.). So it's basically a manual
 #  test with nice unittest output
-# Sample call: PROJECT_ROOT$ python ./tests/test_runner_from_cli_examples.py \
+# Sample call: PROJECT_ROOT$ python $PYTHONPATH/sofine/tests/test_runner_from_cli_examples.py \
 #              -c MY_CUSTOMER_ID \
 #              -p MY_PASSWORD \
 #              -a MY_ACCOUNT_ID \

@@ -19,7 +19,7 @@ def set_line_terminator(s):
 
 
 quoting = csv.QUOTE_MINIMAL
-def set_quoating_none():
+def set_quoting_none():
     quoting = csv.QUOTE_NONE
 
 def set_quoting_all():
