@@ -9,3 +9,16 @@ v. 0.2
 - Modified Makefile to add a make deploy target, which deletes the previous package version from the project directory and PYTHONPATH, builds a new package, and deploys the package to PYTHONPATH. This is necessary for development, because import paths only resolve from PYTHONPATH, not running the code directly from the project directory. So now make test runs make deploy first.
 - Extensively modified README. Reorganized and improved language, added examples, and added descriptions of the new actions.
 - Added these RELEASE NOTES for the first time
+
+v.2.2
+- Added support for data format plugins
+- Added command line interface and REST interface argument SF-d|SF-data-format to control data format of data retrieval calls
+- Added built-in data format plugins directory
+- Made JSON default data format and made sofine use format_json.py plugin
+- Added CSV data format plugin format_csv.py
+- Added unit test file test_format_csv.py to test CSV data format plugin
+- Added test coverage of data formats into test_runner_from_cli.py
+- Updated README to document data format plugins
+- Additional README tweaks
+- Fixed bugs in test_examples tests. All make test_examples and manual examples tests now passing again
+
