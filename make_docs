@@ -22,6 +22,7 @@ python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrit
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_py.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_py_examples.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_rest.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_format_csv.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/lib --overwrite ./sofine/lib/utils/utils.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/lib --overwrite ./sofine/lib/utils/conf.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins --overwrite ./sofine/plugins/plugin_base.py
@@ -31,5 +32,7 @@ python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example 
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/ystockquotelib.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/mock --overwrite ./sofine/plugins/mock/ystockquotelib_mock.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/standard --overwrite ./sofine/plugins/standard/file_source.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/data_format_plugins --overwrite ./sofine/data_format_plugins/format_json.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/data_format_plugins --overwrite ./sofine/data_format_plugins/format_csv.py
 
 echo "Documentation rebuilt successfully"

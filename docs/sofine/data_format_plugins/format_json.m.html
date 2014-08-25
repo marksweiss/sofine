@@ -6,10 +6,8 @@
 <head>
 	<meta charset="utf-8">
 
-      <title>index API documentation</title>
-      <meta name="description" content="## What Problem Does sofine solve?
-
-You need to get data related to a set of keys from many sources:...">
+      <title>format_json API documentation</title>
+      <meta name="description" content="">
 
   
   <style type="text/css">
@@ -971,56 +969,131 @@ table {
 <body>
 
 <div id="container">
-`
-<h2>Developing sofine</h2>
-<p>The README documentation covers the very common case of using sofine as a library to manage and call your own plugins and use them in your own applications.</p>
-<p>However, you might want to develop with <code>sofine</code> more directly. Perhaps you want to just use the simple plugin loading mechanism in <code>sofine/lib/utils/utils.py</code> or want to fork the project to add features or integrate it with another project. Here is how to get started.</p>
 
-<h2>Install Dependencies</h2>
-<p>To run the <code>make docs</code> target to build updated documentation in the <code>docs</code> directory, you may need to install two dependencies.</p>
-<div class="codehilite"><pre><span class="n">pip install mako</span>
-<span class="n">pip install markdown</span></pre></div>
-<p>To support using the plugins in <code>PROJECT_ROOT/sofine/plugins/examples</code> and running the tests in <code>PROJECT_ROOT/tests/*_examples.py</code>:</p>
-<div class="codehilite"><pre><span class="n">easy_install mechanize</span>
-<span class="n">easy_install beautifulsoup4</span>
-<span class="n">pip install ystockquote</span>
+    
+  
+
+  
+
+
+  <h1>Module format_json</h1>
+  
+  
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-format_json', this);">Show source.</a></p>
+    <div id="source-format_json" class="source">
+      <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">json</span>
+
+
+<span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Required for a data format plugin. Converts JSON into the Python objects used by `sofine`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Required for a data format plugin. Converts Python objects used by `sofine` into JSON.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">get_content_type</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Required for a data format plugin. Returns the value for the HTTP Content-Type header. </span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;application/json&#39;</span>
 </pre></div>
 
-<h2>make Targets</h2>
-<p>To run core unit tests on OSX/Linux: <code>make test</code>, on Windows: <code>test.bat</code></p>
-<p>To run unit tests on the example plugins on OSX/Linux: <code>make test_examples</code>, on Windows <code>test_examples.bat</code></p>
+    </div>
 
-<h2>Complete Code Documentation</h2>
-<p><strong>Command Runners</strong><br/>
-<a href="docs/sofine/runner.m.html">runner</a><br/>
-<a href="docs/sofine/rest_runner.m.html">rest_runner</a><br/>
-<p/>
-<strong>Plugins</strong><br/>
-<a href="docs/sofine/plugins/plugin_base.m.html">plugin_base</a><br/>
-<a href="docs/sofine/plugins/standard/file_source.m.html">standard/file_source</a><br/>
-<a href="docs/sofine/plugins/example/ystockquotelib.m.html">example/ystockquotelib</a><br/>
-<a href="docs/sofine/plugins/example/google_search_results.m.html">example/google_search_results</a><br/>
-<a href="docs/sofine/plugins/example/fidelity.m.html">example/fidelity</a><br/>
-<a href="docs/sofine/plugins/example/archive_dot_org_search_results.m.html">example/archive_dot_org_search_results</a><br/>
-<a href="docs/sofine/plugins/mock/ystockquotelib_mock.m.html">mock/ystockquotelib</a><br/>
-<p/>
-<strong>Data Format Plugins</strong><br/>
-<a href="docs/sofine/data_format_plugins/format_csv.m.html">data_format_plugins/format_csv</a><br/>
-<a href="docs/sofine/data_format_plugins/format_json.m.html">data_format_plugins/format_json</a><br/>
-<p/>
-<strong>Tests</strong><br/>
-<p><em>NOTE: Tests for fidelity example plugin must be run manually, because this 
-plugin requires arguments that contain sensitive data</em></p>
-<a href="docs/sofine/tests/test_runner_from_rest.m.html">tests/test_runner_from_rest</a><br/>
-<a href="docs/sofine/tests/test_runner_from_py_examples.m.html">tests/`test_runner_from_py_examples</a><br/>
-<a href="docs/sofine/tests/test_runner_from_py.m.html">tests/test_runner_from_py</a><br/>
-<a href="docs/sofine/tests/test_runner_from_cli_examples.m.html">tests/test_runner_from_cli_examples</a><br/>
-<a href="docs/sofine/tests/test_runner_from_cli.m.html">tests/test_runner_from_cli</a><br/>
-<a href="docs/sofine/tests/test_format_csv.m.html">tests/test_format_csv</a><br/>
-<p/>
-<strong>Utils and Conf</strong><br/>
-<a href="docs/sofine/lib/utils.m.html">lib/utils</a><br/>
-<a href="docs/sofine/lib/conf.m.html">lib/conf</a><br/>
+  <hr>
+
+
+
+
+
+
+
+  <h2 id="header-functions">Functions</h2>
+      
+    <div class="item">
+      <div class="name def" id="format_json.deserialize">
+        <p>def <span class="ident">deserialize</span>(</p><p>data)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>Required for a data format plugin. Converts JSON into the Python objects used by <code>sofine</code>.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-format_json.deserialize', this);">Show source.</a></p>
+    <div id="source-format_json.deserialize" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Required for a data format plugin. Converts JSON into the Python objects used by `sofine`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="format_json.get_content_type">
+        <p>def <span class="ident">get_content_type</span>(</p><p>)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>Required for a data format plugin. Returns the value for the HTTP Content-Type header.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-format_json.get_content_type', this);">Show source.</a></p>
+    <div id="source-format_json.get_content_type" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_content_type</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Required for a data format plugin. Returns the value for the HTTP Content-Type header. </span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;application/json&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="format_json.serialize">
+        <p>def <span class="ident">serialize</span>(</p><p>data)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>Required for a data format plugin. Converts Python objects used by <code>sofine</code> into JSON.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-format_json.serialize', this);">Show source.</a></p>
+    <div id="source-format_json.serialize" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Required for a data format plugin. Converts Python objects used by `sofine` into JSON.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+
+
+
 
 <hr>
 <p style="text-align: right;">
