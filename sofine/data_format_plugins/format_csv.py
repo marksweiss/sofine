@@ -1,3 +1,5 @@
+"""Supports taking in data and returning data from calls to `get_data` and `get_namespaced_data` as CSV."""
+
 import csv
 import sys
 from io import BytesIO
@@ -38,6 +40,22 @@ def set_quote_char(c):
 
 
 def deserialize(data):
+    """
+* `data` - `dict mapping string keys to lists of dicts of string keys and arbitrary values`. 
+    
+    Required function for a data format plugin. Converts data in CSV format to the sofine Python data 
+structure for data sets. In particular, data passed to `sofine` on `stdin` will be processed with this call. 
+This data is expected to adhere to this format (assuming the comma is the delimiter):
+    
+    Key,attribute_name_1,attribute_value_1, Key,attribute_name_1, ...
+
+which will be translated to:
+
+    {   "Key": [attribute_name_1: attribute_value_1, ...]
+        ...
+    }
+"""
+    
     ret = {}
     schema = []
    
@@ -62,6 +80,23 @@ def deserialize(data):
 
 
 def serialize(data):
+    """
+* `data` - `dict mapping string keys to lists of dicts of string keys and arbitrary values`. 
+    
+    Required function for a data format plugin. Converts data from the sbfine Python data 
+structure for data sets into CSV. In particular, data passed from `sofine` to `stdout` will be processed with this call. 
+This data is expected to adhere to this format (assuming the comma is the delimiter):
+    
+    {   
+        "Key": [attribute_name_1: attribute_value_1, ...]
+        ...
+    }
+
+which is be translated to:
+    
+    Key,attribute_name_1,attribute_value_1,Key,attribute_name_1, ...
+
+"""
     # Python docs cryptically say the csv Writer should set the 'b' flag on its
     #  File writer "on platforms that support it." Googling finds that to make this work
     #  with streams you should use BytesIO. StringIO also works (at least for ASCII).
@@ -86,6 +121,9 @@ def serialize(data):
 
 
 def get_content_type():
+    """
+Required for a data format plugin. Returns the value for the HTTP Content-Type header. 
+"""
     return 'text/csv'
 
 

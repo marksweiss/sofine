@@ -15,7 +15,7 @@ This API returns an array of JSON objects, with the possible fields shown in the
 Hence the return type is list of lists, because this plugin returns
 a list of objects, each with this possible set of keys.
 
-Returns:i
+Returns:
 
     [['year', 'title', 'description', 'mediatype', 'publicdate', 'downloads', 'week', 
     'month', 'identifier', 'format', 'collection', 'creator', 'score']]
