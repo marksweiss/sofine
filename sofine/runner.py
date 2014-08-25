@@ -388,7 +388,6 @@ An example get_schema call:
     if len(calls):
         # Parse global args, which appear before any calls. Right now only output format
         #  is only global arg, and it will be applied to all actions, even when that makes less sense
-        
         global_arg_call = calls[0].strip().split()
         data_format = _parse_global_call_args(global_arg_call)
         data_format_plugin = utils.load_plugin_module(data_format)      

@@ -9,7 +9,7 @@ This is the problem `sofine` solves. It's a small enough problem that you could 
 ## Features
 
 1. Do (almost) no more work than if you wrote one-off data collection scripts 
-2. Manage your plugins in any directory with any directory structure you like
+2. Manage your data retrieval plugins in any directory with any directory structure you like
 3. Call plugins from the command line, as REST resources or from Python
 4.  Chain as many plugin calls as you want together and get back one JSON data set with all the data collected from all the chained calls
 5. If called from the command line, `sofine` reads data from `stdin` if it is present, and always outputs to `stdout`. So `sofine` piped calls can themselves be composed in larger piped expressions.
@@ -20,7 +20,14 @@ For fun, here is an example of features 4 and 5, combining a `sofine` pipeline w
 
 ## Overview
 
-To get started, you install the library, create a plugin directory, assign the plugin directory to an environment variable, and start writing plugins. Plugins require two attributes and one method in the simple case and three methods in the most elaborate edge case. You can optionally define two additional attributes for clients to use to introspect your plugin.
+To get started, you:
+
+1. `pip install sofine`
+2. Make sure your `$PYTHONPATH` points to the package directory where pip installed `sofine`
+3. Create a plugin directory and assign it's path to the environment `SOFINE_PLUGIN_PATH`
+4. Write and call some data retrieval plugins (or just start using the included ones)
+
+Plugins require two attributes and one method in the simple case and three methods in the most elaborate edge case. You can optionally define two additional attributes for clients to use to introspect your plugins.
 
 `sofine` ships with a few useful plugins to get you started and give you the idea; you can combine these with your custom plugins with no additional configuration or code. The included plugins are:
 
@@ -52,7 +59,9 @@ From Python:
     data_source_args = [[], []]
     data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
 
-All three calling styles return the same data set. `sofine` data sets map arrays of single attribute key/attribute value pair JSON objects of data to string keys. So here, we have the key "AAPL," with all the attributes retrieved from Yahoo! Finance and the Google Search API combined in a JSON object associated with the key. 
+All three calling styles return the same data set. `sofine` data sets map string keys to arrays of attributes, which are Python dicts. By default, these are returned as JSON to stdout. `sofine` also ships with support for CSV, and you can write your own data format plugins (more on that below).
+
+Here is an example retrieved using included data retrieval plugins: the key "AAPL," with all the attributes retrieved from Yahoo! Finance and the Google Search API combined. 
 
     {
     "AAPL": 
@@ -112,13 +121,21 @@ Then, create a plugin directory and assign its path to an environment variable `
     
     export SOFINE_REST_PORT=<MY PORT>
 
+If you are going to create data format plugins, create a data format lugin directory and assign its path to the environment variable `SOFINE_DATA_FORMAT_PLUGIN_PATH`.
+
+    export SOFINE_DATA_FORMAT_PLUGIN_PATH=<MY PATH>
+
 If you want to use the included `fidelity` and `ystockquotelib` plugins in the `plugins.examples` plugin group, also install the following:
 
     easy_install mechanize
     easy_install beautifulsoup4
     pip install ystockquote
 
-## How Plugins Work and How to Write Them
+## Two Kinds of Plugins: Data Retrieval and Data Format 
+
+`sofine` uses two kinds of plugins. _Data retrieval plugins_ are what you call singly or in chained expressions to return data sets. When the documentation says "plugin," it means data retrieval plugin. But `sofine` also supports plugins for the data format of data sets. By default `sofine` expects input on `stdin` in JSON format and writes JSON to `stdout`. But there is also a plugin for CSV.
+
+## How Data Retrival Plugins Work and How to Write Them
 
 ### Boilerplate
 
@@ -192,7 +209,7 @@ A wrapper around `get_data` provided by `sofine`, which return the same data wit
 
 #### `parse_args`
 
-The other method you will often need to implement is `parse_args`. If your `get_data` requires no arguments you need not implement `parse_args` and can just use the base class default implementation. But if your `get_data` call requires arguments, you must implement `parse_args`. The method takes an `argv`-style list of alternating arg names and values and is responsible for validating the correctness of argument names and values and returing a tuple with two members. The first member is a boolean `is_valid`. The second is the parsed list of argument values (without the argument names).
+The other method you will often need to implement is `parse_args`. If your `get_data` requires no arguments you need not implement `parse_args`. But if your `get_data` call requires arguments, you must implement `parse_args`. The method takes an `argv`-style list of alternating arg names and values and is responsible for validating the correctness of argument names and values and returing a tuple with two members. The first member is a boolean `is_valid`. The second is the parsed list of argument values (without the argument names).
 
 Here is an example from the `sofine` plugin `sofine.plugins.standard.file_source`.
 
@@ -215,7 +232,6 @@ Here is an example from the `sofine` plugin `sofine.plugins.standard.file_source
 
         return is_valid, [opts.path]
 
-
 #### `get_schema`
 
 The third method is `get_schema`. You will rarely need to implement this. Any plugin that knows the set of attributes it can return for a key doesn't need to implement `get_schema` and can rely on the default, which returns the set of attribute keys you define.
@@ -228,9 +244,9 @@ The third method is `get_schema`. You will rarely need to implement this. Any pl
 
 This is a small amount of overhead compared to writing one-off scripts for the return on investment of being able to know where your plugins are, call them with standard syntax, and compose them with each other in any useful combination.
 
-How small? Let's look at a small but not trivial example that ships with `sofine`, a plugin to call the Google Search API.
+How small? Here is the Google Search API plugin that ships with `sofine`.
 
-It starts with a module scope helper function that you would have to write in any one-off script to call the API.
+It starts with a helper function that you would have to write in any one-off script to call the API.
 
     import urllib
     import urllib2
@@ -267,9 +283,9 @@ Now, here are the 11 additional lines of code you need to make your plugin run i
 
     plugin = GoogleSearchResults
 
-Just for fun, here is a second example. This shows you how easy it is to wrap existing Python API wrappers as `sofine` plugins. For a a few lines of additional boilerplate, you can now take any of these and combine them any which way you can.
+Just for fun, here is a second example. This shows you how easy it is to wrap existing Python API wrappers as `sofine` plugins. 
 
-    froe sofine.plugins import plugin_base as plugin_base
+    from sofine.plugins import plugin_base as plugin_base
     import ystockquote
 
     class YStockQuoteLib(plugin_base.PluginBase):
@@ -292,8 +308,95 @@ Just for fun, here is a second example. This shows you how easy it is to wrap ex
 
     plugin = YStockQuoteLib
 
+## How Data Format Plugins Work and How to Write Them
 
-## How to Call Plugins
+`sofine` defaults to expecting input and returning output in JSON format. The library also includes a CSV data format plugin. If these don't meet your needs you can write your own, deploy them in your `SOFINE_DATA_FORMAT_PLUGIN_PATH` plugin directory and the use them by passing an additional data format argument in your calls.
+
+* `deserialize(data)` - converts data in the data format to a Python data structure
+* `serialize(data)` - converts a Python data structure to the data format
+* `get_content_type()` - returns the correct value for the HTTP Content-Type header for the data format
+
+The included `format_json` plugin provides a trivial example:
+
+    import json
+
+    def deserialize(data):
+        return json.loads(data)
+
+    def serialize(data):
+        return json.dumps(data)
+
+    def get_content_type():
+        return 'application/json'
+
+Formats without an isomorphic mapping to Python dicts and lists (which correspond to JSON objects and arrays) require some implementation. Specifically, your plugin needs to be aware of the `sofine` data structure for its data retrieval data sets, so that it can convert from the data format into that Python data structure in `deserialize` anc convert from that Python data structure into your data format (in a way that makes sense and is documented in your plugin) in `serialize`.
+
+Remember, `sofine` data sets look like this:
+
+   {
+    "AAPL": 
+        [
+            {
+                "results": [
+                {
+                    "GsearchResultClass": "GwebSearch",
+                    ...
+
+                },
+                ...
+                ]
+            },
+            {"avg_daily_volume": "59390100"},
+            {"book_value": "20.193"},
+            ...
+        ]
+    } 
+
+As an example, here are the two methods in the included `format_csv` plugin:
+
+    def deserialize(data):
+        ret = {}
+        schema = []
+   
+        reader = csv.reader(data.split(lineterminator), delimiter=delimiter, i
+                            lineterminator='', quoting=quoting, quotechar=quotechar)
+
+        for row in reader:
+            if not len(row):
+                continue
+
+            # 0th elem in CSV row is data row key
+            key = row[0]
+            key.encode('utf-8')
+        
+            attr_row = row[1:]
+            ret[key] = [{attr_row[j].encode('utf-8') : attr_row[j + 1].encode('utf-8')}
+                        for j in range(0, len(attr_row) - 1, 2)]
+  
+        return ret
+
+
+    def serialize(data):
+        out_strm = BytesIO()
+        writer = csv.writer(out_strm, delimiter=delimiter, lineterminator='|',
+                            quoting=quoting, quotechar=quotechar)
+    
+        # Flatten each key -> [attrs] 'row' in data into a CSV row with
+        #  key in the 0th position, and the attr values in an array in fields 1 .. N
+        for key, attrs in data.iteritems():
+            row = []
+            row.append(key)
+            for attr in attrs:
+                row.append(attr.keys()[0])
+                row.append(attr.values()[0])
+            writer.writerow(row)
+
+        ret = out_strm.getvalue()
+        out_strm.close()
+
+        return ret
+
+## How to Call Data Retrieval Plugins
 
 As we saw above in the Introduction section, there are three ways to call plugins, from the command line, as REST resources, or in Python.  When calling plugins to retrieve data, you need to pass three or four arguments, `data`,  the plugin name, the plugin group and the plugin action. 
 
@@ -308,25 +411,27 @@ There are six actions, which correspond to the five methods `get_data`, `get_nam
 
 ### Calling From the Command Line
 
-When calling from the CLI you pass these arguments:
+When calling data retrieval plugins, you can optionally pass this argumehnt to control the data_format `sofine` expects any input to be in and the data format for the returned data set. This arguement is passed once before any sofine data retrieval calls, and applies that format to all of the data retrieval calls.
+
+* `[--SF-d|--SF-data-format]` - The data format for input to a data retrieval call and for the returned data set. Optional. Default is 'json'.
+
+You then pass these arguments for each data retreival call:
 
 * `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the
 name of the plugin module being called. Required.
 * `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is 
 the plugins subdirectory where the plugin module is deployed. Required.
-* `[--SF-a|--SF-action]` - The plugin action being called.
-
-Get data is the default, so action can be ommitted on calls to `get_data`.
+* `[--SF-a|--SF-action]` - The plugin action being called. Optional if the action is `get_data`.
 
 Any additional arguments that a call to `get_data` requires should be passed following the `--SF-s` and `--SF-g` arguments.
 
 ### Calling REST-fully
 
-`sofine` ships with a server which you launch at `python sofine/rest_runner.py` to call plugins over HTTP. The servers runs by default on `localhost` on port `10000`. You can change the port it is running on by setting the environment variable `SOFINE_REST_PORT`.
+`sofine` ships with a server which you launch at `python sofine/rest_runner.py` to call plugins over HTTP. The servers runs by default on `localhost` on port `10000`. You can change the port it is running on by setting the environment variable `SOFINE_REST_PORT`. REST calls use the same arguments as CLI calls without the leading dashes. Args and their values alternate for form the resource path. See the examples in the following sections.
 
 ### get_data Examples
 
-Here are examples of calling get_data:
+Here are examples of calling `get_data`:
     
     python $PYTHONPATH/sofine/runner.py '--SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
 
@@ -346,6 +451,19 @@ Here is the same example from Python:
     data_source_args = [[customer_id, pin, account_id, email], []]
     data = runner.get_data_batch(data, data_sources, data_source_groups, data_source_args)
 
+This call returns a data set of the form described above. Here is the JSON output:
+
+    {
+        "key_1": [{"attribute_1": value_1}, {"attribute_2": value_2}, ...],
+        "key_2": ...
+    }
+
+### get_data Example Using a Data Format Plugin
+
+Here is the same call except using `CSV` instead of the default `JSON` as the data format:
+
+    python $PYTHONPATH/sofine/runner.py '--SF-d format_csv --SF-s fidelity --SF-g example -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example'
+
 ### Other Actions 
 
 Finally, let's discuss the other actions besides `get_data`. Note that none of these actions can be chained.
@@ -357,6 +475,15 @@ Works identically to `get_data` but you must included the `--SF-a` argument in C
     python $PYTHONPATH/sofine/runner.py '--SF-s fidelity --SF-g example --SF-a get_namespaced_data -c <CUSTOMER_ID> -p <PIN> -a <ACCOUNT_ID> -e <EMAIL> | --SF-s ystockquotelib --SF-g example --SF-a get_namespaced_data'
 
     curl -X POST -d '{}' --header "Content-Type:application/json" http://localhost:10000/SF-s/fidelity/SF-g/example/SF-a/get_namespaced_data/c/<CUSTOMER_ID>/p/<PIN>/a/<ACCOUNT_ID>/e/<EMAIL>/SF-s/ystockquotelib/SF-g/example/SF-a/get_namespaced_data
+
+This call returns a data set of the form described above. Here is the JSON output.
+
+    {
+        "key_1": [{"plugin_group::plugin_name::attribute_1": value_1}, 
+        i         {"plugin_group::plugin_name::attribute_2": value_2}, ...],
+        "key_2": ...
+    }
+
 
 ###get_data_batch
 
@@ -395,6 +522,10 @@ From Python:
 
         self.assertTrue(actual['is_valid'] and actual['parsed_args'] == [path])
 
+This call returns the following JSON and only JSON output is supported for this call:
+
+    {"is_valid": true|false, "parsed_args": [arg_1, arg_2, ...]}
+
 ###get_schema
 
 There are several use cases for calling `get_schema`, particularly from Python. For example, you might want to retrieve the attribute keys from one or several plugins being called together, to filter or query the returned data for a subset of all the attribute keys.
@@ -413,6 +544,10 @@ Python:
     data_source_group = 'example'
     schema = runner.get_schema(data_source, data_source_group)
 
+This call returns the following JSON and only JSON output is supported for this call:
+
+    {"schema": [attribute_key_name_1, attribute_key_name_2, ...]}
+
 ###get_namespaced_schema
 
 Works identically to `get_schema` but returns the schema fields in namespaced form.
@@ -430,6 +565,13 @@ Python:
     data_source = 'ystockquotelib'
     data_source_group = 'example'
     schema = runner.get_namespaced_schema(data_source, data_source_group)
+
+This call returns the following JSON and only JSON output is supported for this call:
+
+    {
+        "schema": [plugin_group::plugin_name::attribute_key_name_1, 
+                   plugin_group::plugin_name::attribute_key_name_2, ...]
+    }
 
 ###adds_keys
 
@@ -459,6 +601,10 @@ Python:
     data_source_group = 'example'
     adds_keys = runner.adds_keys(data_source, data_source_group)
 
+This call returns the following JSON and only JSON output is supported for this call:
+    
+    {"adds_keys": true|false} 
+
 ## Additional Convenience Methods
 
 Plugins called from Python also expose two convenience methods that let you get a reference to the plugin's module or to the plugin's class.
@@ -486,15 +632,23 @@ The `get_plugin_module` action lets you get an instance of a plugin module in Py
     child_shema = mod.get_child_schema()
 
 
-## Managing Plugins
+## Managing Data Retrieval Plugins
 
-Managing plugins is very simple. Pick a directory from which you want to call your plugins. Define the environment variable `SOFINE_PLUGIN_PATH` and assign to it the path to your plugin directory.
+Managing data retrieval plugins is very simple. Pick a directory from which you want to call your plugins. Define the environment variable `SOFINE_PLUGIN_PATH` and assign to it the path to your plugin directory.
 
 Plugins themselves are just Python modules fulfilling the requirements detailed in the section, "How Plugins Work and How to Write Them."
 
 Plugins cannot be deployed at the root of your plugin directory. Instead you must create one or more subdirectories and place plugins in them. Any plugin can live in any subdirectory. If you want, you can even place a plugin in more than one plugin directory. The plugin module name must match the plugin's `self.name` attribute, and the plugin directory name must match the plugin's `self.group` attribute.
 
 This approach means you can manage your plugin directory without any dependencies on `sofine`.  You can manage your plugins directory as their own code repo, and include unit tests or config files in the plugin directory, etc. 
+
+## Managing Data Format Plugins
+
+Pick a direcgory from which you want to call your plugins. Define the environment variable `SOFINE_DATA_FORMAT_PLUGIN_PATH` and assign it to the path of your plugin directory.
+
+Unlike data retrieval plugins, data format plugins should be deployed directly in your plugin directory, not in a subdirectory.
+
+Data format plugins are simply modules. By convention they should be named `format_<FORMAT_NAME>.py`, for example, `format_json.py`. This is optional, but provides a standard way to avoid name clashes with built-in or third-party modules named after a data format, such as the Python standard library `json` and `csv` modules.
 
 ## Appendix: The Data Retrieval Algorithm
 

@@ -6,6 +6,9 @@ from io import BytesIO
 # - No column headers
 # - Key is always position 0
 # - Attr keys and values alternate in positions 1..n
+# TODO Document that metadata methods: get_schema, parse_args, adds_keys 
+#  ONLY RETURN JSON
+# So data_format plugin implementer only worries about 'data' data structure
 
 
 delimiter = ','

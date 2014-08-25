@@ -10,5 +10,5 @@ def serialize(data):
 
 
 def get_content_type():
-   return 'application/json'
+    return 'application/json'
 
