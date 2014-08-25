@@ -1003,6 +1003,8 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
 <span class="sd">The default value is `10000` defined in `example.sofine.conf`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
@@ -1017,12 +1019,23 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
 <span class="sd">`sofine.conf` under the key `plugin_path`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="n">DEFAULT_DATA_FORMAT</span> <span class="o">=</span> <span class="s">&#39;format_json&#39;</span>
+<span class="sd">&quot;&quot;&quot;The default data format for deserializing input and serializing output. If the client call </span>
+<span class="sd">does not specify a data format using the `--SF-d|--SF-data-format` argument, then JSON will be used.&quot;&quot;&quot;</span>
+
+
+<span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="sd">&quot;&quot;&quot;The user-defined output plugin directory. Users who want to define custom plugins can </span>
+<span class="sd">define this value as an environment variable or config and deploy their output plugins there.&quot;&quot;&quot;</span>
+
+
 <span class="n">REST_PORT</span> <span class="o">=</span> <span class="bp">None</span>
 <span class="sd">&quot;&quot;&quot;The port for running the sofine REST server under the `localhost` domain. This value </span>
 <span class="sd">is defined in the JSON configuration file `sofine.conf` under the key `rest_port`. The default </span>
 <span class="sd">value is defined in `example.sofine.conf` and will be used if the user doesn&#39;t override it in </span>
 <span class="sd">`sofine.conf`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+
 
 <span class="k">def</span> <span class="nf">get_plugin_conf</span><span class="p">():</span>
     <span class="n">plugin_conf_path</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">4</span><span class="p">])</span>
@@ -1041,7 +1054,7 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
 <span class="n">PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;/plugins&#39;</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">PLUGIN_BASE_PATH</span><span class="p">)</span> 
 
-<span class="c"># Check environment variables for custom plugin path and REST port and prefer those if found</span>
+<span class="c"># Check environment variables for and prefer those if found</span>
 <span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_PLUGIN_PATH&#39;</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">)</span> 
@@ -1052,7 +1065,25 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">)</span> 
 
 <span class="k">if</span> <span class="ow">not</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Plugin Path not defined in SOFINE_PLUGIN_PATH environment variable or &quot;plugin_path&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Plugin Path not defined in SOFINE_PLUGIN_PATH environment variable or &quot;plugin_path&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+
+
+<span class="n">DATA_FORMAT_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;/data_format_plugins&#39;</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">DATA_FORMAT_PLUGIN_BASE_PATH</span><span class="p">)</span> 
+
+<span class="c"># Check environment variables for and prefer those if found</span>
+<span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_DATA_FORMAT_PLUGIN_PATH&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span><span class="p">)</span> 
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">get_plugin_conf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">plugin_conf</span><span class="p">:</span>
+        <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="s">&#39;output_format_plugin_path&#39;</span><span class="p">]</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span><span class="p">)</span> 
+
+<span class="c">#if not CUSTOM_DATA_FORMAT_PLUGIN_PATH:</span>
+<span class="c">#    print(&#39;Data Format Plugin Path not defined in SOFINE_DATA_FORMAT_PLUGIN_PATH environment variable or &quot;data_format_plugin_path&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;, file=sys.stderr)</span>
+
 
 <span class="n">REST_PORT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_REST_PORT&#39;</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">REST_PORT</span><span class="p">:</span>
@@ -1062,7 +1093,7 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
     <span class="n">REST_PORT</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="s">&#39;rest_port&#39;</span><span class="p">]</span>
 
 <span class="k">if</span> <span class="ow">not</span> <span class="n">REST_PORT</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;REST port not defined in SOFINE_REST_PORT environment variable or &quot;rest_port&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;REST port not defined in SOFINE_REST_PORT environment variable or &quot;rest_port&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span> 
 </pre></div>
 
     </div>
@@ -1076,9 +1107,35 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
 
   <h2 id="header-variables">Module variables</h2>
       <div class="item">
+        <p id="conf.CUSTOM_DATA_FORMAT_PLUGIN_PATH" class="name">var <span class="ident">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
         <p id="conf.CUSTOM_PLUGIN_BASE_PATH" class="name">var <span class="ident">CUSTOM_PLUGIN_BASE_PATH</span></p>
         
   
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="conf.DATA_FORMAT_PLUGIN_BASE_PATH" class="name">var <span class="ident">DATA_FORMAT_PLUGIN_BASE_PATH</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="conf.DEFAULT_DATA_FORMAT" class="name">var <span class="ident">DEFAULT_DATA_FORMAT</span></p>
+        
+  
+      <div class="desc"><p>The default data format for deserializing input and serializing output. If the client call 
+does not specify a data format using the <code>--SF-d|--SF-data-format</code> argument, then JSON will be used.</p></div>
     <div class="source_cont">
 </div>
 
@@ -1093,6 +1150,14 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
       </div>
       <div class="item">
         <p id="conf.REST_PORT" class="name">var <span class="ident">REST_PORT</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="conf.plugin_conf" class="name">var <span class="ident">plugin_conf</span></p>
         
   
     <div class="source_cont">

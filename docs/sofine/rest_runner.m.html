@@ -1040,21 +1040,36 @@ and capture the return value, and package that for return as HTTP response.</p>
 
 <span class="kn">import</span> <span class="nn">sofine.runner</span> <span class="kn">as</span> <span class="nn">runner</span>
 <span class="kn">import</span> <span class="nn">sofine.lib.utils.conf</span> <span class="kn">as</span> <span class="nn">conf</span>
+<span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 <span class="kn">from</span> <span class="nn">cgi</span> <span class="kn">import</span> <span class="n">parse_qs</span><span class="p">,</span> <span class="n">escape</span>
 <span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">exc_info</span>
 <span class="kn">from</span> <span class="nn">traceback</span> <span class="kn">import</span> <span class="n">format_tb</span>
-<span class="kn">import</span> <span class="nn">json</span>
 
 
 <span class="c"># Borrows from here: http://lucumr.pocoo.org/2007/5/21/getting-started-with-wsgi/</span>
 <span class="c">#  which is the best basic DIY wsgi tutorial I found</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_calls_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span> 
+<span class="k">def</span> <span class="nf">_parse_global_call_args_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="c"># Parse global arguments that must precede call arguments.</span>
+    <span class="c"># NOTE: TODO There is no validation here and the user must construct paths that match</span>
+    <span class="c">#  the documentation or all bets are off</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+    
+    <span class="n">data_format</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">DEFAULT_DATA_FORMAT</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">global_arg_call</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">data_format</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">_parse_global_call_args</span><span class="p">(</span><span class="n">global_arg_call</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">data_format</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_call_args_from_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span> 
     <span class="c"># Put each new list of args making up a call into calls. Then loop</span>
     <span class="c">#  through calls to make each call and append to ret. Just like CLI impl.</span>
+    
     <span class="n">args</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
-
+    <span class="c"># Build the pipeline of sofine calls from the remaining arguments</span>
     <span class="n">calls</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">call</span> <span class="o">=</span> <span class="p">[]</span> 
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1088,7 +1103,7 @@ and capture the return value, and package that for return as HTTP response.</p>
 
 <span class="k">def</span> <span class="nf">_run_action</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">call</span><span class="p">):</span>
     <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data_source_args</span> <span class="o">=</span> \
-            <span class="n">runner</span><span class="o">.</span><span class="n">_parse_runner_args</span><span class="p">(</span><span class="n">call</span><span class="p">)</span>
+            <span class="n">runner</span><span class="o">.</span><span class="n">_parse_runner_call_args</span><span class="p">(</span><span class="n">call</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">runner</span><span class="o">.</span><span class="n">_run_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
 
 
@@ -1117,10 +1132,13 @@ and capture the return value, and package that for return as HTTP response.</p>
 <span class="sd">the local file system.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span> 
-    <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
-    <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/json&#39;</span><span class="p">)]</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="bp">None</span> 
     
-    <span class="n">calls</span> <span class="o">=</span> <span class="n">_parse_calls_from_path</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PATH_INFO&#39;</span><span class="p">))</span>
+    <span class="n">data_format</span> <span class="o">=</span> <span class="n">_parse_global_call_args_from_path</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PATH_INFO&#39;</span><span class="p">))</span>
+    <span class="n">data_format_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_format</span><span class="p">)</span>
+    
+    <span class="n">calls</span> <span class="o">=</span> <span class="n">_parse_call_args_from_path</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PATH_INFO&#39;</span><span class="p">))</span>
 
     <span class="n">method</span> <span class="o">=</span> <span class="n">environ</span><span class="p">[</span><span class="s">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span>
     <span class="c"># This is a POST call to get_data. Get any data from the POST body, and support</span>
@@ -1130,13 +1148,13 @@ and capture the return value, and package that for return as HTTP response.</p>
             <span class="c"># Get ret, which initializes to any data provided in the POST body </span>
             <span class="n">ret_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;CONTENT_LENGTH&#39;</span><span class="p">])</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">environ</span><span class="p">[</span><span class="s">&#39;wsgi.input&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ret_len</span><span class="p">)</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
                 
             <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">:</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">call</span><span class="p">)</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
-            <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/json&#39;</span><span class="p">)]</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">get_content_type</span><span class="p">())]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">_get_traceback</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;404 Not Found&#39;</span>
@@ -1147,18 +1165,20 @@ and capture the return value, and package that for return as HTTP response.</p>
             <span class="c"># The query GET methods don&#39;t support chaining. _parse_calls_from_path()</span>
             <span class="c">#  returns a list of calls. So here just get the first call.</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">calls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">get_content_type</span><span class="p">())]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">_get_traceback</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;404 Not Found&#39;</span>
             <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;text/plain&#39;</span><span class="p">)]</span>
     <span class="c"># Only POST and GET are allowed</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">status</span> <span class="o">+</span> <span class="s">&#39;. Only the POST and GET verbs are allowed&#39;</span>
         <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;405 Method Not Allowed&#39;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;text/plain&#39;</span><span class="p">)]</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">status</span> <span class="o">+</span> <span class="s">&#39;. Only the POST and GET verbs are allowed&#39;</span>
 
     <span class="n">start_response</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ret</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">data_format_plugin</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)]</span>
 
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
@@ -1235,10 +1255,13 @@ the local file system.</p></div>
 <span class="sd">the local file system.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span> 
-    <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
-    <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/json&#39;</span><span class="p">)]</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="bp">None</span> 
     
-    <span class="n">calls</span> <span class="o">=</span> <span class="n">_parse_calls_from_path</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PATH_INFO&#39;</span><span class="p">))</span>
+    <span class="n">data_format</span> <span class="o">=</span> <span class="n">_parse_global_call_args_from_path</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PATH_INFO&#39;</span><span class="p">))</span>
+    <span class="n">data_format_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_format</span><span class="p">)</span>
+    
+    <span class="n">calls</span> <span class="o">=</span> <span class="n">_parse_call_args_from_path</span><span class="p">(</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;PATH_INFO&#39;</span><span class="p">))</span>
 
     <span class="n">method</span> <span class="o">=</span> <span class="n">environ</span><span class="p">[</span><span class="s">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span>
     <span class="c"># This is a POST call to get_data. Get any data from the POST body, and support</span>
@@ -1248,13 +1271,13 @@ the local file system.</p></div>
             <span class="c"># Get ret, which initializes to any data provided in the POST body </span>
             <span class="n">ret_len</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">environ</span><span class="p">[</span><span class="s">&#39;CONTENT_LENGTH&#39;</span><span class="p">])</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">environ</span><span class="p">[</span><span class="s">&#39;wsgi.input&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">ret_len</span><span class="p">)</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
                 
             <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">:</span>
                 <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">call</span><span class="p">)</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
-            <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;application/json&#39;</span><span class="p">)]</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">get_content_type</span><span class="p">())]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">_get_traceback</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;404 Not Found&#39;</span>
@@ -1265,18 +1288,20 @@ the local file system.</p></div>
             <span class="c"># The query GET methods don&#39;t support chaining. _parse_calls_from_path()</span>
             <span class="c">#  returns a list of calls. So here just get the first call.</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">calls</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;200 OK&#39;</span>
+            <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">get_content_type</span><span class="p">())]</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">_get_traceback</span><span class="p">()</span>
             <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;404 Not Found&#39;</span>
             <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;text/plain&#39;</span><span class="p">)]</span>
     <span class="c"># Only POST and GET are allowed</span>
     <span class="k">else</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">status</span> <span class="o">+</span> <span class="s">&#39;. Only the POST and GET verbs are allowed&#39;</span>
         <span class="n">status</span> <span class="o">=</span> <span class="s">&#39;405 Method Not Allowed&#39;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s">&#39;text/plain&#39;</span><span class="p">)]</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">status</span> <span class="o">+</span> <span class="s">&#39;. Only the POST and GET verbs are allowed&#39;</span>
 
     <span class="n">start_response</span><span class="p">(</span><span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ret</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">data_format_plugin</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)]</span>
 </pre></div>
 
     </div>

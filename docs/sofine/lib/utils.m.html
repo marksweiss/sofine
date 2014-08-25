@@ -991,6 +991,52 @@ table {
 <span class="kn">import</span> <span class="nn">sofine.lib.utils.conf</span> <span class="kn">as</span> <span class="nn">conf</span>
 
 
+<span class="k">def</span> <span class="nf">_load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+    <span class="n">module</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">module_file</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">module_file</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">module_file</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">module_file</span><span class="p">:</span>
+            <span class="n">module_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">module</span>
+
+
+<span class="k">def</span> <span class="nf">load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">* `module_name` - `string`. The name of the plugin to load</span>
+<span class="sd">* `plugin_group` - `string`. The name of the plugin directory of the plugin to load </span>
+<span class="sd">   </span>
+<span class="sd">Loads a plugin from either the sofine default plugin directory or the plugin directory </span>
+<span class="sd">configured by the user in the `plugin_path` key of the `sofine.conf` file in the </span>
+<span class="sd">sofine project root. Loading first looks in the `plugin_path` and then in the sofine </span>
+<span class="sd">default plugin directory.</span>
+
+<span class="sd">A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. </span>
+
+<span class="sd">Returns an instance of the plugin module, not the plugin itself. This allows clients </span>
+<span class="sd">to declare module scope variables in plugins and use this method (wrapped in </span>
+<span class="sd">`runner`) to get an instance of the module to access the variables.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+    <span class="c"># conf only loads the base path, without plugin_group subdirectory</span>
+    <span class="c"># So always dynamically load the full plugin plath into sys.path</span>
+    <span class="c">#  if the call included a plugin_group, otherwise the call to load</span>
+    <span class="c">#  the plugin will fail</span>
+    <span class="n">base_plugin_path</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">PLUGIN_BASE_PATH</span>
+    <span class="k">if</span> <span class="n">plugin_group</span><span class="p">:</span>
+        <span class="n">base_plugin_path</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">base_plugin_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
+        <span class="n">custom_plugin_base_path</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span>
+        <span class="k">if</span> <span class="n">plugin_group</span><span class="p">:</span>
+            <span class="n">custom_plugin_base_path</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">custom_plugin_base_path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">* `plugin_name` - `string`. The name of the plugin to load</span>
@@ -1013,38 +1059,6 @@ table {
     <span class="k">return</span> <span class="n">load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">)</span><span class="o">.</span><span class="n">plugin</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">* `module_name` - `string`. The name of the plugin to load</span>
-<span class="sd">* `plugin_group` - `string`. The name of the plugin directory of the plugin to load </span>
-<span class="sd">   </span>
-<span class="sd">Loads a plugin from either the sofine default plugin directory or the plugin directory </span>
-<span class="sd">configured by the user in the `plugin_path` key of the `sofine.conf` file in the </span>
-<span class="sd">sofine project root. Loading first looks in the `plugin_path` and then in the sofine </span>
-<span class="sd">default plugin directory.</span>
-
-<span class="sd">A plugin named `plugin_name` found in the plugin directory `plugin_group` is loaded. </span>
-
-<span class="sd">Returns an instance of the plugin module, not the plugin itself. This allows clients </span>
-<span class="sd">to declare module scope variables in plugins and use this method (wrapped in </span>
-<span class="sd">`runner`) to get an instance of the module to access the variables.</span>
-<span class="sd">&quot;&quot;&quot;</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
-
-    <span class="n">module</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">module_file</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">module_file</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
-        <span class="n">module</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">module_file</span><span class="p">)</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">module_file</span><span class="p">:</span>
-            <span class="n">module_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">module</span>
-
-
 <span class="k">def</span> <span class="nf">has_stdin</span><span class="p">():</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">isatty</span><span class="p">()</span>
 
@@ -1059,6 +1073,32 @@ table {
 <span class="sd">appended to the attributes associated with the keys in the data set built by a sofine call. </span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">plugin_group</span> <span class="o">+</span> <span class="s">&#39;::&#39;</span> <span class="o">+</span> <span class="n">plugin</span> <span class="o">+</span> <span class="s">&#39;::&#39;</span> <span class="o">+</span> <span class="n">name</span>
+
+
+<span class="k">def</span> <span class="nf">get_attr_keys</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys </span>
+<span class="sd">in a sofine data set, to return the key from each dict in each list.</span>
+<span class="sd">* `data` - `dict of string -&gt; list of dict`. The data type of the attributes associated with a key in a </span>
+<span class="sd">returned data set.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">attrs_rows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">attrs_row</span> <span class="ow">in</span> <span class="n">attrs_rows</span><span class="p">:</span> 
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs_row</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span> <span class="nf">get_attr_values</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys </span>
+<span class="sd">in a sofine data set, to return the value from each dict in each list.</span>
+<span class="sd">* `data` - `dict of string -&gt; list of dict`. The data type of the attributes associated with a key in a </span>
+<span class="sd">returned data set.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">attrs_rows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">attrs_row</span> <span class="ow">in</span> <span class="n">attrs_rows</span><span class="p">:</span> 
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs_row</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span>
 </pre></div>
 
     </div>
@@ -1072,6 +1112,74 @@ table {
 
 
   <h2 id="header-functions">Functions</h2>
+      
+    <div class="item">
+      <div class="name def" id="utils.get_attr_keys">
+        <p>def <span class="ident">get_attr_keys</span>(</p><p>data)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys 
+in a sofine data set, to return the key from each dict in each list.
+* <code>data</code> - <code>dict of string -&gt; list of dict</code>. The data type of the attributes associated with a key in a 
+returned data set.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-utils.get_attr_keys', this);">Show source.</a></p>
+    <div id="source-utils.get_attr_keys" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_attr_keys</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys </span>
+<span class="sd">in a sofine data set, to return the key from each dict in each list.</span>
+<span class="sd">* `data` - `dict of string -&gt; list of dict`. The data type of the attributes associated with a key in a </span>
+<span class="sd">returned data set.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">attrs_rows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">attrs_row</span> <span class="ow">in</span> <span class="n">attrs_rows</span><span class="p">:</span> 
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs_row</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">keys</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="utils.get_attr_values">
+        <p>def <span class="ident">get_attr_values</span>(</p><p>data)</p>
+      </div>
+      
+
+      
+  
+      <div class="desc"><p>Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys 
+in a sofine data set, to return the value from each dict in each list.
+* <code>data</code> - <code>dict of string -&gt; list of dict</code>. The data type of the attributes associated with a key in a 
+returned data set.</p></div>
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-utils.get_attr_values', this);">Show source.</a></p>
+    <div id="source-utils.get_attr_values" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_attr_values</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Slice all the attribute lists, which are lists of single key/value dicts mapped to the keys </span>
+<span class="sd">in a sofine data set, to return the value from each dict in each list.</span>
+<span class="sd">* `data` - `dict of string -&gt; list of dict`. The data type of the attributes associated with a key in a </span>
+<span class="sd">returned data set.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">attrs_rows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">attrs_row</span> <span class="ow">in</span> <span class="n">attrs_rows</span><span class="p">:</span> 
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs_row</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attr</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
       
     <div class="item">
       <div class="name def" id="utils.has_stdin">
@@ -1146,7 +1254,7 @@ class type is returned.</p></div>
       
     <div class="item">
       <div class="name def" id="utils.load_plugin_module">
-        <p>def <span class="ident">load_plugin_module</span>(</p><p>module_name, plugin_group)</p>
+        <p>def <span class="ident">load_plugin_module</span>(</p><p>plugin_name, plugin_group=None)</p>
       </div>
       
 
@@ -1167,7 +1275,7 @@ to declare module scope variables in plugins and use this method (wrapped in
     <div class="source_cont">
     <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-utils.load_plugin_module', this);">Show source.</a></p>
     <div id="source-utils.load_plugin_module" class="source">
-      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">* `module_name` - `string`. The name of the plugin to load</span>
 <span class="sd">* `plugin_group` - `string`. The name of the plugin directory of the plugin to load </span>
@@ -1183,20 +1291,21 @@ to declare module scope variables in plugins and use this method (wrapped in
 <span class="sd">to declare module scope variables in plugins and use this method (wrapped in </span>
 <span class="sd">`runner`) to get an instance of the module to access the variables.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
+    <span class="c"># conf only loads the base path, without plugin_group subdirectory</span>
+    <span class="c"># So always dynamically load the full plugin plath into sys.path</span>
+    <span class="c">#  if the call included a plugin_group, otherwise the call to load</span>
+    <span class="c">#  the plugin will fail</span>
+    <span class="n">base_plugin_path</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">PLUGIN_BASE_PATH</span>
+    <span class="k">if</span> <span class="n">plugin_group</span><span class="p">:</span>
+        <span class="n">base_plugin_path</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">base_plugin_path</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
+        <span class="n">custom_plugin_base_path</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">CUSTOM_PLUGIN_BASE_PATH</span>
+        <span class="k">if</span> <span class="n">plugin_group</span><span class="p">:</span>
+            <span class="n">custom_plugin_base_path</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">custom_plugin_base_path</span><span class="p">)</span>
 
-    <span class="n">module</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="n">module_file</span> <span class="o">=</span> <span class="bp">None</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">module_file</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
-        <span class="n">module</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">module_file</span><span class="p">)</span>
-    <span class="k">finally</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">module_file</span><span class="p">:</span>
-            <span class="n">module_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">module</span>
+    <span class="k">return</span> <span class="n">_load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">)</span>
 </pre></div>
 
     </div>

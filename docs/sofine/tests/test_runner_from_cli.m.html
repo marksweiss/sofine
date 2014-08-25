@@ -986,7 +986,9 @@ table {
 <span class="kn">import</span> <span class="nn">subprocess</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">csv</span>
 <span class="kn">import</span> <span class="nn">sofine.runner</span> <span class="kn">as</span> <span class="nn">runner</span>
+<span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 
 
 <span class="k">class</span> <span class="nc">RunnerFromCliTestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
@@ -1021,7 +1023,47 @@ table {
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
     
-    
+
+    <span class="k">def</span> <span class="nf">test_runner_main_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">AAPL</span><span class="se">\&quot;</span><span class="s"> : [], </span><span class="se">\&quot;</span><span class="s">MSFT</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-d format_json --SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">json_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;AAPL|MSFT|&#39;&quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-d format_csv --SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
+        <span class="n">proc2</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">csv_out</span> <span class="o">=</span> <span class="n">proc2</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="c"># Added bonus, also test the deserialize methods in the plugins</span>
+        <span class="c">#  as well as that the data returned is identical in CSV and JSON data format</span>
+        <span class="n">json_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="s">&#39;format_json&#39;</span><span class="p">)</span>
+        <span class="n">json_out</span> <span class="o">=</span> <span class="n">json_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">json_out</span><span class="p">)</span>
+        <span class="n">csv_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="s">&#39;format_csv&#39;</span><span class="p">)</span>
+        <span class="n">csv_out</span> <span class="o">=</span> <span class="n">csv_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
+
+        <span class="c"># NOTE: These two data formats are NOT isomorphic, because CSV has no notion of </span>
+        <span class="c">#  types other thans sting, it is a pure text format. JSON is a data type with the </span>
+        <span class="c">#  typed literals, with the same type support as JavaScript. As a result, roundtripping</span>
+        <span class="c">#  data through CSV gives you back a Python dict with all keys and all values as </span>
+        <span class="c">#  strings, whatever type they were previously</span>
+        <span class="c"># So we need to stringify all the keys and values in the deserialized JSON and then</span>
+        <span class="c">#  comapre the CSV deserialization. This tells us the outputs are as &quot;equivalent&quot; as</span>
+        <span class="c">#  we can assert, given the loss of types in the CSV conversion</span>
+        <span class="n">json_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">json_out</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+        <span class="n">json_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">json_out</span><span class="p">)])</span>
+        <span class="n">json_attr_vals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_values</span><span class="p">(</span><span class="n">json_out</span><span class="p">)])</span>
+        <span class="n">csv_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">csv_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">csv_out</span><span class="p">))</span>
+        <span class="n">csv_attr_vals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">get_attr_values</span><span class="p">(</span><span class="n">csv_out</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">json_keys</span> <span class="o">==</span> <span class="n">csv_keys</span> <span class="ow">and</span> 
+                        <span class="n">json_attr_keys</span> <span class="o">==</span> <span class="n">csv_attr_keys</span> <span class="ow">and</span> 
+                        <span class="n">json_attr_vals</span> <span class="o">==</span> <span class="n">csv_attr_vals</span><span class="p">)</span>
+
+
     <span class="k">def</span> <span class="nf">test_runner_main_pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
         <span class="n">path_2</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_2.txt&#39;</span>
@@ -1207,7 +1249,47 @@ table {
                 <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">attr</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;mock::ystockquotelib_mock::&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">)</span>
     
-    
+
+    <span class="k">def</span> <span class="nf">test_runner_main_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">AAPL</span><span class="se">\&quot;</span><span class="s"> : [], </span><span class="se">\&quot;</span><span class="s">MSFT</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-d format_json --SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
+        <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">json_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        
+        <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;AAPL|MSFT|&#39;&quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+        <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-d format_csv --SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
+        <span class="n">proc2</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">csv_out</span> <span class="o">=</span> <span class="n">proc2</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="c"># Added bonus, also test the deserialize methods in the plugins</span>
+        <span class="c">#  as well as that the data returned is identical in CSV and JSON data format</span>
+        <span class="n">json_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="s">&#39;format_json&#39;</span><span class="p">)</span>
+        <span class="n">json_out</span> <span class="o">=</span> <span class="n">json_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">json_out</span><span class="p">)</span>
+        <span class="n">csv_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="s">&#39;format_csv&#39;</span><span class="p">)</span>
+        <span class="n">csv_out</span> <span class="o">=</span> <span class="n">csv_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
+
+        <span class="c"># NOTE: These two data formats are NOT isomorphic, because CSV has no notion of </span>
+        <span class="c">#  types other thans sting, it is a pure text format. JSON is a data type with the </span>
+        <span class="c">#  typed literals, with the same type support as JavaScript. As a result, roundtripping</span>
+        <span class="c">#  data through CSV gives you back a Python dict with all keys and all values as </span>
+        <span class="c">#  strings, whatever type they were previously</span>
+        <span class="c"># So we need to stringify all the keys and values in the deserialized JSON and then</span>
+        <span class="c">#  comapre the CSV deserialization. This tells us the outputs are as &quot;equivalent&quot; as</span>
+        <span class="c">#  we can assert, given the loss of types in the CSV conversion</span>
+        <span class="n">json_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">json_out</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+        <span class="n">json_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">json_out</span><span class="p">)])</span>
+        <span class="n">json_attr_vals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_values</span><span class="p">(</span><span class="n">json_out</span><span class="p">)])</span>
+        <span class="n">csv_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">csv_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">csv_out</span><span class="p">))</span>
+        <span class="n">csv_attr_vals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">get_attr_values</span><span class="p">(</span><span class="n">csv_out</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">json_keys</span> <span class="o">==</span> <span class="n">csv_keys</span> <span class="ow">and</span> 
+                        <span class="n">json_attr_keys</span> <span class="o">==</span> <span class="n">csv_attr_keys</span> <span class="ow">and</span> 
+                        <span class="n">json_attr_vals</span> <span class="o">==</span> <span class="n">csv_attr_vals</span><span class="p">)</span>
+
+
     <span class="k">def</span> <span class="nf">test_runner_main_pipe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">path</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data.txt&#39;</span>
         <span class="n">path_2</span> <span class="o">=</span> <span class="s">&#39;./sofine/tests/fixtures/file_source_test_data_2.txt&#39;</span>
@@ -1392,6 +1474,60 @@ table {
     <span class="n">out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s">&#39;adds_keys&#39;</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_formats">
+        <p>def <span class="ident">test_runner_main_formats</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_formats', this);">Show source.</a></p>
+    <div id="source-test_runner_from_cli.RunnerFromCliTestCase.test_runner_main_formats" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_main_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;{</span><span class="se">\&quot;</span><span class="s">AAPL</span><span class="se">\&quot;</span><span class="s"> : [], </span><span class="se">\&quot;</span><span class="s">MSFT</span><span class="se">\&quot;</span><span class="s"> : []}&#39;&quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-d format_json --SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">json_out</span> <span class="o">=</span> <span class="n">proc</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    
+    <span class="n">cmd_get_data</span> <span class="o">=</span> <span class="s">&quot;echo &#39;AAPL|MSFT|&#39;&quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot; | &quot;</span>
+    <span class="n">cmd_get_data</span> <span class="o">+=</span> <span class="s">&quot;python ./sofine/runner.py &#39;--SF-d format_csv --SF-s ystockquotelib_mock --SF-g mock&#39;&quot;</span>
+    <span class="n">proc2</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd_get_data</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+    <span class="n">csv_out</span> <span class="o">=</span> <span class="n">proc2</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="c"># Added bonus, also test the deserialize methods in the plugins</span>
+    <span class="c">#  as well as that the data returned is identical in CSV and JSON data format</span>
+    <span class="n">json_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="s">&#39;format_json&#39;</span><span class="p">)</span>
+    <span class="n">json_out</span> <span class="o">=</span> <span class="n">json_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">json_out</span><span class="p">)</span>
+    <span class="n">csv_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="s">&#39;format_csv&#39;</span><span class="p">)</span>
+    <span class="n">csv_out</span> <span class="o">=</span> <span class="n">csv_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">csv_out</span><span class="p">)</span>
+    <span class="c"># NOTE: These two data formats are NOT isomorphic, because CSV has no notion of </span>
+    <span class="c">#  types other thans sting, it is a pure text format. JSON is a data type with the </span>
+    <span class="c">#  typed literals, with the same type support as JavaScript. As a result, roundtripping</span>
+    <span class="c">#  data through CSV gives you back a Python dict with all keys and all values as </span>
+    <span class="c">#  strings, whatever type they were previously</span>
+    <span class="c"># So we need to stringify all the keys and values in the deserialized JSON and then</span>
+    <span class="c">#  comapre the CSV deserialization. This tells us the outputs are as &quot;equivalent&quot; as</span>
+    <span class="c">#  we can assert, given the loss of types in the CSV conversion</span>
+    <span class="n">json_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">json_out</span><span class="o">.</span><span class="n">keys</span><span class="p">()])</span>
+    <span class="n">json_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">json_out</span><span class="p">)])</span>
+    <span class="n">json_attr_vals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_values</span><span class="p">(</span><span class="n">json_out</span><span class="p">)])</span>
+    <span class="n">csv_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">csv_out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">csv_attr_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">csv_out</span><span class="p">))</span>
+    <span class="n">csv_attr_vals</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">get_attr_values</span><span class="p">(</span><span class="n">csv_out</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">json_keys</span> <span class="o">==</span> <span class="n">csv_keys</span> <span class="ow">and</span> 
+                    <span class="n">json_attr_keys</span> <span class="o">==</span> <span class="n">csv_attr_keys</span> <span class="ow">and</span> 
+                    <span class="n">json_attr_vals</span> <span class="o">==</span> <span class="n">csv_attr_vals</span><span class="p">)</span>
 </pre></div>
 
     </div>

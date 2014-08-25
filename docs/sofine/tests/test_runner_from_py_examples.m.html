@@ -985,21 +985,23 @@ table {
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">sofine.runner</span> <span class="kn">as</span> <span class="nn">runner</span>
+<span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 
 <span class="k">class</span> <span class="nc">TestCase</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
     
     <span class="k">def</span> <span class="nf">test_runner_get_data_ystockquote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
+        
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         
         <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="c"># Assert that we have data for each key</span>
@@ -1009,7 +1011,7 @@ table {
     
     <span class="k">def</span> <span class="nf">test_runner_get_data_archive_dot_org</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1018,7 +1020,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         
         <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="c"># Assert that we have data for each key</span>
@@ -1028,7 +1030,7 @@ table {
 
     <span class="k">def</span> <span class="nf">test_runner_get_data_google_search_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1037,7 +1039,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         
         <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="c"># Assert that we have data for each key</span>
@@ -1047,7 +1049,7 @@ table {
     
     <span class="k">def</span> <span class="nf">test_schema_ystockquote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1058,7 +1060,8 @@ table {
         <span class="c">#  one element. ystockquotelib doesn&#39;t guarantee returning all keys</span>
         <span class="c">#  found in schema as attribute keys for every key passed to it,</span>
         <span class="c">#  but it does guarantee those keys will be a subset of the keys in schema.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_attributes</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
+        <span class="n">data_keys</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_attributes</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
 
 
     <span class="k">def</span> <span class="nf">test_runner_get_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1136,16 +1139,17 @@ table {
     
     <span class="k">def</span> <span class="nf">test_runner_get_data_ystockquote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
+        
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         
         <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="c"># Assert that we have data for each key</span>
@@ -1155,7 +1159,7 @@ table {
     
     <span class="k">def</span> <span class="nf">test_runner_get_data_archive_dot_org</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1164,7 +1168,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         
         <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="c"># Assert that we have data for each key</span>
@@ -1174,7 +1178,7 @@ table {
 
     <span class="k">def</span> <span class="nf">test_runner_get_data_google_search_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1183,7 +1187,7 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
         
         <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
         
         <span class="c"># Assert that we have data for each key</span>
@@ -1193,7 +1197,7 @@ table {
     
     <span class="k">def</span> <span class="nf">test_schema_ystockquote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
         <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib&#39;</span>
         <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
         <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1204,7 +1208,8 @@ table {
         <span class="c">#  one element. ystockquotelib doesn&#39;t guarantee returning all keys</span>
         <span class="c">#  found in schema as attribute keys for every key passed to it,</span>
         <span class="c">#  but it does guarantee those keys will be a subset of the keys in schema.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_attributes</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
+        <span class="n">data_keys</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_attributes</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
 
 
     <span class="k">def</span> <span class="nf">test_runner_get_data_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1274,7 +1279,7 @@ table {
     <div id="source-test_runner_from_py_examples.TestCase.test_runner_get_data_archive_dot_org" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_get_data_archive_dot_org</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;archive_dot_org_search_results&#39;</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
     <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1283,7 +1288,7 @@ table {
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
     
     <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
     
     <span class="c"># Assert that we have data for each key</span>
@@ -1342,7 +1347,7 @@ table {
     <div id="source-test_runner_from_py_examples.TestCase.test_runner_get_data_google_search_results" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_get_data_google_search_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;google_search_results&#39;</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
     <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1351,7 +1356,7 @@ table {
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
     
     <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
     
     <span class="c"># Assert that we have data for each key</span>
@@ -1378,16 +1383,17 @@ table {
     <div id="source-test_runner_from_py_examples.TestCase.test_runner_get_data_ystockquote" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_runner_get_data_ystockquote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib&#39;</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
     <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
+    
     <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
     
     <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
     
     <span class="n">key2</span> <span class="o">=</span> <span class="s">&#39;MSFT&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{},</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[],</span> <span class="n">key2</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
     
     <span class="c"># Assert that we have data for each key</span>
@@ -1459,7 +1465,7 @@ table {
     <div id="source-test_runner_from_py_examples.TestCase.test_schema_ystockquote" class="source">
       <div class="codehilite"><pre><span class="k">def</span> <span class="nf">test_schema_ystockquote</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">key</span> <span class="o">=</span> <span class="s">&#39;AAPL&#39;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">{}}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span> <span class="p">:</span> <span class="p">[]}</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="s">&#39;ystockquotelib&#39;</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="s">&#39;example&#39;</span>
     <span class="n">data_source_args</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1470,7 +1476,8 @@ table {
     <span class="c">#  one element. ystockquotelib doesn&#39;t guarantee returning all keys</span>
     <span class="c">#  found in schema as attribute keys for every key passed to it,</span>
     <span class="c">#  but it does guarantee those keys will be a subset of the keys in schema.</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_attributes</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
+    <span class="n">data_keys</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">data_keys</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected_attributes</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]))</span>
 </pre></div>
 
     </div>

@@ -995,7 +995,6 @@ using just the plugin name, plugin group and call args.</p>
 <span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 <span class="kn">import</span> <span class="nn">sofine.lib.utils.conf</span> <span class="kn">as</span> <span class="nn">conf</span>
 <span class="kn">from</span> <span class="nn">optparse</span> <span class="kn">import</span> <span class="n">OptionParser</span>
-<span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
 
@@ -1040,7 +1039,7 @@ using just the plugin name, plugin group and call args.</p>
         <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
     
     <span class="n">new_data</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">parsed_args</span><span class="p">)</span>
-
+        
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c"># Convert returned dict of attributes into a list of individual dicts. This allows all data</span>
@@ -1225,7 +1224,7 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">This lets plugin implementers expose free functions in the module and have client </span>
 <span class="sd">code be able to access them.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">get_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">):</span>
@@ -1240,45 +1239,56 @@ using just the plugin name, plugin group and call args.</p>
     <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_parse_runner_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">arg_flags</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
+            
+    <span class="k">def</span> <span class="nf">try_arg_flag</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;Required argument {0} not found in command line argument list passed to runner.main()&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;Value for required argument {0} not found in command line argument list passed to runner.main()&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span>
+
+    <span class="c"># Try twice if necessary, for each of the two forms of the arg flag</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">try_arg_flag</span><span class="p">(</span><span class="n">arg_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">err</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">try_arg_flag</span><span class="p">(</span><span class="n">arg_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c"># Flag was found, value for it parsed, and flag and value removed from args</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">err</span><span class="p">,</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_global_call_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="c"># Default output to JSON</span>
+    <span class="n">data_format</span> <span class="o">=</span> <span class="bp">None</span> 
+    <span class="n">err</span><span class="p">,</span> <span class="n">data_format</span> <span class="o">=</span> <span class="n">_parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-d&#39;</span><span class="p">,</span> <span class="s">&#39;--SF-data-format&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
+        <span class="n">data_format</span> <span class="o">=</span> <span class="n">conf</span><span class="o">.</span><span class="n">DEFAULT_DATA_FORMAT</span> 
+    
+    <span class="k">return</span> <span class="n">data_format</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_runner_call_args</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">data_source_group</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="n">action</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="k">def</span> <span class="nf">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">arg_flags</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="bp">None</span>
-            
-        <span class="k">def</span> <span class="nf">try_arg_flag</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">):</span>
-            <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
-            <span class="n">i</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">i</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-                <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;Required argument {0} not found in command line argument list passed to runner.main()&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">e</span> <span class="o">=</span> <span class="s">&#39;Value for required argument {0} not found in command line argument list passed to runner.main()&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arg_flag</span><span class="p">)</span>
-
-            <span class="k">return</span> <span class="n">e</span><span class="p">,</span> <span class="n">i</span>
-
-        <span class="c"># Try twice if necessary, for each of the two forms of the arg flag</span>
-        <span class="n">err</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">try_arg_flag</span><span class="p">(</span><span class="n">arg_flags</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
-            <span class="n">err</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">try_arg_flag</span><span class="p">(</span><span class="n">arg_flags</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="c"># Flag was found, value for it parsed, and flag and value removed from args</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">err</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="k">del</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="k">del</span> <span class="n">args</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="n">err</span><span class="p">,</span> <span class="n">ret</span>
       
     <span class="c"># Parse for both versions of required flags and raise error if not found</span>
-    <span class="n">err</span><span class="p">,</span> <span class="n">data_source</span> <span class="o">=</span> <span class="n">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-s&#39;</span><span class="p">,</span> <span class="s">&#39;--SF-data-source&#39;</span><span class="p">])</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">data_source</span> <span class="o">=</span> <span class="n">_parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-s&#39;</span><span class="p">,</span> <span class="s">&#39;--SF-data-source&#39;</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">err</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
-    <span class="n">err</span><span class="p">,</span> <span class="n">data_source_group</span> <span class="o">=</span> <span class="n">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-g&#39;</span><span class="p">,</span><span class="s">&#39;--SF-data-source-group&#39;</span><span class="p">])</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">data_source_group</span> <span class="o">=</span> <span class="n">_parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-g&#39;</span><span class="p">,</span><span class="s">&#39;--SF-data-source-group&#39;</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">err</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
     <span class="c"># For optional argument, don&#39;t throw if not found, just set default value</span>
-    <span class="n">err</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="n">parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-a&#39;</span><span class="p">,</span> <span class="s">&#39;--SF-action&#39;</span><span class="p">])</span>
+    <span class="n">err</span><span class="p">,</span> <span class="n">action</span> <span class="o">=</span> <span class="n">_parse_runner_arg</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;--SF-a&#39;</span><span class="p">,</span> <span class="s">&#39;--SF-action&#39;</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">err</span><span class="p">:</span>
         <span class="n">action</span> <span class="o">=</span> <span class="s">&#39;get_data&#39;</span>
 
@@ -1356,25 +1366,33 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">    PATH/runner.py \&#39;--SF-s fidelity --SF-g examples --SF-a get_schema \\</span>
 <span class="sd">    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL\&#39;</span>
 <span class="sd">&quot;&quot;&quot;</span>
-   
-    <span class="c"># If input passed from stdin, set initial data in chain of calls to that.</span>
-    <span class="c"># Thus supports composing sofine piped chains with preceding outer piped</span>
-    <span class="c">#  command line statements that include sofine pipes within them</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">has_stdin</span><span class="p">():</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
 
-    <span class="c"># Get each piped data source and set of args to call it from the CLI</span>
+    <span class="c"># Get any global args and each piped data source and set of args to call it from the CLI</span>
     <span class="c"># CLI syntax is split on pipes</span>
     <span class="n">calls</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">calls</span><span class="p">):</span>
+        <span class="c"># Parse global args, which appear before any calls. Right now only output format</span>
+        <span class="c">#  is only global arg, and it will be applied to all actions, even when that makes less sense</span>
+        <span class="n">global_arg_call</span> <span class="o">=</span> <span class="n">calls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">data_format</span> <span class="o">=</span> <span class="n">_parse_global_call_args</span><span class="p">(</span><span class="n">global_arg_call</span><span class="p">)</span>
+        <span class="n">data_format_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_format</span><span class="p">)</span>      
+
+        <span class="c"># If input passed from stdin, set initial data in chain of calls to that.</span>
+        <span class="c"># Thus supports composing sofine piped chains with preceding outer piped</span>
+        <span class="c">#  command line statements that include sofine pipes within them</span>
+        <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">has_stdin</span><span class="p">():</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">:</span>
-        <span class="n">call</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">call</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data_source_args</span> <span class="o">=</span> \
-                <span class="n">_parse_runner_args</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                <span class="n">_parse_runner_call_args</span><span class="p">(</span><span class="n">call</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
 
-    <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
 
 
 <span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
@@ -1519,7 +1537,7 @@ is True. </li>
         <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
     
     <span class="n">new_data</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">parsed_args</span><span class="p">)</span>
-
+        
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c"># Convert returned dict of attributes into a list of individual dicts. This allows all data</span>
@@ -1783,7 +1801,7 @@ code be able to access them.</p></div>
 <span class="sd">This lets plugin implementers expose free functions in the module and have client </span>
 <span class="sd">code be able to access them.</span>
 <span class="sd">&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_source</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1970,25 +1988,33 @@ action will be used to perform that action and return the result.</p>
 <span class="sd">    PATH/runner.py \&#39;--SF-s fidelity --SF-g examples --SF-a get_schema \\</span>
 <span class="sd">    -c CUSTOMER_ID -p PASSWORD -a ACCOUNT_ID -e EMAIL\&#39;</span>
 <span class="sd">&quot;&quot;&quot;</span>
-   
-    <span class="c"># If input passed from stdin, set initial data in chain of calls to that.</span>
-    <span class="c"># Thus supports composing sofine piped chains with preceding outer piped</span>
-    <span class="c">#  command line statements that include sofine pipes within them</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">has_stdin</span><span class="p">():</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
 
-    <span class="c"># Get each piped data source and set of args to call it from the CLI</span>
+    <span class="c"># Get any global args and each piped data source and set of args to call it from the CLI</span>
     <span class="c"># CLI syntax is split on pipes</span>
     <span class="n">calls</span> <span class="o">=</span> <span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;|&#39;</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">calls</span><span class="p">):</span>
+        <span class="c"># Parse global args, which appear before any calls. Right now only output format</span>
+        <span class="c">#  is only global arg, and it will be applied to all actions, even when that makes less sense</span>
+        <span class="n">global_arg_call</span> <span class="o">=</span> <span class="n">calls</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">data_format</span> <span class="o">=</span> <span class="n">_parse_global_call_args</span><span class="p">(</span><span class="n">global_arg_call</span><span class="p">)</span>
+        <span class="n">data_format_plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin_module</span><span class="p">(</span><span class="n">data_format</span><span class="p">)</span>      
+
+        <span class="c"># If input passed from stdin, set initial data in chain of calls to that.</span>
+        <span class="c"># Thus supports composing sofine piped chains with preceding outer piped</span>
+        <span class="c">#  command line statements that include sofine pipes within them</span>
+        <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">has_stdin</span><span class="p">():</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+
     <span class="k">for</span> <span class="n">call</span> <span class="ow">in</span> <span class="n">calls</span><span class="p">:</span>
-        <span class="n">call</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">call</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
         <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">data_source_args</span> <span class="o">=</span> \
-                <span class="n">_parse_runner_args</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+                <span class="n">_parse_runner_call_args</span><span class="p">(</span><span class="n">call</span><span class="p">)</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">_run_action</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">)</span>
 
-    <span class="k">print</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">data_format_plugin</span><span class="o">.</span><span class="n">serialize</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
 </pre></div>
 
     </div>

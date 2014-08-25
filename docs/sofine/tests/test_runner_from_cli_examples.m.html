@@ -988,6 +988,7 @@ table {
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&#39;..&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">sofine.runner</span> <span class="kn">as</span> <span class="nn">runner</span>
+<span class="kn">import</span> <span class="nn">sofine.lib.utils.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 
 
 <span class="c"># Hack to fill in the sensitive values from the command line</span>
@@ -1042,12 +1043,14 @@ table {
         <span class="c"># Assert from fidelity is there for at least some of the keys</span>
         <span class="c"># Note that there won&#39;t be fidelity data for the keys added by the file_source</span>
         <span class="c">#  and that adds two keys, so we test that we have n-2 keys with fidelity schema fields</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;fidelity&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span>
+        <span class="n">expected</span> <span class="o">+=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;ystockquotelib&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">expected</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;fidelity&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]):</span>
+            <span class="n">out_attr_keys</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">out_attr_keys</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">):</span>
                 <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
         <span class="c"># Assert keys and data from keys added by file_source and retrieved by ystockquotelib are there</span>
         <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
@@ -1055,13 +1058,13 @@ table {
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
 
 
 <span class="c"># NOTE: This runs as unittest but requires extra args from the command line (to</span>
 <span class="c">#  not embed sensitive ids here or in config files etc.). So it&#39;s basically a manual</span>
 <span class="c">#  test with nice unittest output</span>
-<span class="c"># Sample call: PROJECT_ROOT$ python ./tests/test_runner_from_cli_examples.py \</span>
+<span class="c"># Sample call: PROJECT_ROOT$ python $PYTHONPATH/sofine/tests/test_runner_from_cli_examples.py \</span>
 <span class="c">#              -c MY_CUSTOMER_ID \</span>
 <span class="c">#              -p MY_PASSWORD \</span>
 <span class="c">#              -a MY_ACCOUNT_ID \</span>
@@ -1207,12 +1210,14 @@ table {
         <span class="c"># Assert from fidelity is there for at least some of the keys</span>
         <span class="c"># Note that there won&#39;t be fidelity data for the keys added by the file_source</span>
         <span class="c">#  and that adds two keys, so we test that we have n-2 keys with fidelity schema fields</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;fidelity&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span>
+        <span class="n">expected</span> <span class="o">+=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;ystockquotelib&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span>
         <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">expected</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;fidelity&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]):</span>
+            <span class="n">out_attr_keys</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">out_attr_keys</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">):</span>
                 <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
 
         <span class="c"># Assert keys and data from keys added by file_source and retrieved by ystockquotelib are there</span>
         <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
@@ -1220,7 +1225,7 @@ table {
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
 </pre></div>
 
     </div>
@@ -1315,19 +1320,21 @@ table {
     <span class="c"># Assert from fidelity is there for at least some of the keys</span>
     <span class="c"># Note that there won&#39;t be fidelity data for the keys added by the file_source</span>
     <span class="c">#  and that adds two keys, so we test that we have n-2 keys with fidelity schema fields</span>
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;fidelity&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span>
+    <span class="n">expected</span> <span class="o">+=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;ystockquotelib&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)[</span><span class="s">&#39;schema&#39;</span><span class="p">]</span>
     <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">expected</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;fidelity&#39;</span><span class="p">,</span> <span class="s">&#39;example&#39;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]):</span>
+        <span class="n">out_attr_keys</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_attr_keys</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">out_attr_keys</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">expected</span><span class="p">):</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
     <span class="c"># Assert keys and data from keys added by file_source and retrieved by ystockquotelib are there</span>
     <span class="n">file_source_args</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;-p&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">]</span>
     <span class="n">file_source_keys</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s">&#39;file_source&#39;</span><span class="p">,</span> <span class="s">&#39;standard&#39;</span><span class="p">,</span> <span class="n">file_source_args</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">file_source_keys</span><span class="p">[</span><span class="s">&#39;schema&#39;</span><span class="p">]:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertTrue</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
 </pre></div>
 
     </div>
