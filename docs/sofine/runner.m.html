@@ -1319,7 +1319,10 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">separate from the args required for the call being run, they are preceded by `--SF_*`.</span>
 
 <span class="sd">There is a short form and long form of each command:</span>
-<span class="sd">    </span>
+
+<span class="sd">* `[--SF-d|--SF-data-format] - The data format to be used for all following piped calls to `get_data` </span>
+<span class="sd">or `get_namespaced_data`. This argument is optional. It only is evaluated for `get-data` </span>
+<span class="sd">and `get_namespaced_data`. If it isn&#39;t passed the default data format is JSON.</span>
 <span class="sd">* `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the</span>
 <span class="sd">name of the plugin module being called. Required.</span>
 <span class="sd">* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is </span>
@@ -1341,10 +1344,12 @@ using just the plugin name, plugin group and call args.</p>
 
 <span class="sd">The `[--SF-a|--SF-action]` argument is Optional. If you don&#39;t pass it, `get_data` is assumed.  </span>
 
-<span class="sd">Calls to `get_data` can be piped together. All the calls must be enclosed in quotes as shown </span>
-<span class="sd">in the examples below.  Calls to `adds_keys` and `get_schema` and `parse_args` cannot </span>
-<span class="sd">be piped. Only the first data-source and data-source group passed to the call with this </span>
-<span class="sd">action will be used to perform that action and return the result.</span>
+<span class="sd">Calls to `get_data` and `get_namespaced_data` can be piped together. You can mix `get_data` and `get_namespaced_data` calls</span>
+<span class="sd">in a piped expression.</span>
+
+<span class="sd">Calls to `adds_keys` and `get_schema` and `parse_args` cannot be piped.</span>
+
+<span class="sd">All calls and their arguments must be enclosed in quotes as shown in the examples below.  </span>
 
 <span class="sd">The complete interface for a call piping two get_data calls together:</span>
 <span class="sd">    </span>
@@ -1883,6 +1888,7 @@ The arguments dedicated to this framework are expected to precede the remaining 
 separate from the args required for the call being run, they are preceded by <code>--SF_*</code>.</p>
 <p>There is a short form and long form of each command:</p>
 <ul>
+<li><code>[--SF-d|--SF-data-format] - The data format to be used for all following piped calls to</code>get_data<code>or</code>get_namespaced_data<code>. This argument is optional. It only is evaluated for</code>get-data<code>and</code>get_namespaced_data`. If it isn't passed the default data format is JSON.</li>
 <li><code>[--SF-s|--SF-data-source]</code> - The name of the data source being called. This is the
 name of the plugin module being called. Required.</li>
 <li>
@@ -1906,10 +1912,10 @@ made as a JSON object with an attribute <code>args</code> and an array of parsed
 and an attribute <code>is_valid</code> with a boolean indicating whether parsing succeeded.</li>
 </ul>
 <p>The <code>[--SF-a|--SF-action]</code> argument is Optional. If you don't pass it, <code>get_data</code> is assumed.  </p>
-<p>Calls to <code>get_data</code> can be piped together. All the calls must be enclosed in quotes as shown 
-in the examples below.  Calls to <code>adds_keys</code> and <code>get_schema</code> and <code>parse_args</code> cannot 
-be piped. Only the first data-source and data-source group passed to the call with this 
-action will be used to perform that action and return the result.</p>
+<p>Calls to <code>get_data</code> and <code>get_namespaced_data</code> can be piped together. You can mix <code>get_data</code> and <code>get_namespaced_data</code> calls
+in a piped expression.</p>
+<p>Calls to <code>adds_keys</code> and <code>get_schema</code> and <code>parse_args</code> cannot be piped.</p>
+<p>All calls and their arguments must be enclosed in quotes as shown in the examples below.  </p>
 <p>The complete interface for a call piping two get_data calls together:</p>
 <div class="codehilite"><pre><span class="n">PATH</span><span class="o">/</span><span class="n">runner</span><span class="p">.</span><span class="n">py</span> <span class="err">&#39;</span><span class="p">[</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">s</span><span class="o">|--</span><span class="n">SF</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">source</span><span class="p">]</span> <span class="n">DATA_SOURCE_1</span> \
 <span class="p">[</span><span class="o">--</span><span class="n">SF</span><span class="o">-</span><span class="n">g</span><span class="o">|--</span><span class="n">SF</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">source</span><span class="o">-</span><span class="n">group</span><span class="p">]</span> <span class="n">DATA_SOURCE_GROUP_1</span> \
@@ -1941,7 +1947,10 @@ action will be used to perform that action and return the result.</p>
 <span class="sd">separate from the args required for the call being run, they are preceded by `--SF_*`.</span>
 
 <span class="sd">There is a short form and long form of each command:</span>
-<span class="sd">    </span>
+
+<span class="sd">* `[--SF-d|--SF-data-format] - The data format to be used for all following piped calls to `get_data` </span>
+<span class="sd">or `get_namespaced_data`. This argument is optional. It only is evaluated for `get-data` </span>
+<span class="sd">and `get_namespaced_data`. If it isn&#39;t passed the default data format is JSON.</span>
 <span class="sd">* `[--SF-s|--SF-data-source]` - The name of the data source being called. This is the</span>
 <span class="sd">name of the plugin module being called. Required.</span>
 <span class="sd">* `[--SF-g|--SF-data-source-group`] - The plugin group where the plugin lives. This is </span>
@@ -1963,10 +1972,12 @@ action will be used to perform that action and return the result.</p>
 
 <span class="sd">The `[--SF-a|--SF-action]` argument is Optional. If you don&#39;t pass it, `get_data` is assumed.  </span>
 
-<span class="sd">Calls to `get_data` can be piped together. All the calls must be enclosed in quotes as shown </span>
-<span class="sd">in the examples below.  Calls to `adds_keys` and `get_schema` and `parse_args` cannot </span>
-<span class="sd">be piped. Only the first data-source and data-source group passed to the call with this </span>
-<span class="sd">action will be used to perform that action and return the result.</span>
+<span class="sd">Calls to `get_data` and `get_namespaced_data` can be piped together. You can mix `get_data` and `get_namespaced_data` calls</span>
+<span class="sd">in a piped expression.</span>
+
+<span class="sd">Calls to `adds_keys` and `get_schema` and `parse_args` cannot be piped.</span>
+
+<span class="sd">All calls and their arguments must be enclosed in quotes as shown in the examples below.  </span>
 
 <span class="sd">The complete interface for a call piping two get_data calls together:</span>
 <span class="sd">    </span>
