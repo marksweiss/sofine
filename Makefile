@@ -10,6 +10,7 @@ test: deploy
 	python ./sofine/tests/test_runner_from_py.py
 	python ./sofine/tests/test_runner_from_rest.py
 	python ./sofine/tests/test_format_csv.py
+	python ./sofine/tests/test_format_xml.py
 
 test_examples: deploy
 	python ./sofine/tests/test_runner_from_py_examples.py
