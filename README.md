@@ -407,12 +407,11 @@ So the JSON input and output is in this format:
    {
     "AAPL": 
         [
-            },
             {"avg_daily_volume": "59390100"},
             {"book_value": "20.193"},
             ...
         ]
-    } 
+   } 
 
 #### format_csv
 
