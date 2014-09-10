@@ -333,8 +333,8 @@ Formats without an isomorphic mapping to Python dicts and lists (which correspon
 
 Remember, `sofine` data sets look like this:
 
-   {
-    "AAPL": 
+    {
+     "AAPL": 
         [
             {
                 "results": [
@@ -403,15 +403,15 @@ As an example, here are the two methods in the included `format_csv` plugin:
 The `format_json` plugin is isomorphic to the internal `sofine` data format. Input data is in JSON that maps string keys to array of objects, with each object having one string key and one string value. The keys are sofine data set keys; the array of objects is the array of key/value attributes associted with that key.
 
 So the JSON input and output is in this format:
-
-   {
-    "AAPL": 
+    
+    {
+     "AAPL": 
         [
             {"avg_daily_volume": "59390100"},
             {"book_value": "20.193"},
             ...
         ]
-   } 
+    } 
 
 #### format_csv
 
@@ -715,4 +715,5 @@ All of the above documentation covers the very common case of using sofine as a 
 However, you might want to develop with `sofine` more directly. Perhaps you want to use pieces of the library for other purposes, or fork the library to add features, or even contribute!
 
 In that case, you'll want the developer documentation: http://marksweiss.github.io/sofine/
+
 
