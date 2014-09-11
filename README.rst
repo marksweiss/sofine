@@ -520,9 +520,16 @@ that makes sense and is documented in your plugin) in ``serialize``.
 
 Remember, ``sofine`` data sets look like this:
 
-{ "AAPL": [ { "results": [ { "GsearchResultClass": "GwebSearch", ...
-
 ::
+
+    {
+     "AAPL": 
+        [
+            {
+                "results": [
+                {
+                    "GsearchResultClass": "GwebSearch",
+                    ...
 
                 },
                 ...
@@ -580,6 +587,77 @@ plugin:
         out_strm.close()
 
         return ret
+
+Data Formats of Included Data Format Plugins
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+format\_json
+^^^^^^^^^^^^
+
+The ``format_json`` plugin is isomorphic to the internal ``sofine`` data
+format. Input data is in JSON that maps string keys to array of objects,
+with each object having one string key and one string value. The keys
+are sofine data set keys; the array of objects is the array of key/value
+attributes associted with that key.
+
+So the JSON input and output is in this format:
+
+::
+
+    {
+     "AAPL": 
+        [
+            {"avg_daily_volume": "59390100"},
+            {"book_value": "20.193"},
+            ...
+        ]
+    } 
+
+format\_csv
+^^^^^^^^^^^
+
+CSV data is not hierarchical, so ``sofine`` must make some design
+decision about how to represent its data format in CSV. The library
+expects input and output in CSV to be structured so that the key for
+each record is in the first field in a row, and the attribute keys and
+values mapped to that key follow on the same row with keys and values
+alternating. Essentially, each ``sofine`` record is just flattened into
+a CSV row.
+
+Using the same example:
+
+::
+
+    AAPL, avg_daily_volume, 59390100, book_value, 20.193
+
+format\_xml
+^^^^^^^^^^^
+
+The XML format attempts to map the JSON hierarchical data format of
+``sofine`` onto a reasonable XML representation.XML input and output
+looks like this, for the same example:
+
+::
+
+    <data>
+        <row>
+            <key>AAPL</key>
+            <attributes>
+                <attribute>
+                    <attribute_key>avg_daily_volume</attribute_key>
+                    <attribute_value>59390100</attribute_value>
+                </attribute>
+                <attribute>
+                    <attribute_key>book_value</attribute_key>
+                    <attribute_value>20.193</attribute_value>
+                </attribute>
+                ...
+                ...
+            </attributes>
+        </row>
+        ...
+        ...
+    </data>
 
 How to Call Data Retrieval Plugins
 ----------------------------------
@@ -990,15 +1068,16 @@ Appendix: The Data Retrieval Algorithm
 --------------------------------------
 
 -  The returned data set (let's call it "data") is always a JSON object
-   of string keys mapped to object values.
+   of string keys mapped to an array of zero or more object values,
+   where each object is a single attribute key and attribute value pair.
 -  On every call in a ``sofine`` chain, add any new keys returned to
    data, and add all key attribute data returned to that key in data.
 -  All attributes mapped to a key are JSON objects which themselves
    consist of string keys mapped to legal JSON values.
 
-So, formally, the result of a call to a ``sofine`` pipe is the union of
-all keys retrieved by all plugin calls, with each key mapped to the
-union of all attributes returned by all plugin calls for that key.
+So the result of a call to a ``sofine`` pipe is the union of all keys
+retrieved by all plugin calls, with each key mapped to the union of all
+attributes returned by all plugin calls for that key.
 
 Developing With the sofine Code Base
 ------------------------------------

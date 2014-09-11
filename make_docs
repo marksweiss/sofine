@@ -34,5 +34,6 @@ python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/mock --o
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/standard --overwrite ./sofine/plugins/standard/file_source.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/data_format_plugins --overwrite ./sofine/data_format_plugins/format_json.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/data_format_plugins --overwrite ./sofine/data_format_plugins/format_csv.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/data_format_plugins --overwrite ./sofine/data_format_plugins/format_xml.py
 
 echo "Documentation rebuilt successfully"
