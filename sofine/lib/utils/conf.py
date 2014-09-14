@@ -56,40 +56,37 @@ def get_plugin_conf():
     return plugin_conf
 
 
-# Add the plugins direcgory to the system path so the dynamic module load
+def load_plugin_path(environ_var, conf_key):
+    # Check environment variables for and prefer those if found
+    path = os.environ.get(environ_var)
+    if path:
+        sys.path.insert(0, path) 
+    else:
+        plugin_conf = get_plugin_conf()
+        if plugin_conf:
+            path = plugin_conf[conf_key]
+            sys.path.insert(0, path) 
+
+    if not path:
+        print('Plugin Path not defined in {0} environment variable or {1} key in "sofine.conf" in sofine root directory'.format(environ_var, conf_key), file=sys.stderr)
+    else:
+        return path
+
+
+# Add the plugins directory to the system path so the dynamic module load
 #  finds any plugins in their and load_module just works
 PLUGIN_BASE_PATH = '/'.join(inspect.stack()[0][1].split('/')[:-3]) + '/plugins'
 sys.path.insert(0, PLUGIN_BASE_PATH) 
 
-# Check environment variables for and prefer those if found
-CUSTOM_PLUGIN_BASE_PATH = os.environ.get('SOFINE_PLUGIN_PATH')
-if CUSTOM_PLUGIN_BASE_PATH:
-    sys.path.insert(0, CUSTOM_PLUGIN_BASE_PATH) 
-else:
-    plugin_conf = get_plugin_conf()
-    if plugin_conf:
-        CUSTOM_PLUGIN_BASE_PATH = plugin_conf['plugin_path']
-        sys.path.insert(0, CUSTOM_PLUGIN_BASE_PATH) 
+CUSTOM_PLUGIN_BASE_PATH = load_plugin_path('SOFINE_PLUGIN_PATH', 'plugin_path')
 
-if not CUSTOM_PLUGIN_BASE_PATH:
-    print('Plugin Path not defined in SOFINE_PLUGIN_PATH environment variable or "plugin_path" key in "sofine.conf" in sofine root directory', file=sys.stderr)
-
+CUSTOM_HTTP_PLUGIN_URL = load_plugin_path('SOFINE_HTTP_PLUGIN_URL', 'http_plugin_url')
 
 DATA_FORMAT_PLUGIN_BASE_PATH = '/'.join(inspect.stack()[0][1].split('/')[:-3]) + '/data_format_plugins'
 sys.path.insert(0, DATA_FORMAT_PLUGIN_BASE_PATH) 
 
 # Check environment variables for and prefer those if found
-CUSTOM_DATA_FORMAT_PLUGIN_PATH = os.environ.get('SOFINE_DATA_FORMAT_PLUGIN_PATH')
-if CUSTOM_DATA_FORMAT_PLUGIN_PATH:
-    sys.path.insert(0, CUSTOM_DATA_FORMAT_PLUGIN_PATH) 
-else:
-    plugin_conf = get_plugin_conf()
-    if plugin_conf:
-        CUSTOM_DATA_FORMAT_PLUGIN_PATH = plugin_conf['output_format_plugin_path']
-        sys.path.insert(0, CUSTOM_DATA_FORMAT_PLUGIN_PATH) 
-
-#if not CUSTOM_DATA_FORMAT_PLUGIN_PATH:
-#    print('Data Format Plugin Path not defined in SOFINE_DATA_FORMAT_PLUGIN_PATH environment variable or "data_format_plugin_path" key in "sofine.conf" in sofine root directory', file=sys.stderr)
+CUSTOM_DATA_FORMAT_PLUGIN_PATH = load_plugin_path('SOFINE_DATA_FORMAT_PLUGIN_PATH', 'output_format_plugin_path')
 
 
 REST_PORT = os.environ.get('SOFINE_REST_PORT')
