@@ -6,6 +6,7 @@ import sys
 import os
 import imp
 import sofine.lib.utils.conf as conf
+import sofine.plugins.http_plugin_proxy as http_plugin_proxy
 
 
 def _load_plugin_module(module_name):
@@ -21,47 +22,8 @@ def _load_plugin_module(module_name):
     return module
 
 
-# Create and return a proxy wrapper around a call to the URL provided
-#  by the user in sofine.config
-# TODO Document how to configure and use
-# TODO Document this
-# The API to clients writing HTTP plugins is as follows
-#   1) Put base URL to plugins in sofine.conf FUTURE TODO - support multiple base endpoints
-#   2) Plugin must expose two HTTP endpoints:
-#      - parse_args - takes args=arg1,arg2 
-#                     returns is_valid, parsed_args JSON object
-#   3) - get_data - takes query string keys=key1,key2, ...
-#                     returns sofine data structure: { key: [{attr_key: attr_val}, ...], ...}
-class HttpPluginProxy(object):
-
-    def __init__(self, plugin_name, plugin_group):
-        from urllib import urlopen, urlencode 
-        import json
-        self._plugin_url = (conf.CUSTOM_HTTP_PLUGIN_URL + '/{0}' + '/{1}').format(plugin_name, plugin_group)
-    
-    
-    def parse_args(self, args):
-        ret = urllib.urlopen(self._plugin_url + 
-                             '/parse_args?args=' + 
-                             ','.join([urllib.urlencode(arg) for arg in args]))
-        ret = json.loads(ret)
-        is_valid = ret["is_valid"]
-        parsed_args = ret["parsed_args"]
-        return is_valid, parsed_args
-
-    
-    def get_data(self, keys, parsed_args):
-        ret = urllib.urlopen(self._plugin_url + 
-                             '/get_data?keys=' + 
-                             ','.join([urllib.urlencode(key) for key in keys]) +
-                             '&args=' + 
-                             ','.join([urllib.urlencode(arg) for arg in args])) 
-        ret = json.loads(ret)
-        return ret 
-
-
 def _load_plugin_http(plugin_name, plugin_group):
-    return HttpPluginProxy(plugin_name, plugin_group)
+    return http_plugin_proxy.HttpPluginProxy(plugin_name, plugin_group)
 
 
 def load_plugin_module(plugin_name, plugin_group=None):
