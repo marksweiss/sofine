@@ -35,15 +35,10 @@ end
 get '/get_data' do
   keys = params['keys'].split(',')
   
-  # TEMP DEBUG
-  # query_google_search(keys[0])
-
-  ret = {}
-  keys.each {|key| 
-    attrs = []
-    attrs.insert(0, query_google_search(key))
-    ret[key] = attrs 
-  }
+  # This is the kind of ruby one-liner you need to keep around a ruby 2-liner to understand
+  # ret = {} 
+  # keys.each {|key| ret[key] = Array.new(1) {query_google_search(key)}}
+  ret = Hash[keys.map {|key| [key, query_google_search(key)]}] 
 
   JSON.dump(ret)
 end
