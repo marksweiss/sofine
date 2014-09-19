@@ -50,16 +50,9 @@ Output looks like this:
     is_valid, parsed_args = plugin.parse_args(data_source_args)
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
-   
-    # TEMP DEBUG
-    print data
-    print data.keys()
-
+    
     new_data = plugin.get_data(data.keys(), parsed_args)
     
-    # TEMP DEBUG
-    print new_data
-
     if len(new_data.keys()) > 0:
         for k in new_data.keys():
             # Convert returned dict of attributes into a list of individual dicts. This allows all data
@@ -231,7 +224,7 @@ lets plugin users ask whether a plugin adds its own keys to the `data` output or
 attributes to the dicts being built by sofine for each key in `data`.
 """
     plugin = utils.load_plugin(data_source, data_source_group)
-    adds_keys = plugin.adds_keys
+    adds_keys = plugin.adds_keys()
     return {"adds_keys" : adds_keys}
 
 

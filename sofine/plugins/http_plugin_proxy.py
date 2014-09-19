@@ -58,14 +58,14 @@ class HttpPluginProxy(object):
 
     def get_schema(self):
         ret = self._urlopen(self._plugin_url + '/get_schema')
-        schema = ret["schema"]
-        return schema
+        ret = ret["schema"]
+        return ret
 
 
     def adds_keys(self):
         ret = self._urlopen(self._plugin_url + '/adds_keys')
-        adds_keys = ret["adds_keys"]
-        return adds_keys
+        ret = ret["adds_keys"]
+        return ret
 
 
     # Oh man this is a hack
