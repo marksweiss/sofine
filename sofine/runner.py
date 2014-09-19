@@ -50,9 +50,16 @@ Output looks like this:
     is_valid, parsed_args = plugin.parse_args(data_source_args)
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
-    
+   
+    # TEMP DEBUG
+    print data
+    print data.keys()
+
     new_data = plugin.get_data(data.keys(), parsed_args)
-        
+    
+    # TEMP DEBUG
+    print new_data
+
     if len(new_data.keys()) > 0:
         for k in new_data.keys():
             # Convert returned dict of attributes into a list of individual dicts. This allows all data

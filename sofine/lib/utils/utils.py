@@ -15,6 +15,8 @@ def _load_plugin_module(module_name):
     try:
         module_file, module_path, desc = imp.find_module(module_name)
         module = imp.load_source(module_name, module_path, module_file)
+    except:
+        pass
     finally:
         if module_file:
             module_file.close()
@@ -23,7 +25,9 @@ def _load_plugin_module(module_name):
 
 
 def _load_plugin_http(plugin_name, plugin_group):
-    return http_plugin_proxy.HttpPluginProxy(plugin_name, plugin_group)
+    ret = http_plugin_proxy.HttpPluginProxy()
+    ret.set_plugin_url(plugin_name, plugin_group)
+    return ret
 
 
 def load_plugin_module(plugin_name, plugin_group=None):

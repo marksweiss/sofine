@@ -1,3 +1,4 @@
+import sofine.lib.utils.conf as conf
 from urllib import urlopen, urlencode 
 import json
 
@@ -20,44 +21,61 @@ import json
 
 class HttpPluginProxy(object):
 
-    def __init__(self, plugin_name, plugin_group):
+    def __init__(self):
+        self._plugin_url = ''
+
+   
+    # Clunky but we have to have a no-arg constructor to conform to the
+    #  way utils loads modules. It needs a reference to a class with a no-arg ctor.
+    # The only place this plugin proxy is instantiated is internally in utils.load_module()
+    #  anyway, so this slight wart is encapsulated from users
+    def set_plugin_url(self, plugin_name, plugin_group):
         self._plugin_url = (conf.CUSTOM_HTTP_PLUGIN_URL + '/{0}' + '/{1}').format(plugin_name, plugin_group)
     
-
+    
     def _urlopen(self, url):
-        ret = urllib.urlopen(url)
+        ret = urlopen(url)
         ret = ret.read()
         ret = json.loads(ret)
         return ret
 
 
     def parse_args(self, args):
-        ret = self._urlopen(self._plugin_url + 
-                            '/parse_args?args=' + 
-                            ','.join([urllib.urlencode(arg) for arg in args]))
+        qs_args = ','.join([urlencode({'x' : arg}).split('=')[1] for arg in args])
+        ret = self._urlopen(self._plugin_url + '/parse_args?args=' + qs_args)
         is_valid = ret["is_valid"]
         parsed_args = ret["parsed_args"]
         return is_valid, parsed_args
 
     
     def get_data(self, keys, parsed_args):
-        return self._urlopen(self._plugin_url + 
-                             '/get_data?keys=' + 
-                             ','.join([urllib.urlencode(key) for key in keys]) +
-                             '&args=' + 
-                             ','.join([urllib.urlencode(arg) for arg in args])) 
-
+        qs_keys = ','.join([urlencode({'x' : key}).split('=')[1] for key in keys])
+        qs_args = ','.join([urlencode({'x' : arg}).split('=')[1] for arg in parsed_args])
+        ret = self._urlopen(self._plugin_url + 
+                '/get_data?keys=' + qs_keys + 
+                '&args=' + qs_args)
+        return ret 
 
     def get_schema(self):
-        ret = self._urlopen(self._plugin_url + 
-                            '/get_schema')
+        ret = self._urlopen(self._plugin_url + '/get_schema')
         schema = ret["schema"]
         return schema
 
 
     def adds_keys(self):
-        ret = self._urlopen(self._plugin_url + 
-                            '/adds_keys')
+        ret = self._urlopen(self._plugin_url + '/adds_keys')
         adds_keys = ret["adds_keys"]
         return adds_keys
+
+
+    # Oh man this is a hack
+    # utils.load_module() calls a function plugin(). For Py plugins this is reference
+    #  to the class placed in the module as an attribute plugin = class_name. So
+    #  it amounts to constructing an instance of the plugin. Here we need to pass
+    #  back an already constructed proxy object, bound to plugin_name and group
+    #  because of the order of which things happen in utils. So we just provide
+    #  a different implementation of plugin() which will resolve against the object
+    #  already returned and just passes back a pointer to itself
+    def plugin(self):
+        return self
 

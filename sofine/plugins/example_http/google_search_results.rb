@@ -4,6 +4,10 @@ require 'json'
 require 'sinatra'
 
 
+PLUGIN_NAME = 'google_search_results'
+PLUGIN_GROUP = 'example_http'
+
+
 def query_google_search(k) 
 '
 * `k` - `string`. The query term.
@@ -27,15 +31,16 @@ described in the documentation for `get_child_schema`.
 end
 
 
-get '/parse_args' do
-  JSON.dump({"parsed_args" => params[args], "is_valid" => true})
+get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/parse_args' do
+    JSON.dump({"parsed_args" => params['args'], "is_valid" => true})
 end
 
 
-get '/get_data' do
+get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/get_data' do
   keys = params['keys'].split(',')
   
   # This is the kind of ruby one-liner you need to keep around a ruby 2-liner to understand
+  # But this is why ruby is fun! When you get your head around these things you're happy.
   # ret = {} 
   # keys.each {|key| ret[key] = Array.new(1) {query_google_search(key)}}
   ret = Hash[keys.map {|key| [key, query_google_search(key)]}] 
@@ -44,12 +49,12 @@ get '/get_data' do
 end
 
 
-get '/get_schema' do
+get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/get_schema' do
   '{"schema" : ["results"]}'
 end
 
 
-get '/adds_keys' do
+get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/adds_keys' do
   '{"adds_keys" : false}'
 end
 
