@@ -42,18 +42,50 @@ class HttpPluginProxy(object):
 
     def parse_args(self, args):
         qs_args = ','.join([urlencode({'x' : arg}).split('=')[1] for arg in args])
+        
+        # TEMP DEBUG
+        print "PLUGIN URL"
+        print (self._plugin_url + '/parse_args?args=' + qs_args)
+        
+        
         ret = self._urlopen(self._plugin_url + '/parse_args?args=' + qs_args)
+        
+        # TEMP DEBUG
+        print "RET"
+        print ret
+        
         is_valid = ret["is_valid"]
         parsed_args = ret["parsed_args"]
+
+
+        # TEMP DEBUG
+        print "RET SPLIT"
+        print is_valid
+        print parsed_args
+
         return is_valid, parsed_args
 
     
     def get_data(self, keys, parsed_args):
         qs_keys = ','.join([urlencode({'x' : key}).split('=')[1] for key in keys])
         qs_args = ','.join([urlencode({'x' : arg}).split('=')[1] for arg in parsed_args])
+        
+        
+        # TEMP DEBUG
+        print "GET DATA URL"
+        print (self._plugin_url + 
+                '/get_data?keys=' + qs_keys + 
+                '&args=' + qs_args)
+        
         ret = self._urlopen(self._plugin_url + 
                 '/get_data?keys=' + qs_keys + 
                 '&args=' + qs_args)
+        
+        # TEMP DEBUG
+        print "GET DATA RET"
+        print ret
+        
+        
         return ret 
 
     def get_schema(self):

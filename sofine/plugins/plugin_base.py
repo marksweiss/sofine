@@ -38,7 +38,7 @@ if it adds keys to data or just adds attributes to existing keys.
         self.adds_keys = False
 
 
-    def adds_keys(self):
+    def get_adds_keys(self):
         return self.adds_keys
 
 

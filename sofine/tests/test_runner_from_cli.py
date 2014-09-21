@@ -143,7 +143,7 @@ class RunnerFromCliTestCase(unittest.TestCase):
             for attr in out[k]:    
                 self.assertTrue(attr.keys()[0] is not None and attr.values()[0] is not None)
 
-
+    
     def test_runner_main_get_schema(self):
         cmd_get_schema = "python ./sofine/runner.py '--SF-s ystockquotelib_mock --SF-g mock --SF-a get_schema'"
         proc = subprocess.Popen(cmd_get_schema, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

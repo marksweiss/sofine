@@ -224,7 +224,7 @@ lets plugin users ask whether a plugin adds its own keys to the `data` output or
 attributes to the dicts being built by sofine for each key in `data`.
 """
     plugin = utils.load_plugin(data_source, data_source_group)
-    adds_keys = plugin.adds_keys()
+    adds_keys = plugin.get_adds_keys()
     return {"adds_keys" : adds_keys}
 
 

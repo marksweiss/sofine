@@ -11,6 +11,7 @@ test: deploy
 	python ./sofine/tests/test_runner_from_rest.py
 	python ./sofine/tests/test_format_csv.py
 	python ./sofine/tests/test_format_xml.py
+	./sofine/tests/run_test_runner_from_cli_http_plugin.sh
 
 test_examples: deploy
 	python ./sofine/tests/test_runner_from_py_examples.py

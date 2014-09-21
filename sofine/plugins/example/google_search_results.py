@@ -20,9 +20,9 @@ described in the documentation for `get_child_schema`.
     ret = urllib2.urlopen(url)
     ret = ret.read()
     ret = json.loads(ret)
-    
+   
     if ret: 
-        ret = {'results' : ret['responseData']['results']}
+        ret = {'results' : ret['results']}
     else:
         ret = {'results' : []}
     

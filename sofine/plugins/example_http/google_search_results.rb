@@ -1,6 +1,14 @@
+require 'rubygems'
 require 'net/http'
 require 'open-uri'
 require 'json'
+
+# TODO Document this as a requirement for HTTP plugins if you want sofine to manage them
+# Record the PID of this process before Sinatra starts (i.e. of the parent before the 
+#  child server process starts), so we can kill it later from the outer shell script
+#  running this plugin. This is mainly so this plugin can be tested with automated tests
+#  running in Python, which is what sofine is implemented in.
+File.open(__FILE__ + '.pid', 'w') {|f| f.write Process.pid }
 require 'sinatra'
 
 
@@ -18,10 +26,15 @@ described in the documentation for `get_child_schema`.
 '    
   k = URI::encode(k)
   url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=#{k}"
+  
+  # TEMP DEBUG
+  puts url
+  
+  
   ret = Net::HTTP.get_response(URI(url)) 
   ret = JSON.load(ret.body)
     
-  if ret 
+  if ret and ret.code == '200'
     ret = {'results' => ret['responseData']['results']}
   else
     ret = {'results' => []}
@@ -56,5 +69,18 @@ end
 
 get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/adds_keys' do
   '{"adds_keys" : false}'
+end
+
+
+get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/test' do
+  puts 'TEST CALL'
+end
+
+
+# This overrides Sinatra's annoying default behavior of restarting itself when you kill it
+# Without this automated test from shell process kills this process' PID but then the at_exit
+#  handler in Sinatra restarts Sinatra again. This is exposed by Sinatra to kill itself cleanly
+get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/kill' do
+  Sinatra::Application.quit!
 end
 

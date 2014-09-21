@@ -29,6 +29,7 @@ class TestCase(unittest.TestCase):
         
         url = 'http://localhost:{0}/SF-s/{1}/SF-g/{2}'.format(
                 conf.REST_PORT, data_source, data_source_group)
+
         ret = urllib2.urlopen(url, json.dumps(post_data))
         ret = ret.read()
         ret = json.loads(ret)
@@ -52,6 +53,7 @@ class TestCase(unittest.TestCase):
                 conf.REST_PORT, 
                 data_source_1, data_source_group_1,
                 data_source_2, data_source_group_2)
+        
         ret = urllib2.urlopen(url, json.dumps(post_data))
         ret = ret.read()
         ret = json.loads(ret)
