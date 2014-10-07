@@ -135,7 +135,7 @@ If you want to use the included `fidelity` and `ystockquotelib` plugins in the `
 
 `sofine` uses two kinds of plugins. _Data retrieval plugins_ are what you call singly or in chained expressions to return data sets. When the documentation says "plugin," it means data retrieval plugin. But `sofine` also supports plugins for the data format of data sets. By default `sofine` expects input on `stdin` in JSON format and writes JSON to `stdout`. But there is also a plugin for CSV.
 
-## How Data Retrival Plugins Work and How to Write Them
+## How Python Data Retrieval Plugins Work and How to Write Them
 
 ### Boilerplate
 
@@ -307,6 +307,14 @@ Just for fun, here is a second example. This shows you how easy it is to wrap ex
             return {ticker : ystockquote.get_all(ticker) for ticker in keys} 
 
     plugin = YStockQuoteLib
+
+
+
+
+# TODO RIGHT HERE
+## How Python Data Retrieval Plugins Work and How to Write Them
+
+
 
 ## How Data Format Plugins Work and How to Write Them
 
@@ -681,15 +689,31 @@ The `get_plugin_module` action lets you get an instance of a plugin module in Py
     child_shema = mod.get_child_schema()
 
 
-## Managing Data Retrieval Plugins
+## Managing Python Data Retrieval Plugins
 
 Managing data retrieval plugins is very simple. Pick a directory from which you want to call your plugins. Define the environment variable `SOFINE_PLUGIN_PATH` and assign to it the path to your plugin directory.
 
-Plugins themselves are just Python modules fulfilling the requirements detailed in the section, "How Plugins Work and How to Write Them."
+Plugins themselves are just Python modules (or code files exposing the required HTTP endpoints in the cast of HTTP plugins) fulfilling the requirements detailed in the section, "How Plugins Work and How to Write Them."
 
 Plugins cannot be deployed at the root of your plugin directory. Instead you must create one or more subdirectories and place plugins in them. Any plugin can live in any subdirectory. If you want, you can even place a plugin in more than one plugin directory. The plugin module name must match the plugin's `self.name` attribute, and the plugin directory name must match the plugin's `self.group` attribute.
 
-This approach means you can manage your plugin directory without any dependencies on `sofine`.  You can manage your plugins directory as their own code repo, and include unit tests or config files in the plugin directory, etc. 
+This approach means you can manage your plugin directory without any dependencies on `sofine`.  You can manage your plugins directory as their own code repo, and include unit tests or config files in the plugin directory, etc.
+
+## Managing HTTP Data Retrieval Plugins
+
+Managing HTTP data retrieval plugins is very similar to managing Python data retrieval plugins. One difference is that `sofine` doesn't care what language you use to implement an HTTP plugin, or where the code files or compiled binaries are deployed.  Instead you simply define the environment variable `SOFINE_HTTP_PLUGIN_URL`.
+
+When you run a `sofine` command line or REST call, `sofine` will attempt to resolve any plugin it can't load as a Python module by making an HTTP call to the url defined in this environment variable. The values in the call for plugin name, plugin group and action are concatenated to this URL to form the route that your plugin must expose. If your HTTP endpoint is reachable, sofine will call it. For example, the `sofine/plugins/http_examples` directory that ships with `sofine` includes a plugin to retrieve Google search results written in ruby, which exposes itself as an HTTP endpoint to `sofine`.
+
+The CLI call looks like this:
+    
+    python $PYTHONPATH/sofine/runner.py '--SF-s google_search_results --SF-g example_http'
+
+The call to the web server implementing the plugin looks like this:
+
+    127.0.0.1 - - [06/Oct/2014 23:55:16] "GET /google_search_results/example_http/get_data?keys=AAPL,MSFT&args= HTTP/1.1" 200 4648 0.1324
+
+The code for this server happens to be a ruby file located in the local file system, but that is incidental. You are free to manage plugins as you wish as long as your plufing fulfills the requirements detailed in the section "How Python Data Retrieval Plugins Work and How to Write Them."
 
 ## Managing Data Format Plugins
 
