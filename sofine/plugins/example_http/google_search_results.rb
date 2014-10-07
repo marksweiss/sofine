@@ -27,14 +27,10 @@ described in the documentation for `get_child_schema`.
   k = URI::encode(k)
   url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=#{k}"
   
-  # TEMP DEBUG
-  puts url
-  
-  
   ret = Net::HTTP.get_response(URI(url)) 
   ret = JSON.load(ret.body)
     
-  if ret and ret.code == '200'
+  if ret and ret['responseStatus'] == 200
     ret = {'results' => ret['responseData']['results']}
   else
     ret = {'results' => []}
