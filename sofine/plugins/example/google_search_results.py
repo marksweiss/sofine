@@ -22,7 +22,7 @@ described in the documentation for `get_child_schema`.
     ret = json.loads(ret)
    
     if ret: 
-        ret = {'results' : ret['results']}
+        ret = {'results' : ret['responseData']['results']}
     else:
         ret = {'results' : []}
     

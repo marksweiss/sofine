@@ -140,7 +140,7 @@ the local file system.
             ret_len = int(environ['CONTENT_LENGTH'])
             ret = environ['wsgi.input'].read(ret_len)
             ret = data_format_plugin.deserialize(ret)
-                
+
             for call in calls:
                 ret = _run_action(ret, call)
 

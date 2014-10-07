@@ -56,7 +56,7 @@ def get_plugin_conf():
     return plugin_conf
 
 
-def load_plugin_path(environ_var, conf_key):
+def load_plugin_path(environ_var, conf_key, warn=True):
     # Check environment variables for and prefer those if found
     path = os.environ.get(environ_var)
     if path:
@@ -67,7 +67,7 @@ def load_plugin_path(environ_var, conf_key):
             path = plugin_conf[conf_key]
             sys.path.insert(0, path) 
 
-    if not path:
+    if not path and warn:
         print('Plugin Path not defined in {0} environment variable or {1} key in "sofine.conf" in sofine root directory'.format(environ_var, conf_key), file=sys.stderr)
     else:
         return path
@@ -86,7 +86,8 @@ DATA_FORMAT_PLUGIN_BASE_PATH = '/'.join(inspect.stack()[0][1].split('/')[:-3]) +
 sys.path.insert(0, DATA_FORMAT_PLUGIN_BASE_PATH) 
 
 # Check environment variables for and prefer those if found
-CUSTOM_DATA_FORMAT_PLUGIN_PATH = load_plugin_path('SOFINE_DATA_FORMAT_PLUGIN_PATH', 'output_format_plugin_path')
+warn = False
+CUSTOM_DATA_FORMAT_PLUGIN_PATH = load_plugin_path('SOFINE_DATA_FORMAT_PLUGIN_PATH', 'output_format_plugin_path', warn)
 
 
 REST_PORT = os.environ.get('SOFINE_REST_PORT')

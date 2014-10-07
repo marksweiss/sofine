@@ -48,11 +48,12 @@ Output looks like this:
 """
     plugin = utils.load_plugin(data_source, data_source_group)
     is_valid, parsed_args = plugin.parse_args(data_source_args)
+    
     if not is_valid:
         raise ValueError ('Invalid value passed in call to {0}. Args passed: {1})'.format(data_source, data_source_args))
     
     new_data = plugin.get_data(data.keys(), parsed_args)
-    
+
     if len(new_data.keys()) > 0:
         for k in new_data.keys():
             # Convert returned dict of attributes into a list of individual dicts. This allows all data

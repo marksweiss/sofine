@@ -20,7 +20,7 @@ setup(
     license = 'MIT',
     keywords = 'glueAPI data pipelines scraper webAPI',
     url = 'http://packages.python.org/sofine',
-    packages=['sofine', 'sofine.lib', 'sofine.lib.utils', 'sofine.plugins', 'sofine.plugins.example',  'sofine.plugins.mock', 'sofine.plugins.standard', 'sofine.data_format_plugins', 'sofine.tests'],
+    packages=['sofine', 'sofine.lib', 'sofine.lib.utils', 'sofine.plugins', 'sofine.plugins.example',  'sofine.plugins.mock', 'sofine.plugins.standard', 'sofine.plugins.example_http', 'sofine.plugins.mock_http', 'sofine.data_format_plugins', 'sofine.tests'],
     long_description=read('README.rst'),
     classifiers=[
         'Development Status :: 3 - Alpha',
