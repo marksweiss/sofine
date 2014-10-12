@@ -3,11 +3,20 @@ require 'net/http'
 require 'open-uri'
 require 'json'
 
-# TODO Document this as a requirement for HTTP plugins if you want sofine to manage them
-# Record the PID of this process before Sinatra starts (i.e. of the parent before the 
+
+# NOTE: sinatra runs by defaul at http://0.0.0.0:4567, so $SOFINE_HTTP_PLUGIN_URL 
+#  needs to be set to that for this to work
+
+# NOTE: this as a useful pattern for HTTP plugins if you want to manage your resources
+#  through a shell script etc. Here the plugin stores its own PID and exposes a route
+#  so you can call and get it. This can allow you to kill the plugin process from 
+#  a calling point. Note though that this is optional and you may have any number
+#  of ways of managing your HTTP plugin, such as running it in a container, etc.
+# Here we record the PID of this process before Sinatra starts (i.e. of the parent before the 
 #  child server process starts), so we can kill it later from the outer shell script
 #  running this plugin. This is mainly so this plugin can be tested with automated tests
-#  running in Python, which is what sofine is implemented in.
+#  running in Python and orchestrated in a shell script.
+
 File.open(__FILE__ + '.pid', 'w') {|f| f.write Process.pid }
 require 'sinatra'
 

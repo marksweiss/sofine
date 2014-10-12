@@ -6,6 +6,8 @@ Current supported configuration keys are:
 
 * `plugin_path` - The path to the user's plugins directory. This can be any reachable path 
 that sofine has permission to read.
+* `http_plugin_url` - The user-defined base URL to call for user HTTP plugins.
+* `data_format_plugin_path` - The path to the user's data format plugin directory. Data format plugins govern the data format (e.g. the default, JSON) of returned data sets.
 * `rest_port` - The port for running the sofine REST server under the `localhost` domain. 
 The default value is `10000` defined in `example.sofine.conf`.
 """
@@ -87,7 +89,7 @@ sys.path.insert(0, DATA_FORMAT_PLUGIN_BASE_PATH)
 
 # Check environment variables for and prefer those if found
 warn = False
-CUSTOM_DATA_FORMAT_PLUGIN_PATH = load_plugin_path('SOFINE_DATA_FORMAT_PLUGIN_PATH', 'output_format_plugin_path', warn)
+CUSTOM_DATA_FORMAT_PLUGIN_PATH = load_plugin_path('SOFINE_DATA_FORMAT_PLUGIN_PATH', 'data_format_plugin_path', warn)
 
 
 REST_PORT = os.environ.get('SOFINE_REST_PORT')

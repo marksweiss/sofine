@@ -1,23 +1,21 @@
+"""
+This class is used by `sofine` to generate a proxy object around any HTTP plugin. `sofine`
+dynamically creates the object based on the value in the environment variable 
+SOFINE_HTTP_PLUGIN_URL and the plugin name and plugin group in the call. This wrapper
+simply lets the existing mechanism to run plugins call a Python object with the same
+API as Python plugins.
+
+The second important function of this class is that it depends on and expects that 
+all HTTP plugins will conform to the API for their return data types as defined in the
+documentation for `sofine`. In particular, all of the public methods expect that the return
+values from calling an HTTP plugin will have keys with designated names.
+"""
+
+
 import sofine.lib.utils.conf as conf
 from urllib import urlopen, urlencode 
 import json
 
-
-# Create and return a proxy wrapper around a call to the URL provided
-#  by the user in sofine.config or environment var
-# TODO Document how to configure and use
-# TODO Document this
-# The API to clients writing HTTP plugins is as follows
-#   1) Put base URL to plugins in sofine.conf FUTURE TODO - support multiple base endpoints
-#   2) Plugin must expose two HTTP endpoints:
-#      - parse_args - takes args=arg1,arg2 
-#                     returns is_valid, parsed_args JSON object
-#   3) - get_data - takes query string keys=key1,key2, ...
-#                     returns sofine data structure: { key: [{attr_key: attr_val}, ...], ...}
-
-# BONUS TODO
-# Write example plugins in ruby, C, C++, node js, node coffee, Java, Go, Perl
-# Redo ystockquotelib and Google Search API in each language
 
 class HttpPluginProxy(object):
 
@@ -49,6 +47,14 @@ class HttpPluginProxy(object):
 
     
     def get_data(self, keys, parsed_args):
+        """
+* `keys`. An array of keys for a `sofine` data retrieval
+* `parsed_args` - an array of args to use in a data retrieval call
+
+Proxy wrapper for retrieving data from an HTTP plugin. Calls a pliugin's _required_ `get_data` method. Transforms `keys` and `parsed_args` values into the required query string format that HTTP plugins must expect and support.
+
+This is a very thin proxy with no business logic of its own other than constructing plugin calls to spec.
+"""
         qs_keys = ','.join([urlencode({'x' : key}).split('=')[1] for key in keys])
         qs_args = ','.join([urlencode({'x' : arg}).split('=')[1] for arg in parsed_args])
         ret = self._urlopen(self._plugin_url + 
@@ -57,18 +63,28 @@ class HttpPluginProxy(object):
         return ret 
 
     def get_schema(self):
+        """
+Proxy wrapper for retrieving the schema of data returned by an HTTP plugin.
+
+This is a very thin proxy with no business logic of its own other than constructing plugin calls to spec.
+"""
         ret = self._urlopen(self._plugin_url + '/get_schema')
         ret = ret["schema"]
         return ret
 
 
     def adds_keys(self):
+        """
+Proxy wrapper for discovering whether an HTTP plugin an add keys when the plugin is called
+as part of a chain of `sofine` plugins in one `get_data` call.
+
+This is a very thin proxy with no business logic of its own other than constructing plugin calls to spec.
+"""
         ret = self._urlopen(self._plugin_url + '/adds_keys')
         ret = ret["adds_keys"]
         return ret
 
 
-    # Oh man this is a hack
     # utils.load_module() calls a function plugin(). For Py plugins this is reference
     #  to the class placed in the module as an attribute plugin = class_name. So
     #  it amounts to constructing an instance of the plugin. Here we need to pass

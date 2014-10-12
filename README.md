@@ -310,7 +310,11 @@ Just for fun, here is a second example. This shows you how easy it is to wrap ex
 
 ## How HTTP Data Retrieval Plugins Work and How to Write Them
 
-You may also implement plugins as HTTP servers. In this case you can implement your plugin in any language you want. You call HTTP server plugins the same way you call Python plugins. `sofine` will dynamically construct the URL to call using the following elements: the value you set in the environment variable `SOFINE_HTTP_PLUGIN_URL`, the value you pass for `plugin_name` and the value you pass for `plugin_group`.
+You may also implement plugins as HTTP servers. In this case you can implement your plugin in any language you want. You call HTTP server plugins the same way you call Python plugins, using either the CLI API or the REST API. `sofine` will dynamically construct the URL to call your HTTP plugin using the following elements:
+
+* the value you set in the environment variable `SOFINE_HTTP_PLUGIN_URL`
+* the value you pass for `plugin_name`
+* the value you pass for `plugin_group`
 
 For example, assuming you have set `SOFINE_HTTP_PLUGIN_URL` to be `http://localhostthis `sofine` call:
 
@@ -320,14 +324,7 @@ will call a plugin at this URL:
 
     http://localhost/google_search_results/example_http/get_data
 
-To summarize, to make your HTTP plugins available to `sofine` calls you need to do the following:
-
-* set the environment variable configure `SOFINE_HTTP_PLUGIN_URL`
-* start your plugin
-* expose routes in your plugin that start with `{plugin_name}/{plugin_group}`
-* insure these same routes end with the supported `sofine` actions, as described in the next section 
-
-### Plugin Routes
+### HTTP Plugin Routes
 
 HTTP plugins have four routes, mapping to the methods in Python plugins.
 
