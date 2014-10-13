@@ -21,6 +21,7 @@ python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrit
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_cli_examples.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_py.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_py_examples.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_py_examples_http_plugin.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_runner_from_rest.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrite ./sofine/tests/test_format_csv.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/lib --overwrite ./sofine/lib/utils/utils.py
