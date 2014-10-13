@@ -212,8 +212,8 @@ documentation says "plugin," it means data retrieval plugin. But
 default ``sofine`` expects input on ``stdin`` in JSON format and writes
 JSON to ``stdout``. But there is also a plugin for CSV.
 
-How Data Retrival Plugins Work and How to Write Them
-----------------------------------------------------
+How Python Data Retrieval Plugins Work and How to Write Them
+------------------------------------------------------------
 
 Boilerplate
 ~~~~~~~~~~~
@@ -478,6 +478,157 @@ wrap existing Python API wrappers as ``sofine`` plugins.
             return {ticker : ystockquote.get_all(ticker) for ticker in keys} 
 
     plugin = YStockQuoteLib
+
+How HTTP Data Retrieval Plugins Work and How to Write Them
+----------------------------------------------------------
+
+You may also implement plugins as HTTP servers. In this case you can
+implement your plugin in any language you want. You call HTTP server
+plugins the same way you call Python plugins, using either the CLI API
+or the REST API. ``sofine`` will dynamically construct the URL to call
+your HTTP plugin using the following elements:
+
+-  the value you set in the environment variable
+   ``SOFINE_HTTP_PLUGIN_URL``
+-  the value you pass for ``plugin_name``
+-  the value you pass for ``plugin_group``
+
+For example, assuming you have set ``SOFINE_HTTP_PLUGIN_URL`` to be
+``http://localhostthis``\ sofine\` call:
+
+::
+
+    python $PYTHONPATH/sofine/runner.py '--SF-s google_search_results --SF-g example_http --SF-a get_data
+
+will call a plugin at this URL:
+
+::
+
+    http://localhost/google_search_results/example_http/get_data
+
+HTTP Plugin Routes
+~~~~~~~~~~~~~~~~~~
+
+HTTP plugins have four routes, mapping to the methods in Python plugins.
+
+``/get_data``
+^^^^^^^^^^^^^
+
+``/get_data`` takes a list of keys and a list of arguments. Arguments
+are passed in the query string of the route call as query string
+parameter ``keys`` and ``args`` and so must be retrieved in the
+implementation of your route.
+
+Your route handler must return a dict whose keys are a proper superset
+of the keys it received (the return set of keys can have more keys than
+were passed to ``get_data`` if the plugin adds keys). This dict must
+have string keys and a dict value for each key. The dict value is the
+data retrieved for each key. The keys in that dict must be a set of
+strings that is a proper subset of the set of strings in
+``self.schema``.
+
+``sofine`` ships with an example HTTP plugin written in ruby. It
+reimplements the Python example plugin that calls the Google Search
+Results API. Here is the HTTP plugin ``get_data`` route and handler:
+
+::
+
+    get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/get_data' do
+      keys = params['keys'].split(',')
+      ret = Hash[keys.map {|key| [key, query_google_search(key)]}] 
+      JSON.dump(ret)
+    end
+
+Your HTTP plugin must implement this route.
+
+The call to ``sofine`` to ``get_data`` results in call like this under
+the hood.
+
+::
+
+    127.0.0.1 - - [06/Oct/2014 23:55:16] "GET /google_search_results/example_http/get_data?keys=AAPL,MSFT&args= HTTP/1.1" 200 4648 0.1324
+
+``/get_namespaced_data``
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+A wrapper around ``get_data`` which returns the same data with attribute
+keys wrapped in a namespace of the plugin group and name. This route is
+optional.
+
+``/parse_args``
+^^^^^^^^^^^^^^^
+
+If your ``get_data`` requires no arguments you need not implement
+``parse_args``. But if your ``get_data`` call requires arguments, you
+must implement ``parse_args``. The method takes an ``argv``-style list
+of alternating arg names and values in the query string parameter
+``args``, and is responsible for validating the correctness of argument
+names and values and returing a tuple with two members. The first member
+is a boolean ``is_valid``. The second is the parsed list of argument
+values (without the argument names).
+
+Here is (somewhat trivial) example from the same example HTTP plugin,
+``google_search_results.rb``.
+
+::
+
+    get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/parse_args' do
+      JSON.dump({"parsed_args" => params['args'], "is_valid" => true})
+    end
+     
+
+``/get_schema``
+^^^^^^^^^^^^^^^
+
+You only need to implement this if your plugin doesn't know which
+attributes it returns whencalled. For example the
+``standard/file_source.py`` plugin that is part of ``sofine`` loads an
+aaribtrary set of keys from a flat file and so can't know what data it
+might return.
+
+It returns a JSON object with a single key ``schema``. This key's value
+is the structure of the JSON returned by the route.
+
+An example from the same Google plugin:
+
+::
+
+    get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/get_schema' do
+      '{"schema" : ["results"]}'
+    end
+
+``get_namespaced_schema``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``get_namespaced_schema and names`` returns the set of attribute keys in
+a namespace qualified with the plugin group and name.
+
+An example:
+
+::
+
+    get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/get_schema' do
+      '{"schema" : ["example_http::google_search_results::results"]}'
+    end
+
+``adds_keys``
+^^^^^^^^^^^^^
+
+``adds_keys`` lets users ask your plugin if it adds keys to the data set
+being built when ``sofine`` calls it, or if it just adds attributes for
+the keys it receives.
+
+It returns a JSON object with a single key, ``adds_keys``, which takes a
+boolean value indicating whether or not the plugin adds keys when
+called.
+
+Here is an example from the Google plugin:
+
+::
+
+    get '/' + PLUGIN_NAME + '/' + PLUGIN_GROUP + '/adds_keys' do
+      '{"adds_keys" : false}'
+    end
 
 How Data Format Plugins Work and How to Write Them
 --------------------------------------------------
@@ -1025,16 +1176,18 @@ tells us about.
     # the list of attributes in each 'results' object it returns mapped to each key 
     child_shema = mod.get_child_schema()
 
-Managing Data Retrieval Plugins
--------------------------------
+Managing Python Data Retrieval Plugins
+--------------------------------------
 
 Managing data retrieval plugins is very simple. Pick a directory from
 which you want to call your plugins. Define the environment variable
 ``SOFINE_PLUGIN_PATH`` and assign to it the path to your plugin
 directory.
 
-Plugins themselves are just Python modules fulfilling the requirements
-detailed in the section, "How Plugins Work and How to Write Them."
+Plugins themselves are just Python modules (or code files exposing the
+required HTTP endpoints in the cast of HTTP plugins) fulfilling the
+requirements detailed in the section, "How Plugins Work and How to Write
+Them."
 
 Plugins cannot be deployed at the root of your plugin directory. Instead
 you must create one or more subdirectories and place plugins in them.
@@ -1047,6 +1200,15 @@ This approach means you can manage your plugin directory without any
 dependencies on ``sofine``. You can manage your plugins directory as
 their own code repo, and include unit tests or config files in the
 plugin directory, etc.
+
+Managing HTTP Data Retrieval Plugins
+------------------------------------
+
+``sofine`` requires only one configuration dependency, that you define
+``SOFINE_HTTP_PLUGIN_URL``. Of course at the time you call your plugin,
+it needs to be running at that URL. Beyone that, you can manage the
+source code and deployment of HTTP plugins completely independently of
+``sofine``.
 
 Managing Data Format Plugins
 ----------------------------
