@@ -989,6 +989,7 @@ table {
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">imp</span>
 <span class="kn">import</span> <span class="nn">sofine.lib.utils.conf</span> <span class="kn">as</span> <span class="nn">conf</span>
+<span class="kn">import</span> <span class="nn">sofine.plugins.http_plugin_proxy</span> <span class="kn">as</span> <span class="nn">http_plugin_proxy</span>
 
 
 <span class="k">def</span> <span class="nf">_load_plugin_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
@@ -997,11 +998,19 @@ table {
     <span class="k">try</span><span class="p">:</span>
         <span class="n">module_file</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">module_name</span><span class="p">)</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">module_name</span><span class="p">,</span> <span class="n">module_path</span><span class="p">,</span> <span class="n">module_file</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">module_file</span><span class="p">:</span>
             <span class="n">module_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">module</span>
+
+
+<span class="k">def</span> <span class="nf">_load_plugin_http</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">http_plugin_proxy</span><span class="o">.</span><span class="n">HttpPluginProxy</span><span class="p">()</span>
+    <span class="n">ret</span><span class="o">.</span><span class="n">set_plugin_url</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ret</span>
 
 
 <span class="k">def</span> <span class="nf">load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1034,7 +1043,13 @@ table {
             <span class="n">custom_plugin_base_path</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">custom_plugin_base_path</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">_load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">)</span>
+    
+    <span class="c"># Didn&#39;t find plugin as a Python module so try to find HTTP plugin</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">_load_plugin_http</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ret</span>
 
 
 <span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">):</span>
@@ -1305,7 +1320,13 @@ to declare module scope variables in plugins and use this method (wrapped in
             <span class="n">custom_plugin_base_path</span> <span class="o">+=</span> <span class="p">(</span><span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">plugin_group</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">custom_plugin_base_path</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">_load_plugin_module</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">)</span>
+    
+    <span class="c"># Didn&#39;t find plugin as a Python module so try to find HTTP plugin</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">_load_plugin_http</span><span class="p">(</span><span class="n">plugin_name</span><span class="p">,</span> <span class="n">plugin_group</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ret</span>
 </pre></div>
 
     </div>

@@ -1024,6 +1024,10 @@ base class. For example implementations, see any of the plugins under <code>sofi
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">False</span>
 
 
+    <span class="k">def</span> <span class="nf">get_adds_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span>
+
+
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides the default implementation for a simple plugin that takes no arguments.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -1098,6 +1102,10 @@ base class. For example implementations, see any of the plugins under <code>sofi
         <span class="bp">self</span><span class="o">.</span><span class="n">group</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">schema</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+    <span class="k">def</span> <span class="nf">get_adds_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span>
 
 
     <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argv</span><span class="p">):</span>
@@ -1224,6 +1232,27 @@ if it adds keys to data or just adds attributes to existing keys.</p></div>
 <span class="s">    self.group = None</span>
 <span class="s">    self.schema = []</span>
 <span class="s">    self.adds_keys = False</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+                  
+    <div class="item">
+      <div class="name def" id="plugin_base.PluginBase.get_adds_keys">
+        <p>def <span class="ident">get_adds_keys</span>(</p><p>self)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-plugin_base.PluginBase.get_adds_keys', this);">Show source.</a></p>
+    <div id="source-plugin_base.PluginBase.get_adds_keys" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">get_adds_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adds_keys</span>
 </pre></div>
 
     </div>

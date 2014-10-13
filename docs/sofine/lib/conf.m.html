@@ -985,6 +985,8 @@ in the project root and must be called either <code>sofine.conf</code> or <code>
 <ul>
 <li><code>plugin_path</code> - The path to the user's plugins directory. This can be any reachable path 
 that sofine has permission to read.</li>
+<li><code>http_plugin_url</code> - The user-defined base URL to call for user HTTP plugins.</li>
+<li><code>data_format_plugin_path</code> - The path to the user's data format plugin directory. Data format plugins govern the data format (e.g. the default, JSON) of returned data sets.</li>
 <li><code>rest_port</code> - The port for running the sofine REST server under the <code>localhost</code> domain. 
 The default value is <code>10000</code> defined in <code>example.sofine.conf</code>.</li>
 </ul>
@@ -999,6 +1001,8 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
 
 <span class="sd">* `plugin_path` - The path to the user&#39;s plugins directory. This can be any reachable path </span>
 <span class="sd">that sofine has permission to read.</span>
+<span class="sd">* `http_plugin_url` - The user-defined base URL to call for user HTTP plugins.</span>
+<span class="sd">* `data_format_plugin_path` - The path to the user&#39;s data format plugin directory. Data format plugins govern the data format (e.g. the default, JSON) of returned data sets.</span>
 <span class="sd">* `rest_port` - The port for running the sofine REST server under the `localhost` domain. </span>
 <span class="sd">The default value is `10000` defined in `example.sofine.conf`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
@@ -1049,40 +1053,38 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
     <span class="k">return</span> <span class="n">plugin_conf</span>
 
 
-<span class="c"># Add the plugins direcgory to the system path so the dynamic module load</span>
+<span class="k">def</span> <span class="nf">load_plugin_path</span><span class="p">(</span><span class="n">environ_var</span><span class="p">,</span> <span class="n">conf_key</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="c"># Check environment variables for and prefer those if found</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">environ_var</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">get_plugin_conf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">plugin_conf</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="n">conf_key</span><span class="p">]</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">warn</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Plugin Path not defined in {0} environment variable or {1} key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">environ_var</span><span class="p">,</span> <span class="n">conf_key</span><span class="p">),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">path</span>
+
+
+<span class="c"># Add the plugins directory to the system path so the dynamic module load</span>
 <span class="c">#  finds any plugins in their and load_module just works</span>
 <span class="n">PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;/plugins&#39;</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">PLUGIN_BASE_PATH</span><span class="p">)</span> 
 
-<span class="c"># Check environment variables for and prefer those if found</span>
-<span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_PLUGIN_PATH&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">)</span> 
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">get_plugin_conf</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">plugin_conf</span><span class="p">:</span>
-        <span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="s">&#39;plugin_path&#39;</span><span class="p">]</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">)</span> 
+<span class="n">CUSTOM_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="n">load_plugin_path</span><span class="p">(</span><span class="s">&#39;SOFINE_PLUGIN_PATH&#39;</span><span class="p">,</span> <span class="s">&#39;plugin_path&#39;</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="ow">not</span> <span class="n">CUSTOM_PLUGIN_BASE_PATH</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Plugin Path not defined in SOFINE_PLUGIN_PATH environment variable or &quot;plugin_path&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
-
+<span class="n">CUSTOM_HTTP_PLUGIN_URL</span> <span class="o">=</span> <span class="n">load_plugin_path</span><span class="p">(</span><span class="s">&#39;SOFINE_HTTP_PLUGIN_URL&#39;</span><span class="p">,</span> <span class="s">&#39;http_plugin_url&#39;</span><span class="p">)</span>
 
 <span class="n">DATA_FORMAT_PLUGIN_BASE_PATH</span> <span class="o">=</span> <span class="s">&#39;/&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="s">&#39;/data_format_plugins&#39;</span>
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">DATA_FORMAT_PLUGIN_BASE_PATH</span><span class="p">)</span> 
 
 <span class="c"># Check environment variables for and prefer those if found</span>
-<span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_DATA_FORMAT_PLUGIN_PATH&#39;</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span><span class="p">:</span>
-    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span><span class="p">)</span> 
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">get_plugin_conf</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">plugin_conf</span><span class="p">:</span>
-        <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="s">&#39;output_format_plugin_path&#39;</span><span class="p">]</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span><span class="p">)</span> 
-
-<span class="c">#if not CUSTOM_DATA_FORMAT_PLUGIN_PATH:</span>
-<span class="c">#    print(&#39;Data Format Plugin Path not defined in SOFINE_DATA_FORMAT_PLUGIN_PATH environment variable or &quot;data_format_plugin_path&quot; key in &quot;sofine.conf&quot; in sofine root directory&#39;, file=sys.stderr)</span>
+<span class="n">warn</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span> <span class="o">=</span> <span class="n">load_plugin_path</span><span class="p">(</span><span class="s">&#39;SOFINE_DATA_FORMAT_PLUGIN_PATH&#39;</span><span class="p">,</span> <span class="s">&#39;data_format_plugin_path&#39;</span><span class="p">,</span> <span class="n">warn</span><span class="p">)</span>
 
 
 <span class="n">REST_PORT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SOFINE_REST_PORT&#39;</span><span class="p">)</span>
@@ -1108,6 +1110,14 @@ The default value is <code>10000</code> defined in <code>example.sofine.conf</co
   <h2 id="header-variables">Module variables</h2>
       <div class="item">
         <p id="conf.CUSTOM_DATA_FORMAT_PLUGIN_PATH" class="name">var <span class="ident">CUSTOM_DATA_FORMAT_PLUGIN_PATH</span></p>
+        
+  
+    <div class="source_cont">
+</div>
+
+      </div>
+      <div class="item">
+        <p id="conf.CUSTOM_HTTP_PLUGIN_URL" class="name">var <span class="ident">CUSTOM_HTTP_PLUGIN_URL</span></p>
         
   
     <div class="source_cont">
@@ -1157,7 +1167,7 @@ does not specify a data format using the <code>--SF-d|--SF-data-format</code> ar
 
       </div>
       <div class="item">
-        <p id="conf.plugin_conf" class="name">var <span class="ident">plugin_conf</span></p>
+        <p id="conf.warn" class="name">var <span class="ident">warn</span></p>
         
   
     <div class="source_cont">
@@ -1188,6 +1198,40 @@ does not specify a data format using the <code>--SF-d|--SF-data-format</code> ar
         <span class="k">pass</span>
 
     <span class="k">return</span> <span class="n">plugin_conf</span>
+</pre></div>
+
+    </div>
+</div>
+
+    </div>
+  
+      
+    <div class="item">
+      <div class="name def" id="conf.load_plugin_path">
+        <p>def <span class="ident">load_plugin_path</span>(</p><p>environ_var, conf_key, warn=True)</p>
+      </div>
+      
+
+      
+  
+    <div class="source_cont">
+    <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-conf.load_plugin_path', this);">Show source.</a></p>
+    <div id="source-conf.load_plugin_path" class="source">
+      <div class="codehilite"><pre><span class="k">def</span> <span class="nf">load_plugin_path</span><span class="p">(</span><span class="n">environ_var</span><span class="p">,</span> <span class="n">conf_key</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="c"># Check environment variables for and prefer those if found</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">environ_var</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">plugin_conf</span> <span class="o">=</span> <span class="n">get_plugin_conf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">plugin_conf</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">plugin_conf</span><span class="p">[</span><span class="n">conf_key</span><span class="p">]</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> 
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span> <span class="ow">and</span> <span class="n">warn</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&#39;Plugin Path not defined in {0} environment variable or {1} key in &quot;sofine.conf&quot; in sofine root directory&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">environ_var</span><span class="p">,</span> <span class="n">conf_key</span><span class="p">),</span> <span class="nb">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">path</span>
 </pre></div>
 
     </div>

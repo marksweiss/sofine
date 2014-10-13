@@ -1035,11 +1035,12 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
     <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span>
+    
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
     
     <span class="n">new_data</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">parsed_args</span><span class="p">)</span>
-        
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c"># Convert returned dict of attributes into a list of individual dicts. This allows all data</span>
@@ -1211,7 +1212,7 @@ using just the plugin name, plugin group and call args.</p>
 <span class="sd">attributes to the dicts being built by sofine for each key in `data`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
-    <span class="n">adds_keys</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">adds_keys</span>
+    <span class="n">adds_keys</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_adds_keys</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">{</span><span class="s">&quot;adds_keys&quot;</span> <span class="p">:</span> <span class="n">adds_keys</span><span class="p">}</span>
 
 
@@ -1449,7 +1450,7 @@ attributes to the dicts being built by sofine for each key in <code>data</code>.
 <span class="sd">attributes to the dicts being built by sofine for each key in `data`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
-    <span class="n">adds_keys</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">adds_keys</span>
+    <span class="n">adds_keys</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_adds_keys</span><span class="p">()</span>
     <span class="k">return</span> <span class="p">{</span><span class="s">&quot;adds_keys&quot;</span> <span class="p">:</span> <span class="n">adds_keys</span><span class="p">}</span>
 </pre></div>
 
@@ -1538,11 +1539,12 @@ is True. </li>
 <span class="sd">&quot;&quot;&quot;</span>
     <span class="n">plugin</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">load_plugin</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
     <span class="n">is_valid</span><span class="p">,</span> <span class="n">parsed_args</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">data_source_args</span><span class="p">)</span>
+    
     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span> <span class="p">(</span><span class="s">&#39;Invalid value passed in call to {0}. Args passed: {1})&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_args</span><span class="p">))</span>
     
     <span class="n">new_data</span> <span class="o">=</span> <span class="n">plugin</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">parsed_args</span><span class="p">)</span>
-        
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c"># Convert returned dict of attributes into a list of individual dicts. This allows all data</span>

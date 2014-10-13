@@ -1012,6 +1012,7 @@ table {
         
         <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://localhost:{0}/SF-s/{1}/SF-g/{2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+
         <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
@@ -1035,6 +1036,7 @@ table {
                 <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> 
                 <span class="n">data_source_1</span><span class="p">,</span> <span class="n">data_source_group_1</span><span class="p">,</span>
                 <span class="n">data_source_2</span><span class="p">,</span> <span class="n">data_source_group_2</span><span class="p">)</span>
+        
         <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
@@ -1120,6 +1122,7 @@ table {
         
         <span class="n">url</span> <span class="o">=</span> <span class="s">&#39;http://localhost:{0}/SF-s/{1}/SF-g/{2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                 <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> <span class="n">data_source</span><span class="p">,</span> <span class="n">data_source_group</span><span class="p">)</span>
+
         <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
@@ -1143,6 +1146,7 @@ table {
                 <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> 
                 <span class="n">data_source_1</span><span class="p">,</span> <span class="n">data_source_group_1</span><span class="p">,</span>
                 <span class="n">data_source_2</span><span class="p">,</span> <span class="n">data_source_group_2</span><span class="p">)</span>
+        
         <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
@@ -1292,6 +1296,7 @@ table {
             <span class="n">conf</span><span class="o">.</span><span class="n">REST_PORT</span><span class="p">,</span> 
             <span class="n">data_source_1</span><span class="p">,</span> <span class="n">data_source_group_1</span><span class="p">,</span>
             <span class="n">data_source_2</span><span class="p">,</span> <span class="n">data_source_group_2</span><span class="p">)</span>
+    
     <span class="n">ret</span> <span class="o">=</span> <span class="n">urllib2</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post_data</span><span class="p">))</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
     <span class="n">ret</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
