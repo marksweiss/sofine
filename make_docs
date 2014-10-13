@@ -26,6 +26,7 @@ python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/tests --overwrit
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/lib --overwrite ./sofine/lib/utils/utils.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/lib --overwrite ./sofine/lib/utils/conf.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins --overwrite ./sofine/plugins/plugin_base.py
+python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins --overwrite ./sofine/plugins/http_plugin_proxy.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/archive_dot_org_search_results.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/fidelity.py
 python ~/code/pdoc/scripts/pdoc --html --html-dir ./docs/sofine/plugins/example --overwrite ./sofine/plugins/example/google_search_results.py
