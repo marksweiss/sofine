@@ -27,3 +27,9 @@ v.0.2.3
 - Added tests for XML data format plugin
 - Added README documentation for all data format plugins
 
+v 0.2.4.2
+- Added support for writing data retrieval plugins as HTTP servers
+- Added a sample HTTP data retrieval plugin sofine/plugins/example_http/google_search_results.rb
+- Added an automated test for sofine/plugins/example_http/google_search_results.rb
+- Added documentation in README about how to create, call and manage HTTP data retrieval plugin
+- Updated developer code documenation to include new file, /sofine/plugins/http_plugin_proxy.py, which sofine uses to call plugins
