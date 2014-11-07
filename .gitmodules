@@ -1,0 +1,3 @@
+[submodule "pdoc"]
+	path = pdoc
+	url = https://github.com/marksweiss/pdoc
